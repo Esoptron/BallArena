@@ -3,7 +3,7 @@ class_name ArenaBall
 extends RigidBody2D
 ## A frictionless circle. Godot resolves contacts; we maintain its target speed.
 
-@export_range(4.0, 256.0, 1.0) var diameter: float = 44.0:
+@export_range(4.0, 256.0, 1.0) var diameter: float = 70.0:
 	set(value):
 		diameter = value
 		_update_shape()

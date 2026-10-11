@@ -36,7 +36,7 @@ func _run() -> void:
 
 
 func _new_arena(size: Vector2 = Vector2(960, 600),
-		diameter: float = 44.0, speed: float = 320.0) -> BallArena:
+		diameter: float = 70.0, speed: float = 320.0) -> BallArena:
 	var arena := ARENA_SCENE.instantiate() as BallArena
 	arena.arena_size = size
 	arena.ball_diameter = diameter
@@ -121,17 +121,18 @@ func _test_wall_reflections() -> void:
 		red.position = Vector2(480, 400)
 		var direction := side
 		var p := Vector2(480, 300)
+		var inset := blue.diameter * 0.5 + 10.0
 		if side == Vector2.RIGHT:
-			p = Vector2(928, 220)
+			p = Vector2(arena.arena_size.x - inset, 220)
 			direction = Vector2(1, 0.35)
 		elif side == Vector2.LEFT:
-			p = Vector2(32, 220)
+			p = Vector2(inset, 220)
 			direction = Vector2(-1, 0.35)
 		elif side == Vector2.UP:
-			p = Vector2(320, 32)
+			p = Vector2(320, inset)
 			direction = Vector2(0.35, -1)
 		else:
-			p = Vector2(320, 568)
+			p = Vector2(320, arena.arena_size.y - inset)
 			direction = Vector2(0.35, 1)
 		_place(blue, p, direction)
 		await _simulate(arena, 30)
@@ -142,7 +143,8 @@ func _test_wall_reflections() -> void:
 	var arena := _new_arena()
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	(arena.get_node("Balls/RedBall") as ArenaBall).freeze = true
-	_place(blue, Vector2(936, 576), Vector2(1, 1))
+	_place(blue, arena.arena_size - Vector2.ONE * (blue.diameter * 0.5 + 2.0),
+		Vector2(1, 1))
 	await _simulate(arena, 30)
 	_check(blue.linear_velocity.x < 0.0 and blue.linear_velocity.y < 0.0,
 		"A corner hit must reflect both velocity components.")

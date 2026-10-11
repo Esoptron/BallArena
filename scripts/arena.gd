@@ -7,7 +7,7 @@ extends Node2D
 	set(value):
 		arena_size = value
 		queue_redraw()
-@export_range(4.0, 256.0, 1.0) var ball_diameter: float = 44.0
+@export_range(4.0, 256.0, 1.0) var ball_diameter: float = 70.0
 @export_range(1.0, 2000.0, 1.0) var ball_speed: float = 320.0
 @export_range(2.0, 64.0, 1.0) var wall_thickness: float = 12.0
 @export var floor_color: Color = Color(0.075, 0.095, 0.13)
