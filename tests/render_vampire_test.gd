@@ -30,14 +30,30 @@ func capture() -> void:
 	var red := main.get_node("Arena/Balls/RedBall") as ArenaBall
 	await frames(6)
 	await save_frame("vampire-aura.png")
-	await frames(142)
 	var blue_fangs := blue.get_node("Vampire") as VampireFangs
 	var red_fangs := red.get_node("Vampire") as VampireFangs
-	if blue_fangs.has_bitten or not red_fangs.has_bitten:
-		push_error("The default gameplay must produce a red bite without a blue bite.")
+	blue.position = Vector2(430, 300)
+	red.position = Vector2(520, 300)
+	blue.reset_physics_interpolation()
+	red.reset_physics_interpolation()
+	if not red_fangs.try_bite(blue):
+		push_error("Red bite did not start.")
+		quit(1)
+		return
+	await frames(36)
+	await save_frame("vampire-protected-bite.png")
+	if not red.is_invulnerable() or not red.freeze or not blue.freeze:
+		push_error("Both fighters must stop and the red vampire must be protected.")
+		quit(1)
+		return
+	await frames(150)
+	if red.is_invulnerable() or blue.bite_marks.size() != 2:
+		push_error("Release must remove protection and leave bite wounds.")
 		quit(1)
 		return
 	await save_frame("vampire-blood.png")
+	await frames(115)
+	await save_frame("vampire-wounds.png")
 	blue_fangs.call("_finish_bite")
 	red_fangs.call("_finish_bite")
 	blue_fangs.cooldown_remaining = 1000.0

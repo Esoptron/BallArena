@@ -28,7 +28,13 @@ var opponent: ArenaBall
 var blood_effects: Node2D
 var _last_direction: Vector2 = Vector2.RIGHT
 var _visual_time: float = 0.0
-var _paralyzed_at_frame: int = -1
+var attack_recovery_remaining: float = 0.0
+var _motion_holds: Dictionary = {}
+var _protection_sources: Dictionary = {}
+var bite_marks: PackedVector2Array = PackedVector2Array()
+var bite_marks_remaining: float = 0.0
+var wound_bleeding_remaining: float = 0.0
+var _wound_drip_elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -63,21 +69,20 @@ func _physics_process(delta: float) -> void:
 	if not Engine.is_editor_hint():
 		_visual_time += delta
 		_sync_pulse_shape()
+		_advance_bite_marks(delta)
+		attack_recovery_remaining = maxf(0.0, attack_recovery_remaining - delta)
 	if Engine.is_editor_hint() or paralysis_remaining <= 0.0:
 		return
 	paralysis_remaining = maxf(0.0, paralysis_remaining - delta)
 	if paralysis_remaining <= 0.000001:
 		paralysis_remaining = 0.0
-		if current_health > 0:
-			freeze = false
-			linear_velocity = _last_direction * movement_speed
-			reset_physics_interpolation()
+		_refresh_motion()
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	if Engine.is_editor_hint():
 		return
-	if current_health <= 0 or is_paralyzed():
+	if current_health <= 0 or is_immobilized():
 		state.linear_velocity = Vector2.ZERO
 		return
 	if not state.linear_velocity.is_zero_approx():
@@ -91,9 +96,12 @@ func is_paralyzed() -> bool:
 
 
 func can_start_bite() -> bool:
-	# Both vampires may land a simultaneous opening bite on the same physics tick.
-	return is_vampire and current_health > 0 and (
-		not is_paralyzed() or _paralyzed_at_frame == Engine.get_physics_frames())
+	return is_vampire and current_health > 0 and not is_immobilized() \
+		and attack_recovery_remaining <= 0.0
+
+
+func prevent_attacks(duration: float) -> void:
+	attack_recovery_remaining = maxf(attack_recovery_remaining, duration)
 
 
 func paralyze(duration: float) -> void:
@@ -102,12 +110,13 @@ func paralyze(duration: float) -> void:
 	if not linear_velocity.is_zero_approx():
 		_last_direction = linear_velocity.normalized()
 	paralysis_remaining = maxf(paralysis_remaining, duration)
-	_paralyzed_at_frame = Engine.get_physics_frames()
 	freeze = true
 	linear_velocity = Vector2.ZERO
 
 
 func take_damage(amount: int) -> int:
+	if is_invulnerable():
+		return 0
 	var applied := mini(maxi(amount, 0), current_health)
 	current_health -= applied
 	if applied > 0:
@@ -116,6 +125,83 @@ func take_damage(amount: int) -> int:
 		freeze = true
 		linear_velocity = Vector2.ZERO
 	return applied
+
+
+# Shared status API: any future ability can hold motion or grant protection.
+func is_immobilized() -> bool:
+	return is_paralyzed() or not _motion_holds.is_empty()
+
+
+func is_invulnerable() -> bool:
+	return not _protection_sources.is_empty()
+
+
+func hold_motion(source: Node) -> void:
+	_motion_holds[source.get_instance_id()] = true
+	freeze = true
+	linear_velocity = Vector2.ZERO
+
+
+func release_motion(source: Node, departure: Vector2) -> void:
+	_motion_holds.erase(source.get_instance_id())
+	if not departure.is_zero_approx():
+		_last_direction = departure.normalized()
+	_refresh_motion()
+
+
+func set_invulnerable(source: Node, enabled: bool) -> void:
+	if enabled:
+		_protection_sources[source.get_instance_id()] = true
+	else:
+		_protection_sources.erase(source.get_instance_id())
+	queue_redraw()
+
+
+func _refresh_motion() -> void:
+	freeze = current_health <= 0 or is_immobilized()
+	if not freeze:
+		linear_velocity = _last_direction * movement_speed
+		reset_physics_interpolation()
+
+
+func body_color() -> Color:
+	if current_health <= 0 and not Engine.is_editor_hint():
+		return ball_color.darkened(0.65)
+	if is_paralyzed():
+		return ball_color.darkened(0.55)
+	return ball_color
+
+
+func apply_bite_marks(attacker_position: Vector2, fang_spacing: float) -> void:
+	var facing := (attacker_position - global_position).normalized()
+	if facing.is_zero_approx():
+		facing = Vector2.LEFT
+	var tangent := facing.orthogonal()
+	var half_spacing := fang_spacing * 0.5
+	var radius := visual_diameter() * 0.5 - 4.0
+	var depth := sqrt(maxf(0.0, radius * radius - half_spacing * half_spacing))
+	bite_marks = PackedVector2Array([
+		to_local(global_position + facing * depth + tangent * half_spacing),
+		to_local(global_position + facing * depth - tangent * half_spacing),
+	])
+	bite_marks_remaining = 3.0
+	wound_bleeding_remaining = 2.0
+	_wound_drip_elapsed = 0.0
+	queue_redraw()
+
+
+func _advance_bite_marks(delta: float) -> void:
+	bite_marks_remaining = maxf(0.0, bite_marks_remaining - delta)
+	var bleeding_step := minf(delta, wound_bleeding_remaining)
+	wound_bleeding_remaining = maxf(0.0, wound_bleeding_remaining - delta)
+	_wound_drip_elapsed += bleeding_step
+	while _wound_drip_elapsed + 0.000001 >= 0.4:
+		_wound_drip_elapsed -= 0.4
+		if is_instance_valid(blood_effects):
+			for point in bite_marks:
+				blood_effects.call("spawn_drop", to_global(point), 4.2)
+	if bite_marks_remaining <= 0.0:
+		bite_marks.clear()
 
 
 func heal(amount: int) -> int:
@@ -160,12 +246,32 @@ func _update_shape() -> void:
 
 func _draw() -> void:
 	var radius := visual_diameter() * 0.5
-	var color := ball_color
-	if current_health <= 0 and not Engine.is_editor_hint():
-		color = color.darkened(0.65)
+	var color := body_color()
 	draw_circle(Vector2.ZERO, radius + 1.5, Color(0.015, 0.02, 0.045))
 	draw_circle(Vector2.ZERO, radius, color.darkened(0.20))
 	draw_circle(Vector2(-radius * 0.14, -radius * 0.17), radius * 0.82, color)
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 96, color.lightened(0.15), 1.0, true)
 	draw_circle(Vector2(-radius * 0.46, -radius * 0.53), radius * 0.095,
 		Color(0.75, 0.95, 1.0, 0.8))
+
+	for point in bite_marks:
+		draw_circle(point, 3.5, Color(0.10, 0.005, 0.02))
+		draw_circle(point, 2.3, Color(0.34, 0.01, 0.045))
+	if is_invulnerable():
+		_draw_protection(radius)
+
+
+func _draw_protection(radius: float) -> void:
+	# A breathing luminous seal, with three orbiting segments: shared by all characters.
+	var pulse := 0.5 + 0.5 * sin(_visual_time * TAU * 2.5)
+	var shield_radius := radius + 6.0 + 2.0 * pulse
+	draw_arc(Vector2.ZERO, shield_radius, 0.0, TAU, 96,
+		Color(0.32, 0.94, 1.0, 0.10 + 0.10 * pulse), 9.0, true)
+	draw_arc(Vector2.ZERO, shield_radius, 0.0, TAU, 96,
+		Color(0.65, 1.0, 1.0, 0.6 + 0.3 * pulse), 1.7, true)
+	for index in 3:
+		var angle := _visual_time * 2.4 + float(index) * TAU / 3.0
+		draw_arc(Vector2.ZERO, shield_radius + 3.0, angle, angle + TAU * 0.19,
+			24, Color(0.56, 0.98, 1.0, 0.9), 3.3, true)
+		var tip := Vector2.from_angle(angle + TAU * 0.19) * (shield_radius + 3.0)
+		draw_circle(tip, 2.4, Color(0.90, 1.0, 1.0))

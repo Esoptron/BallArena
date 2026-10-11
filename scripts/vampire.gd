@@ -11,7 +11,7 @@ signal bite_finished
 @export_range(1, 100, 1) var bite_units: int = 10
 @export_range(0.0, 100.0, 1.0) var bite_reach: float = 30.0
 @export_range(0.0, 30.0, 0.1) var recovery_time: float = 1.0
-@export_range(0.05, 2.0, 0.01) var drip_interval: float = 0.24
+@export_range(0.05, 2.0, 0.01) var drip_interval: float = 0.72
 
 var has_bitten: bool = false
 var ticks_remaining: int = 0
@@ -85,7 +85,7 @@ func _physics_process(delta: float) -> void:
 func try_bite(victim: ArenaBall) -> bool:
 	if not fighter.can_start_bite() or ticks_remaining > 0 or cooldown_remaining > 0.0:
 		return false
-	if not is_instance_valid(victim) or victim == fighter or victim.current_health <= 0:
+	if not is_instance_valid(victim) or victim == fighter or victim.current_health <= 0 or victim.is_invulnerable():
 		return false
 	bite_target = victim
 	ticks_remaining = bite_units
@@ -93,6 +93,10 @@ func try_bite(victim: ArenaBall) -> bool:
 	cooldown_remaining = bite_duration + recovery_time
 	has_bitten = true
 	_drip_elapsed = 0.0
+	aim_at_opponent()
+	fighter.hold_motion(self)
+	fighter.set_invulnerable(self, true)
+	victim.hold_motion(self)
 	victim.paralyze(bite_duration)
 	bite_started.emit(victim)
 	queue_redraw()
@@ -100,17 +104,42 @@ func try_bite(victim: ArenaBall) -> bool:
 
 
 func _finish_bite() -> void:
+	if bite_target == null:
+		return
+	var victim := bite_target
+	var completed := ticks_remaining == 0
 	ticks_remaining = 0
 	bite_target = null
 	_tick_elapsed = 0.0
+	var away := Vector2.UP.rotated(global_rotation)
+	if is_instance_valid(victim):
+		away = (victim.global_position - fighter.global_position).normalized()
+		if away.is_zero_approx():
+			away = Vector2.RIGHT
+		if completed and victim.current_health > 0:
+			victim.apply_bite_marks(fighter.global_position, fang_spacing())
+		victim.prevent_attacks(recovery_time)
+		victim.release_motion(self, away)
+	fighter.set_invulnerable(self, false)
+	fighter.release_motion(self, -away)
 	bite_finished.emit()
+
+
+func _exit_tree() -> void:
+	if is_instance_valid(fighter) and bite_target != null:
+		_finish_bite()
+
+
+func fang_spacing() -> float:
+	# The separation of the two long tooth tips, including their inward tilt.
+	return fighter.visual_diameter() * 0.59
 
 
 func _emit_drips() -> void:
 	if not is_instance_valid(fighter.blood_effects):
 		return
 	for origin in blood_origins():
-		fighter.blood_effects.call("spawn_drop", to_global(origin), 2.8)
+		fighter.blood_effects.call("spawn_drop", to_global(origin), 4.2)
 
 
 func blood_origins() -> PackedVector2Array:

@@ -19,7 +19,8 @@ func check(condition: bool, message: String) -> void:
 func run_checks() -> void:
 	await test_default_matchup()
 	await test_bite_schedule()
-	await test_simultaneous_bites()
+	await test_protected_bite()
+	await test_shared_statuses_and_wounds()
 	await test_visuals_and_health()
 	await test_live_low_health()
 	test_blood()
@@ -91,10 +92,16 @@ func test_bite_schedule() -> void:
 	blue.current_health = 50
 	fangs.bite_tick.connect(on_bite_tick)
 	var pinned_position := red.position
+	var attacker_position := blue.position
 	check(fangs.try_bite(red), "First bite should start.")
 	check(not fangs.try_bite(red), "A bite must not stack/restart itself.")
 	check(fangs.has_bitten and red.is_paralyzed() and red.freeze,
 		"Bite should replace aura and immediately paralyze the victim.")
+	check(blue.freeze and blue.is_invulnerable(), "Attacker must be stopped and invulnerable during its bite.")
+	check(blue.take_damage(7) == 0 and blue.current_health == 50,
+		"Invulnerability must block actual damage.")
+	check(red.body_color().v < red.ball_color.v * 0.6,
+		"Paralyzed victim must be visibly darker.")
 	check(red.current_health == 100 and blue.current_health == 50,
 		"Bite must not apply all damage/healing instantly.")
 	await ticks(77)
@@ -103,6 +110,8 @@ func test_bite_schedule() -> void:
 	await ticks(620)
 	check(red.is_paralyzed() and red.position.distance_to(pinned_position) < 0.01,
 		"Victim must stay fixed throughout the 3-second bite.")
+	check(blue.position.distance_to(attacker_position) < 0.01 and blue.freeze,
+		"Attacker must remain fixed for the entire bite.")
 	check(tick_damage.size() == 9, "Nine ticks should have completed before 3 seconds.")
 	await ticks(50)
 	check(red.current_health == 90 and blue.current_health == 60,
@@ -116,13 +125,23 @@ func test_bite_schedule() -> void:
 	check(not red.is_paralyzed() and not red.freeze, "Paralysis should end at three seconds.")
 	check(absf(red.linear_velocity.length() - red.movement_speed) < 0.05,
 		"Victim should recover its original movement speed.")
+	check(not blue.is_invulnerable() and not blue.freeze, "Attacker protection and hold must end with the bite.")
+	var separation := (red.position - blue.position).normalized()
+	check(blue.linear_velocity.normalized().dot(separation) < -0.99
+		and red.linear_velocity.normalized().dot(separation) > 0.99,
+		"After a bite both balls must depart away from each other.")
+	check(red.bite_marks.size() == 2 and red.bite_marks_remaining > 2.8
+		and red.wound_bleeding_remaining > 1.8, "Completed bite must leave timed wounds and bleeding.")
+	check(is_equal_approx(red.bite_marks[0].distance_to(red.bite_marks[1]), fangs.fang_spacing()),
+		"Bite marks must match long fang tip spacing.")
+	check(red.body_color().is_equal_approx(red.ball_color), "Victim color must restore after paralysis.")
 	check(not fangs.try_bite(red), "Recovery period should prevent an immediate new bite.")
 	await ticks(250)
 	check(fangs.try_bite(red), "Bite should become available after recovery.")
 	await remove_arena(arena)
 
 
-func test_simultaneous_bites() -> void:
+func test_protected_bite() -> void:
 	var arena := new_arena()
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
@@ -134,14 +153,64 @@ func test_simultaneous_bites() -> void:
 	await ticks(10)
 	var blue_fangs := blue.get_node("Vampire") as VampireFangs
 	var red_fangs := red.get_node("Vampire") as VampireFangs
-	check(blue_fangs.has_bitten and red_fangs.has_bitten,
-		"Two vampires must be able to land a simultaneous bite without node-order bias.")
-	check(blue.is_paralyzed() and red.is_paralyzed(), "Both simultaneous victims should be paralyzed.")
+	check(blue_fangs.has_bitten != red_fangs.has_bitten,
+		"An invulnerable attacker must prevent a reciprocal bite.")
+	var attacker := blue if blue_fangs.has_bitten else red
+	var victim := red if blue_fangs.has_bitten else blue
+	check(attacker.is_invulnerable() and attacker.freeze and victim.is_paralyzed() and victim.freeze,
+		"Both balls must stop, with protection only on the attacker.")
+	check(blue.current_health == 100 and red.current_health == 100,
+		"Opening a protected bite must not deal instant damage.")
 	await ticks(780)
-	check(not blue.is_paralyzed() and not red.is_paralyzed(),
-		"Both vampires should resume movement after their simultaneous bites.")
-	check(blue_fangs.ticks_remaining == 0 and red_fangs.ticks_remaining == 0,
-		"Both bite schedules should finish without stacking.")
+	check(not blue.is_immobilized() and not red.is_immobilized()
+		and not attacker.is_invulnerable(), "Bite must clean up movement and protection states.")
+	check(victim.current_health == 90 and attacker.current_health == 100,
+		"Protected vampire must deal ten damage without receiving reciprocal damage.")
+	await remove_arena(arena)
+
+
+func test_shared_statuses_and_wounds() -> void:
+	var arena := new_arena()
+	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+	var red := arena.get_node("Balls/RedBall") as ArenaBall
+	blue.set_physics_process(false)
+	red.set_physics_process(false)
+	var source_a := Node.new()
+	var source_b := Node.new()
+	root.add_child(source_a)
+	root.add_child(source_b)
+	blue.set_invulnerable(source_a, true)
+	blue.set_invulnerable(source_b, true)
+	blue.set_invulnerable(source_a, false)
+	check(blue.is_invulnerable() and blue.take_damage(5) == 0,
+		"One ability must not remove another ability's protection.")
+	blue.set_invulnerable(source_b, false)
+	check(blue.take_damage(5) == 5, "Damage must resume after all protection sources end.")
+	blue.hold_motion(source_a)
+	blue.hold_motion(source_b)
+	blue.release_motion(source_a, Vector2.LEFT)
+	check(blue.freeze, "One ability must not release another ability's movement hold.")
+	blue.release_motion(source_b, Vector2.RIGHT)
+	check(not blue.freeze and blue.linear_velocity.x > 0, "Last movement hold must release correctly.")
+	var blood := arena.get_node("BloodEffects") as ArenaBlood
+	blood.set_process(false)
+	blood.drops.clear()
+	blue.apply_bite_marks(red.global_position, 41.3)
+	check(is_equal_approx(blue.bite_marks[0].distance_to(blue.bite_marks[1]), 41.3),
+		"Wounds must retain the requested fang spacing.")
+	blue.call("_advance_bite_marks", 1.9)
+	check(blood.drops.size() == 8 and blue.bite_marks.size() == 2,
+		"Wound bleeding must emit sparse pairs while marks remain.")
+	blue.call("_advance_bite_marks", 0.2)
+	check(blood.drops.size() == 10 and blue.wound_bleeding_remaining == 0.0,
+		"Wound bleeding must stop at two seconds.")
+	for drop in blood.drops:
+		check(is_equal_approx(drop["radius"], 4.2), "New blood drops must be 1.5 times the old radius.")
+	blue.call("_advance_bite_marks", 0.91)
+	check(blue.bite_marks.is_empty() and blood.drops.size() == 10,
+		"Marks must disappear after three seconds without additional bleeding.")
+	source_a.queue_free()
+	source_b.queue_free()
 	await remove_arena(arena)
 
 
@@ -224,7 +293,7 @@ func test_live_low_health() -> void:
 			check(radius >= 24.999 and radius <= 35.001, "Pulsating collider exceeded its 50-70 size range.")
 			check(ball.current_health >= 0 and ball.current_health <= ball.max_health,
 				"Live combat exceeded health bounds.")
-			if ball.is_paralyzed():
+			if ball.is_immobilized():
 				check(ball.freeze, "Live paralysis failed to hold a victim.")
 			elif ball.current_health > 0:
 				check(absf(ball.linear_velocity.length() - ball.movement_speed) < 0.05,
