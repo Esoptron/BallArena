@@ -1,0 +1,31 @@
+; Open this file with Godot 4.3 or newer, then press F5 to run.
+config_version=5
+
+[application]
+
+config/name="BallArena"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=900
+window/size/window_width_override=1280
+window/size/window_height_override=900
+window/stretch/mode="disabled"
+window/handheld/orientation=6
+
+[physics]
+
+common/physics_ticks_per_second=240
+common/physics_interpolation=true
+2d/default_gravity=0.0
+2d/default_linear_damp=0.0
+2d/default_angular_damp=0.0
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.035, 0.045, 0.065, 1)

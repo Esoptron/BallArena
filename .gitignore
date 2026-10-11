@@ -1,0 +1,5 @@
+# Godot's generated imports and editor data.
+.godot/
+# Exported builds and captured test images.
+/builds/
+/test-captures/

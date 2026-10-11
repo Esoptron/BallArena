@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" path="res://scenes/ball.tscn" id="2_ball"]
+
+[node name="Arena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Walls" type="Node2D" parent="."]
+
+[node name="Balls" type="Node2D" parent="."]
+
+[node name="BlueBall" parent="Balls" instance=ExtResource("2_ball")]
+position = Vector2(268.8, 228)
+ball_color = Color(0.16, 0.48, 1, 1)
+initial_direction = Vector2(1, 0.29)
+
+[node name="RedBall" parent="Balls" instance=ExtResource("2_ball")]
+position = Vector2(691.2, 372)
+ball_color = Color(1, 0.22, 0.26, 1)
+initial_direction = Vector2(-1, -0.29)
