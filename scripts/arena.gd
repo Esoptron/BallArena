@@ -27,6 +27,11 @@ func _ready() -> void:
 	red.position = arena_size * Vector2(0.72, 0.62)
 	blue.configure(ball_diameter, ball_speed)
 	red.configure(ball_diameter, ball_speed)
+	blue.opponent = red
+	red.opponent = blue
+	blue.blood_effects = $BloodEffects
+	red.blood_effects = $BloodEffects
+	$BloodEffects.floor_y = arena_size.y
 
 
 func _create_walls() -> void:

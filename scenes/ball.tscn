@@ -1,6 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ball.gd" id="1_ball"]
+
+[ext_resource type="Script" path="res://scripts/vampire.gd" id="2_vampire"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
 friction = 0.0
@@ -24,3 +26,7 @@ script = ExtResource("1_ball")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_ball")
+
+[node name="Vampire" type="Node2D" parent="."]
+show_behind_parent = true
+script = ExtResource("2_vampire")
