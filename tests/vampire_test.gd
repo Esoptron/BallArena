@@ -17,6 +17,7 @@ func check(condition: bool, message: String) -> void:
 
 
 func run_checks() -> void:
+	await test_default_matchup()
 	await test_bite_schedule()
 	await test_simultaneous_bites()
 	await test_visuals_and_health()
@@ -51,6 +52,32 @@ func on_bite_tick(_victim: ArenaBall, damage: int, healing: int) -> void:
 	tick_healing.append(healing)
 
 
+func test_default_matchup() -> void:
+	var arena := new_arena()
+	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+	var red := arena.get_node("Balls/RedBall") as ArenaBall
+	var blue_fangs := blue.get_node("Vampire") as VampireFangs
+	var red_fangs := red.get_node("Vampire") as VampireFangs
+	check(not blue.is_vampire and red.is_vampire,
+		"Default match must use a normal blue ball and a red vampire.")
+	blue.current_health = 20
+	blue.set("_visual_time", 0.5 / blue.pulse_frequency)
+	blue.call("_sync_pulse_shape")
+	var shape := (blue.get_node("CollisionShape2D") as CollisionShape2D).shape as CircleShape2D
+	check(is_equal_approx(blue.visual_diameter(), 70.0) and is_equal_approx(shape.radius, 35.0),
+		"A normal blue ball must not use the vampire low-health pulse.")
+	check(not blue_fangs.try_bite(red), "Normal blue ball must not start vampire attacks.")
+	red.current_health = 50
+	await ticks(600)
+	check(red_fangs.has_bitten and not blue_fangs.has_bitten,
+		"Default gameplay must produce only the red vampire's bite.")
+	check(blue.is_paralyzed() and blue.current_health < 20 and red.current_health > 50,
+		"Red vampire must paralyze/damage blue and heal itself in default gameplay.")
+	check(not blue_fangs.visible and red_fangs.visible,
+		"Only red vampire fangs and effects must be visible in the default scene.")
+	await remove_arena(arena)
+
+
 func test_bite_schedule() -> void:
 	var arena := new_arena()
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
@@ -58,6 +85,7 @@ func test_bite_schedule() -> void:
 	var fangs := blue.get_node("Vampire") as VampireFangs
 	blue.opponent = null
 	red.opponent = null
+	blue.is_vampire = true
 	red.is_vampire = false
 	blue.freeze = true
 	blue.current_health = 50
@@ -98,6 +126,7 @@ func test_simultaneous_bites() -> void:
 	var arena := new_arena()
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
+	blue.is_vampire = true
 	blue.position = Vector2(430, 300)
 	red.position = Vector2(520, 300)
 	blue.reset_physics_interpolation()
@@ -121,6 +150,7 @@ func test_visuals_and_health() -> void:
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
 	var fangs := blue.get_node("Vampire") as VampireFangs
+	blue.is_vampire = true
 	blue.freeze = true
 	red.freeze = true
 	red.position = blue.position + Vector2(50, 180)
@@ -181,6 +211,7 @@ func test_live_low_health() -> void:
 	var arena := new_arena()
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
+	blue.is_vampire = true
 	blue.current_health = 20
 	red.current_health = 25
 	var blood := arena.get_node("BloodEffects") as ArenaBlood

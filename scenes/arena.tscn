@@ -20,8 +20,10 @@ script = ExtResource("3_blood")
 position = Vector2(268.8, 228)
 ball_color = Color(0.16, 0.48, 1, 1)
 initial_direction = Vector2(1, 0.29)
+is_vampire = false
 
 [node name="RedBall" parent="Balls" instance=ExtResource("2_ball")]
 position = Vector2(691.2, 372)
 ball_color = Color(1, 0.22, 0.26, 1)
 initial_direction = Vector2(-1, -0.29)
+is_vampire = true

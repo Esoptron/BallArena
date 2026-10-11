@@ -33,8 +33,8 @@ func capture() -> void:
 	await frames(142)
 	var blue_fangs := blue.get_node("Vampire") as VampireFangs
 	var red_fangs := red.get_node("Vampire") as VampireFangs
-	if not blue_fangs.has_bitten or not red_fangs.has_bitten:
-		push_error("The default gameplay failed to produce both first bites.")
+	if blue_fangs.has_bitten or not red_fangs.has_bitten:
+		push_error("The default gameplay must produce a red bite without a blue bite.")
 		quit(1)
 		return
 	await save_frame("vampire-blood.png")
@@ -42,21 +42,21 @@ func capture() -> void:
 	red_fangs.call("_finish_bite")
 	blue_fangs.cooldown_remaining = 1000.0
 	red_fangs.cooldown_remaining = 1000.0
-	blue.current_health = 20
+	red.current_health = 20
 	blue.freeze = true
 	red.freeze = true
 	blue.position = Vector2(350, 270)
 	red.position = Vector2(640, 360)
 	blue.reset_physics_interpolation()
 	red.reset_physics_interpolation()
-	blue.set_process(false)
-	blue.set_physics_process(false)
-	blue.set("_visual_time", 0.0)
-	blue.queue_redraw()
+	red.set_process(false)
+	red.set_physics_process(false)
+	red.set("_visual_time", 0.0)
+	red.queue_redraw()
 	await frames(2)
 	await save_frame("vampire-low-health-70.png")
-	blue.set("_visual_time", 0.5 / blue.pulse_frequency)
-	blue.queue_redraw()
+	red.set("_visual_time", 0.5 / red.pulse_frequency)
+	red.queue_redraw()
 	await frames(2)
 	await save_frame("vampire-low-health-50.png")
 	print("PASS: rendered aura, first-bite blood, and 70/50 low-health pulse from the canonical Desktop project")

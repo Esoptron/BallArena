@@ -134,7 +134,7 @@ func has_low_health() -> bool:
 
 
 func visual_diameter() -> float:
-	if not has_low_health():
+	if not is_vampire or not has_low_health():
 		return diameter
 	var wave := (1.0 - cos(_visual_time * TAU * pulse_frequency)) * 0.5
 	return diameter * lerpf(1.0, pulse_minimum_ratio, wave)
