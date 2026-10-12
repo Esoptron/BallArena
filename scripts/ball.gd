@@ -21,6 +21,8 @@ signal health_changed(value: int, maximum: int)
 @export_range(0.0, 1.0, 0.01) var low_health_threshold: float = 0.30
 @export_range(0.0, 20.0, 0.1) var pulse_frequency: float = 4.0
 @export_range(0.1, 1.0, 0.01) var pulse_minimum_ratio: float = 50.0 / 70.0
+@export_range(0.0, 0.15, 0.005) var bite_pulse_amount: float = 0.05
+@export_range(0.1, 10.0, 0.1) var bite_pulse_frequency: float = 2.0
 
 var current_health: int = 100
 var paralysis_remaining: float = 0.0
@@ -35,6 +37,9 @@ var bite_marks: PackedVector2Array = PackedVector2Array()
 var bite_marks_remaining: float = 0.0
 var wound_bleeding_remaining: float = 0.0
 var _wound_drip_elapsed: float = 0.0
+var is_feeding: bool = false
+var bite_body_base: float = 70.0
+var bite_pulse_elapsed: float = 0.0
 
 
 func _ready() -> void:
@@ -73,6 +78,8 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if not Engine.is_editor_hint():
 		_visual_time += delta
+		if is_feeding:
+			bite_pulse_elapsed += delta
 		_sync_pulse_shape()
 		_advance_bite_marks(delta)
 		attack_recovery_remaining = maxf(0.0, attack_recovery_remaining - delta)
@@ -224,7 +231,20 @@ func has_low_health() -> bool:
 	return health > 0 and float(health) / max_health < low_health_threshold
 
 
+func begin_feeding(base_diameter: float) -> void:
+	bite_body_base = base_diameter
+	bite_pulse_elapsed = 0.0
+	is_feeding = true
+
+
+func end_feeding() -> void:
+	is_feeding = false
+
+
 func visual_diameter() -> float:
+	if is_feeding:
+		var breath := (1.0 - cos(bite_pulse_elapsed * TAU * bite_pulse_frequency)) * 0.5
+		return bite_body_base * (1.0 - bite_pulse_amount * breath)
 	if not is_vampire or not has_low_health():
 		return diameter
 	var wave := (1.0 - cos(_visual_time * TAU * pulse_frequency)) * 0.5

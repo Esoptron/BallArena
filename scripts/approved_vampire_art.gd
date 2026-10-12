@@ -41,8 +41,11 @@ func _process(_delta: float) -> void:
 	var fangs := fighter.get_node_or_null("Vampire") as VampireFangs
 	if fangs != null:
 		rotation = fangs.rotation + PI
-	var art_scale := fighter.visual_diameter() / BODY_DIAMETER
 	for sprite in [body, teeth]:
+		var art_diameter := fighter.visual_diameter()
+		if sprite == teeth and fangs != null:
+			art_diameter = fangs.fang_diameter()
+		var art_scale := art_diameter / BODY_DIAMETER
 		sprite.position = -SOURCE_PIVOT * art_scale
 		sprite.scale = Vector2.ONE * art_scale
 		var material := sprite.material as ShaderMaterial

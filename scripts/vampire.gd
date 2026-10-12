@@ -12,6 +12,7 @@ signal bite_finished
 @export_range(0.0, 100.0, 1.0) var bite_reach: float = 30.0
 @export_range(0.0, 30.0, 0.1) var recovery_time: float = 1.0
 @export_range(0.0, 0.6, 0.01) var tooth_immersion: float = 1.0 / 3.0
+@export_range(0.0, 40.0, 0.5) var bite_pull_distance: float = 6.0
 
 var has_bitten: bool = false
 var ticks_remaining: int = 0
@@ -22,6 +23,11 @@ var _tick_elapsed: float = 0.0
 var _mist: Polygon2D
 var _mist_material: ShaderMaterial
 var _clock: float = 0.0
+var _bite_elapsed: float = 0.0
+var _fixed_fang_diameter: float = 70.0
+var _pull_start_separation: float = 0.0
+var _pull_goal_separation: float = 0.0
+var _pull_direction: Vector2 = Vector2.RIGHT
 
 
 func _ready() -> void:
@@ -67,6 +73,8 @@ func _physics_process(delta: float) -> void:
 				or fighter.current_health <= 0:
 			_finish_bite()
 		else:
+			_bite_elapsed += delta
+			_advance_pull(delta)
 			_tick_elapsed += delta
 			var interval := bite_duration / bite_units
 			while _tick_elapsed + 0.000001 >= interval and ticks_remaining > 0:
@@ -94,8 +102,11 @@ func try_bite(victim: ArenaBall) -> bool:
 		return false
 	if not is_instance_valid(victim) or victim == fighter or victim.current_health <= 0 or victim.is_invulnerable():
 		return false
+	_fixed_fang_diameter = fighter.visual_diameter()
+	fighter.begin_feeding(_fixed_fang_diameter)
 	bite_target = victim
 	ticks_remaining = bite_units
+	_bite_elapsed = 0.0
 	_tick_elapsed = 0.0
 	cooldown_remaining = bite_duration + recovery_time
 	has_bitten = true
@@ -115,6 +126,7 @@ func _finish_bite() -> void:
 		return
 	var victim := bite_target
 	var completed := ticks_remaining == 0
+	var mark_spacing := fang_spacing()
 	ticks_remaining = 0
 	bite_target = null
 	_tick_elapsed = 0.0
@@ -124,9 +136,10 @@ func _finish_bite() -> void:
 		if away.is_zero_approx():
 			away = Vector2.RIGHT
 		if completed and victim.current_health > 0:
-			victim.apply_bite_marks(fighter.global_position, fang_spacing())
+			victim.apply_bite_marks(fighter.global_position, mark_spacing)
 		victim.prevent_attacks(recovery_time)
 		victim.release_motion(self, away)
+	fighter.end_feeding()
 	fighter.set_invulnerable(self, false)
 	fighter.release_motion(self, -away)
 	bite_finished.emit()
@@ -137,20 +150,34 @@ func _exit_tree() -> void:
 		_finish_bite()
 
 
+func fang_diameter() -> float:
+	return _fixed_fang_diameter if bite_target != null else fighter.visual_diameter()
+
+
+func _advance_pull(delta: float) -> void:
+	var progress := clampf(_bite_elapsed / bite_duration, 0.0, 1.0)
+	var separation := lerpf(_pull_start_separation, _pull_goal_separation, progress)
+	var destination := fighter.global_position + _pull_direction * separation
+	var displacement := destination - bite_target.global_position
+	# The helpless body is driven once per physics step instead of normal free motion.
+	bite_target.global_position = destination
+	bite_target.linear_velocity = displacement / delta
+
+
 func fang_spacing() -> float:
 	# The separation of the two long tooth tips, including their inward tilt.
-	return fighter.visual_diameter() * (274.0 / 566.0)
+	return fang_diameter() * (274.0 / 566.0)
 
 
 func fang_tip_depth() -> float:
-	return fighter.visual_diameter() * 0.5 * 1.45
+	return fang_diameter() * 0.5 * 1.45
 
 
 func _place_for_bite(victim: ArenaBall) -> void:
 	var toward := (victim.global_position - fighter.global_position).normalized()
 	if toward.is_zero_approx():
 		toward = Vector2.UP.rotated(global_rotation)
-	var radius := fighter.visual_diameter() * 0.5
+	var radius := fang_diameter() * 0.5
 	var victim_radius := victim.visual_diameter() * 0.5
 	var half_spacing := fang_spacing() * 0.5
 	var exposed_length := fang_tip_depth() - sqrt(radius * radius - half_spacing * half_spacing)
@@ -158,6 +185,12 @@ func _place_for_bite(victim: ArenaBall) -> void:
 	var separation := fang_tip_depth() + victim_surface - exposed_length * tooth_immersion
 	# Keep the circular bodies separate even if a low-health pulse later grows.
 	separation = maxf(separation, (fighter.diameter + victim.diameter) * 0.5 + 0.5)
+	_pull_goal_separation = separation
+	var available_pull := maxf(0.0, fang_tip_depth() + victim_surface - separation - 0.2)
+	_pull_start_separation = separation + minf(available_pull,
+		bite_pull_distance * _fixed_fang_diameter / fighter.diameter)
+	_pull_direction = toward
+	separation = _pull_start_separation
 	fighter.global_position = victim.global_position - toward * separation
 	# At a wall, translate the pair together instead of pushing a body through it.
 	var arena := fighter.get_parent().get_parent() as BallArena

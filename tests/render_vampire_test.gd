@@ -47,7 +47,7 @@ func capture() -> void:
 	await save_detail(main, (red.global_position + blue.global_position) * 0.5,
 		"vampire-details-bite.png")
 	if not red.is_invulnerable() or not red.freeze or not blue.freeze:
-		push_error("Both fighters must stop and the red vampire must be protected.")
+		push_error("The attacker must stay protected while driving helpless victim motion.")
 		quit(1)
 		return
 	await frames(150)

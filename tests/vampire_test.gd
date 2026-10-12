@@ -22,6 +22,7 @@ func run_checks() -> void:
 	await test_protected_bite()
 	await test_shared_statuses_and_wounds()
 	await test_tooth_immersion()
+	await test_bite_body_pulse()
 	await test_visuals_and_health()
 	await test_live_low_health()
 	test_blood()
@@ -109,8 +110,11 @@ func test_bite_schedule() -> void:
 	check(red.current_health == 99 and blue.current_health == 51,
 		"First 0.3-second tick should deal and heal exactly one unit.")
 	await ticks(620)
-	check(red.is_paralyzed() and red.position.distance_to(pinned_position) < 0.01,
-		"Victim must stay fixed throughout the 3-second bite.")
+	check(red.is_paralyzed() and red.position.distance_to(pinned_position) > 5.0
+		and red.position.distance_to(blue.position) < pinned_position.distance_to(blue.position),
+		"Victim must slowly move toward the vampire throughout the bite.")
+	check(red.linear_velocity.length() > 0.0 and red.linear_velocity.length() < 10.0,
+		"Controlled victim movement must be slow, not the normal ball speed.")
 	check(blue.position.distance_to(attacker_position) < 0.01 and blue.freeze,
 		"Attacker must remain fixed for the entire bite.")
 	check(tick_damage.size() == 9, "Nine ticks should have completed before 3 seconds.")
@@ -291,7 +295,7 @@ func test_live_low_health() -> void:
 		for ball in [blue, red]:
 			var collision: CollisionShape2D = ball.get_node("CollisionShape2D")
 			var radius: float = (collision.shape as CircleShape2D).radius
-			check(radius >= 24.999 and radius <= 35.001, "Pulsating collider exceeded its 50-70 size range.")
+			check(radius >= 23.749 and radius <= 35.001, "Collider exceeded the low-health and 5-percent bite pulse bounds.")
 			check(ball.current_health >= 0 and ball.current_health <= ball.max_health,
 				"Live combat exceeded health bounds.")
 			if ball.is_immobilized():
@@ -321,14 +325,15 @@ func test_tooth_immersion() -> void:
 		red.position = blue.position - direction * 95.0
 		var fangs := red.get_node("Vampire") as VampireFangs
 		check(fangs.try_bite(blue), "Immersion fixture must start a bite.")
+		await ticks(600)
 		var spacing := red.position.distance_to(blue.position)
 		var radius := red.visual_diameter() * 0.5
 		var side := fangs.fang_spacing() * 0.5
 		var front_surface := spacing - sqrt(35.0 * 35.0 - side * side)
 		var exposed_length := fangs.fang_tip_depth() - sqrt(radius * radius - side * side)
 		var hidden_fraction := (fangs.fang_tip_depth() - front_surface) / exposed_length
-		check(absf(hidden_fraction - 1.0 / 3.0) < 0.01,
-			"One third of the exposed long fangs must enter the opponent.")
+		check(hidden_fraction > 0.20 and hidden_fraction < 1.0 / 3.0 + 0.01,
+			"Victim must be pulled progressively toward one-third fang immersion.")
 		check(spacing >= 70.0, "Circular bodies must remain separate during immersion.")
 		check(red.z_index + fangs.z_index < blue.z_index
 			and red.z_index + fangs.z_index > arena.z_index,
@@ -346,4 +351,34 @@ func test_tooth_immersion() -> void:
 	for ball in [red, blue]:
 		check(ball.position.x >= 35.0 and ball.position.y >= 35.0,
 			"Immersion must not push either body outside the arena.")
+	await remove_arena(arena)
+
+
+func test_bite_body_pulse() -> void:
+	var arena := new_arena()
+	var red := arena.get_node("Balls/RedBall") as ArenaBall
+	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+	red.opponent = null
+	blue.opponent = null
+	var fangs := red.get_node("Vampire") as VampireFangs
+	check(fangs.try_bite(blue), "Pulse fixture must start a bite.")
+	var fixed_fang_size := fangs.fang_diameter()
+	var art := red.get_node("ApprovedVampireArt")
+	red.bite_pulse_elapsed = 0.0
+	art.call("_process", 0.0)
+	var body := art.get_node("BodyAndFur") as Sprite2D
+	var teeth := art.get_node("Teeth") as Sprite2D
+	var full_body_scale := body.scale.x
+	var fixed_tooth_scale := teeth.scale.x
+	red.bite_pulse_elapsed = 0.5 / red.bite_pulse_frequency
+	red.call("_sync_pulse_shape")
+	art.call("_process", 0.0)
+	check(is_equal_approx(red.visual_diameter(), 66.5),
+		"Feeding body must pulse between 70 and 66.5: five percent.")
+	check(is_equal_approx(body.scale.x / full_body_scale, 0.95)
+		and is_equal_approx(teeth.scale.x, fixed_tooth_scale)
+		and is_equal_approx(fangs.fang_diameter(), fixed_fang_size),
+		"Only the body sprite may pulse; tooth sprite and bite geometry must stay fixed.")
+	check(is_equal_approx(((red.get_node("CollisionShape2D") as CollisionShape2D).shape
+		as CircleShape2D).radius, 33.25), "Collider must follow the subtle body pulse.")
 	await remove_arena(arena)
