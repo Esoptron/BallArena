@@ -22,6 +22,7 @@ func run_checks() -> void:
 	await test_protected_bite()
 	await test_shared_statuses_and_wounds()
 	await test_tooth_immersion()
+	await test_carried_direction()
 	await test_bite_body_pulse()
 	await test_visuals_and_health()
 	await test_live_low_health()
@@ -110,11 +111,10 @@ func test_bite_schedule() -> void:
 	check(red.current_health == 99 and blue.current_health == 51,
 		"First 0.3-second tick should deal and heal exactly one unit.")
 	await ticks(620)
-	check(red.is_paralyzed() and red.position.distance_to(pinned_position) > 5.0
-		and red.position.distance_to(blue.position) < pinned_position.distance_to(blue.position),
-		"Victim must slowly move toward the vampire throughout the bite.")
-	check(red.linear_velocity.length() > 0.0 and red.linear_velocity.length() < 10.0,
-		"Controlled victim movement must be slow, not the normal ball speed.")
+	check(red.is_paralyzed() and red.position.distance_to(pinned_position) > 100.0,
+		"Helpless victim must continue moving rather than remain pinned.")
+	check(absf((fangs.get("_carry_velocity") as Vector2).length() - blue.movement_speed / 3.0) < 0.05,
+		"Victim must move at exactly one third of the attacker's configured speed.")
 	check(blue.position.distance_to(attacker_position) < 0.01 and blue.freeze,
 		"Attacker must remain fixed for the entire bite.")
 	check(tick_damage.size() == 9, "Nine ticks should have completed before 3 seconds.")
@@ -325,15 +325,14 @@ func test_tooth_immersion() -> void:
 		red.position = blue.position - direction * 95.0
 		var fangs := red.get_node("Vampire") as VampireFangs
 		check(fangs.try_bite(blue), "Immersion fixture must start a bite.")
-		await ticks(600)
 		var spacing := red.position.distance_to(blue.position)
 		var radius := red.visual_diameter() * 0.5
 		var side := fangs.fang_spacing() * 0.5
 		var front_surface := spacing - sqrt(35.0 * 35.0 - side * side)
 		var exposed_length := fangs.fang_tip_depth() - sqrt(radius * radius - side * side)
 		var hidden_fraction := (fangs.fang_tip_depth() - front_surface) / exposed_length
-		check(hidden_fraction > 0.20 and hidden_fraction < 1.0 / 3.0 + 0.01,
-			"Victim must be pulled progressively toward one-third fang immersion.")
+		check(absf(hidden_fraction - 1.0 / 3.0) < 0.01,
+			"Opening bite must immerse one third of the long fangs.")
 		check(spacing >= 70.0, "Circular bodies must remain separate during immersion.")
 		check(red.z_index + fangs.z_index < blue.z_index
 			and red.z_index + fangs.z_index > arena.z_index,
@@ -382,3 +381,44 @@ func test_bite_body_pulse() -> void:
 	check(is_equal_approx(((red.get_node("CollisionShape2D") as CollisionShape2D).shape
 		as CircleShape2D).radius, 33.25), "Collider must follow the subtle body pulse.")
 	await remove_arena(arena)
+
+
+func test_carried_direction() -> void:
+	for speed in [180.0, 320.0, 600.0]:
+		var arena := new_arena()
+		var red := arena.get_node("Balls/RedBall") as ArenaBall
+		var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+		red.opponent = null
+		blue.opponent = null
+		red.position = Vector2(420, 250)
+		blue.position = Vector2(515, 250)
+		red.movement_speed = speed
+		# Incoming vampire moves down, while the victim is to its right.
+		red.linear_velocity = Vector2.DOWN * speed
+		var fangs := red.get_node("Vampire") as VampireFangs
+		check(fangs.try_bite(blue), "Carried-motion fixture must start.")
+		var start := blue.position
+		var attacker_start := red.position
+		await ticks(60)
+		var elapsed: float = fangs.get("_bite_elapsed")
+		var displacement := blue.position - start
+		check(absf(displacement.x) < 0.01 and displacement.y > 0.0,
+			"Victim must inherit the vampire's incoming direction, not aim toward it.")
+		check(absf(displacement.length() / elapsed - speed / 3.0) < 0.05,
+			"Measured victim displacement must match one-third speed for different vampire speeds.")
+		check(red.position.distance_to(attacker_start) < 0.01,
+			"Attacker must remain stationary while its incoming motion is carried by the victim.")
+		# Put the victim close to the lower wall to exercise a reflected trajectory.
+		blue.position.y = arena.arena_size.y - 42.0
+		blue.reset_physics_interpolation()
+		await ticks(60)
+		check(blue.position.y <= arena.arena_size.y - 35.0 + 0.1
+			and (fangs.get("_carry_velocity") as Vector2).y < 0.0,
+			"Carried victim must bounce at the arena wall.")
+		start = blue.position
+		var before_elapsed: float = fangs.get("_bite_elapsed")
+		await ticks(60)
+		elapsed = float(fangs.get("_bite_elapsed")) - before_elapsed
+		check(absf(blue.position.distance_to(start) / elapsed - speed / 3.0) < 0.05,
+			"Measured speed must remain one third after wall reflection.")
+		await remove_arena(arena)

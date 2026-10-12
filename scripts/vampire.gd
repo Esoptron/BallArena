@@ -12,7 +12,6 @@ signal bite_finished
 @export_range(0.0, 100.0, 1.0) var bite_reach: float = 30.0
 @export_range(0.0, 30.0, 0.1) var recovery_time: float = 1.0
 @export_range(0.0, 0.6, 0.01) var tooth_immersion: float = 1.0 / 3.0
-@export_range(0.0, 40.0, 0.5) var bite_pull_distance: float = 6.0
 
 var has_bitten: bool = false
 var ticks_remaining: int = 0
@@ -25,9 +24,8 @@ var _mist_material: ShaderMaterial
 var _clock: float = 0.0
 var _bite_elapsed: float = 0.0
 var _fixed_fang_diameter: float = 70.0
-var _pull_start_separation: float = 0.0
-var _pull_goal_separation: float = 0.0
-var _pull_direction: Vector2 = Vector2.RIGHT
+var _carry_velocity: Vector2 = Vector2.ZERO
+var _victim_freeze_mode: int = RigidBody2D.FREEZE_MODE_STATIC
 
 
 func _ready() -> void:
@@ -74,7 +72,7 @@ func _physics_process(delta: float) -> void:
 			_finish_bite()
 		else:
 			_bite_elapsed += delta
-			_advance_pull(delta)
+			_advance_carried_motion(delta)
 			_tick_elapsed += delta
 			var interval := bite_duration / bite_units
 			while _tick_elapsed + 0.000001 >= interval and ticks_remaining > 0:
@@ -102,6 +100,11 @@ func try_bite(victim: ArenaBall) -> bool:
 		return false
 	if not is_instance_valid(victim) or victim == fighter or victim.current_health <= 0 or victim.is_invulnerable():
 		return false
+	var opening_direction := fighter.linear_velocity.normalized()
+	if opening_direction.is_zero_approx():
+		opening_direction = fighter.get("_last_direction") as Vector2
+	_carry_velocity = opening_direction * (fighter.movement_speed / 3.0)
+	_victim_freeze_mode = victim.freeze_mode
 	_fixed_fang_diameter = fighter.visual_diameter()
 	fighter.begin_feeding(_fixed_fang_diameter)
 	bite_target = victim
@@ -114,6 +117,7 @@ func try_bite(victim: ArenaBall) -> bool:
 	fighter.hold_motion(self)
 	fighter.set_invulnerable(self, true)
 	victim.hold_motion(self)
+	victim.freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
 	victim.paralyze(bite_duration)
 	_place_for_bite(victim)
 	bite_started.emit(victim)
@@ -137,6 +141,7 @@ func _finish_bite() -> void:
 			away = Vector2.RIGHT
 		if completed and victim.current_health > 0:
 			victim.apply_bite_marks(fighter.global_position, mark_spacing)
+		victim.freeze_mode = _victim_freeze_mode
 		victim.prevent_attacks(recovery_time)
 		victim.release_motion(self, away)
 	fighter.end_feeding()
@@ -154,14 +159,18 @@ func fang_diameter() -> float:
 	return _fixed_fang_diameter if bite_target != null else fighter.visual_diameter()
 
 
-func _advance_pull(delta: float) -> void:
-	var progress := clampf(_bite_elapsed / bite_duration, 0.0, 1.0)
-	var separation := lerpf(_pull_start_separation, _pull_goal_separation, progress)
-	var destination := fighter.global_position + _pull_direction * separation
-	var displacement := destination - bite_target.global_position
-	# The helpless body is driven once per physics step instead of normal free motion.
-	bite_target.global_position = destination
-	bite_target.linear_velocity = displacement / delta
+func _advance_carried_motion(delta: float) -> void:
+	var motion := _carry_velocity * delta
+	for impact in 4:
+		var collision := bite_target.move_and_collide(motion, false, 0.001)
+		if collision == null:
+			break
+		var normal := collision.get_normal()
+		_carry_velocity = _carry_velocity.bounce(normal)
+		motion = collision.get_remainder().bounce(normal)
+		if motion.is_zero_approx():
+			break
+	bite_target.linear_velocity = _carry_velocity
 
 
 func fang_spacing() -> float:
@@ -185,12 +194,6 @@ func _place_for_bite(victim: ArenaBall) -> void:
 	var separation := fang_tip_depth() + victim_surface - exposed_length * tooth_immersion
 	# Keep the circular bodies separate even if a low-health pulse later grows.
 	separation = maxf(separation, (fighter.diameter + victim.diameter) * 0.5 + 0.5)
-	_pull_goal_separation = separation
-	var available_pull := maxf(0.0, fang_tip_depth() + victim_surface - separation - 0.2)
-	_pull_start_separation = separation + minf(available_pull,
-		bite_pull_distance * _fixed_fang_diameter / fighter.diameter)
-	_pull_direction = toward
-	separation = _pull_start_separation
 	fighter.global_position = victim.global_position - toward * separation
 	# At a wall, translate the pair together instead of pushing a body through it.
 	var arena := fighter.get_parent().get_parent() as BallArena
