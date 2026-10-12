@@ -325,8 +325,8 @@ func test_tooth_immersion() -> void:
 		var radius := red.visual_diameter() * 0.5
 		var side := fangs.fang_spacing() * 0.5
 		var front_surface := spacing - sqrt(35.0 * 35.0 - side * side)
-		var exposed_length := radius * 1.85 - sqrt(radius * radius - side * side)
-		var hidden_fraction := (radius * 1.85 - front_surface) / exposed_length
+		var exposed_length := fangs.fang_tip_depth() - sqrt(radius * radius - side * side)
+		var hidden_fraction := (fangs.fang_tip_depth() - front_surface) / exposed_length
 		check(absf(hidden_fraction - 1.0 / 3.0) < 0.01,
 			"One third of the exposed long fangs must enter the opponent.")
 		check(spacing >= 70.0, "Circular bodies must remain separate during immersion.")

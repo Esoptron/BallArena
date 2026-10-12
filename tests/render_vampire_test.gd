@@ -80,15 +80,23 @@ func capture() -> void:
 	red.queue_redraw()
 	await frames(2)
 	await save_frame("vampire-low-health-50.png")
+	red.current_health = 100
+	red.set("_visual_time", 0.0)
+	red.position = Vector2(480, 300)
+	blue.position = red.position + Vector2(0, 250)
+	blue.set_physics_process(false)
+	red_fangs.has_bitten = true
+	red_fangs.aim_at_opponent()
+	await save_detail(main, red.global_position + Vector2(0, 9), "approved-reference-in-game.png", 8.0)
 	print("PASS: rendered aura, first-bite blood, and 70/50 low-health pulse from the canonical Desktop project")
 	quit(0)
 
 
-func save_detail(main: Node2D, focus: Vector2, file_name: String) -> void:
+func save_detail(main: Node2D, focus: Vector2, file_name: String, magnification: float = 4.0) -> void:
 	var camera := main.get_node("Camera2D") as Camera2D
 	var previous_zoom := camera.zoom
 	var previous_position := camera.global_position
-	camera.zoom = Vector2.ONE * 4.0
+	camera.zoom = Vector2.ONE * magnification
 	camera.global_position = focus
 	await frames(2)
 	await save_frame(file_name)

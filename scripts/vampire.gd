@@ -22,7 +22,6 @@ var _tick_elapsed: float = 0.0
 var _mist: Polygon2D
 var _mist_material: ShaderMaterial
 var _clock: float = 0.0
-var _fur: Node2D
 
 
 func _ready() -> void:
@@ -37,11 +36,7 @@ func _ready() -> void:
 	_mist_material.shader = preload("res://scripts/fang_mist.gdshader")
 	_mist.material = _mist_material
 	add_child(_mist)
-	_fur = Node2D.new()
-	_fur.name = "FangRoots"
-	_fur.z_index = 2
-	_fur.set_script(preload("res://scripts/vampire_fur.gd"))
-	add_child(_fur)
+
 
 
 func _process(delta: float) -> void:
@@ -53,7 +48,6 @@ func _process(delta: float) -> void:
 		return
 	aim_at_opponent()
 	_update_mist()
-	_fur.queue_redraw()
 	queue_redraw()
 
 
@@ -145,7 +139,11 @@ func _exit_tree() -> void:
 
 func fang_spacing() -> float:
 	# The separation of the two long tooth tips, including their inward tilt.
-	return fighter.visual_diameter() * 0.59
+	return fighter.visual_diameter() * (274.0 / 566.0)
+
+
+func fang_tip_depth() -> float:
+	return fighter.visual_diameter() * 0.5 * 1.45
 
 
 func _place_for_bite(victim: ArenaBall) -> void:
@@ -155,9 +153,9 @@ func _place_for_bite(victim: ArenaBall) -> void:
 	var radius := fighter.visual_diameter() * 0.5
 	var victim_radius := victim.visual_diameter() * 0.5
 	var half_spacing := fang_spacing() * 0.5
-	var exposed_length := radius * 1.85 - sqrt(radius * radius - half_spacing * half_spacing)
+	var exposed_length := fang_tip_depth() - sqrt(radius * radius - half_spacing * half_spacing)
 	var victim_surface := sqrt(maxf(0.0, victim_radius * victim_radius - half_spacing * half_spacing))
-	var separation := radius * 1.85 + victim_surface - exposed_length * tooth_immersion
+	var separation := fang_tip_depth() + victim_surface - exposed_length * tooth_immersion
 	# Keep the circular bodies separate even if a low-health pulse later grows.
 	separation = maxf(separation, (fighter.diameter + victim.diameter) * 0.5 + 0.5)
 	fighter.global_position = victim.global_position - toward * separation
@@ -198,81 +196,16 @@ func _update_mist() -> void:
 	_mist_material.set_shader_parameter("mist_clock", _clock)
 
 
-func tooth_polygon(index: int, radius: float) -> PackedVector2Array:
-	return _tooth_shape(index, radius)
-
-
-func _cubic(a: Vector2, b: Vector2, c: Vector2, d: Vector2, t: float) -> Vector2:
-	var u := 1.0 - t
-	return a * u * u * u + b * 3.0 * u * u * t + c * 3.0 * u * t * t + d * t * t * t
-
-
-func _tooth_shape(index: int, radius: float, inset: float = 0.0, steps: int = 12) -> PackedVector2Array:
-	var side := -1.0 if index < 2 else 1.0
-	var long_tooth := index == 0 or index == 3
-	var outer_root := Vector2(0.94, -0.68) if long_tooth else Vector2(0.40, -0.74)
-	var outer_a := Vector2(1.04, -1.18) if long_tooth else Vector2(0.43, -1.09)
-	var outer_b := Vector2(0.90, -1.63) if long_tooth else Vector2(0.29, -1.36)
-	var tip := Vector2(0.59, -1.85) if long_tooth else Vector2(0.17, -1.52)
-	var inner_root := Vector2(0.45, -0.65) if long_tooth else Vector2(0.08, -0.72)
-	var inner_a := Vector2(0.43, -1.07) if long_tooth else Vector2(0.07, -1.02)
-	var inner_b := Vector2(0.55, -1.50) if long_tooth else Vector2(0.15, -1.29)
+# Contours sampled from the approved source, used only for the animated mist.
+# The character itself is rendered from its original pixels.
+func _tooth_shape(index: int, _radius: float, _inset: float = 0.0, _steps: int = 6) -> PackedVector2Array:
+	var outlines := [
+		[Vector2(389, 696), Vector2(382, 735), Vector2(384, 775), Vector2(392, 812), Vector2(408, 851), Vector2(428, 883), Vector2(447, 903), Vector2(442, 875), Vector2(449, 829), Vector2(458, 781), Vector2(467, 735), Vector2(454, 715), Vector2(422, 701), Vector2(402, 693)],
+		[Vector2(522, 750), Vector2(525, 782), Vector2(532, 812), Vector2(543, 838), Vector2(552, 850), Vector2(557, 833), Vector2(559, 804), Vector2(559, 779), Vector2(558, 760), Vector2(550, 750), Vector2(543, 749), Vector2(536, 749), Vector2(529, 750), Vector2(524, 751)],
+		[Vector2(641, 756), Vector2(637, 780), Vector2(637, 807), Vector2(635, 831), Vector2(628, 857), Vector2(640, 845), Vector2(651, 825), Vector2(660, 799), Vector2(664, 774), Vector2(659, 760), Vector2(653, 755), Vector2(647, 755), Vector2(642, 756), Vector2(640, 757)],
+		[Vector2(749, 751), Vector2(746, 786), Vector2(738, 826), Vector2(730, 865), Vector2(712, 923), Vector2(738, 898), Vector2(766, 866), Vector2(789, 829), Vector2(804, 789), Vector2(811, 751), Vector2(809, 726), Vector2(800, 716), Vector2(777, 732), Vector2(760, 746)],
+	]
 	var result := PackedVector2Array()
-	for index_step in steps + 1:
-		var t := float(index_step) / steps
-		var outer := _cubic(outer_root, outer_a, outer_b, tip, t)
-		var inner := _cubic(inner_root, inner_a, inner_b, tip, t)
-		var point := outer.lerp(inner, inset)
-		result.append(Vector2(point.x * side, point.y) * radius)
-	for index_step in range(steps, -1, -1):
-		var t := float(index_step) / steps
-		var outer := _cubic(outer_root, outer_a, outer_b, tip, t)
-		var inner := _cubic(inner_root, inner_a, inner_b, tip, t)
-		var point := inner.lerp(outer, inset)
-		result.append(Vector2(point.x * side, point.y) * radius)
+	for point: Vector2 in outlines[index]:
+		result.append(-(point - Vector2(626, 513)) / 283.0)
 	return result
-
-
-func _tip_stain(polygon: PackedVector2Array, cut_y: float) -> PackedVector2Array:
-	var result := PackedVector2Array()
-	var previous := polygon[polygon.size() - 1]
-	for point in polygon:
-		if (point.y <= cut_y) != (previous.y <= cut_y):
-			result.append(previous.lerp(point, (cut_y - previous.y) / (point.y - previous.y)))
-		if point.y <= cut_y:
-			result.append(point)
-		previous = point
-	return result
-
-
-func _draw() -> void:
-	if fighter == null or not fighter.is_vampire:
-		return
-	var radius := fighter.visual_diameter() * 0.5
-	for index in 4:
-		var tooth := tooth_polygon(index, radius)
-		draw_colored_polygon(tooth, Color(0.77, 0.64, 0.48))
-		var enamel := _tooth_shape(index, radius, 0.12)
-		draw_colored_polygon(enamel, Color(0.96, 0.87, 0.72))
-		var shine := _tooth_shape(index, radius, 0.29)
-		draw_colored_polygon(shine, Color(1.0, 0.95, 0.84))
-		if has_bitten:
-			# The new reference has uneven blood stains toward the tips, without beads.
-			var depth := 1.85 if index == 0 or index == 3 else 1.52
-			var tip_x := 0.59 if index == 0 or index == 3 else 0.17
-			var side := -1.0 if index < 2 else 1.0
-			var cut_y := -radius * (depth - 0.33)
-			draw_colored_polygon(_tip_stain(tooth, cut_y), Color(0.33, 0.007, 0.025))
-			draw_colored_polygon(_tip_stain(enamel, cut_y), Color(0.68, 0.015, 0.055))
-			for stripe in 3:
-				var shift := float(stripe - 1) * 0.055
-				var streak := PackedVector2Array([
-					Vector2(side * (tip_x + 0.10 + shift) * radius, cut_y + radius * (0.13 + stripe * 0.035)),
-					Vector2(side * (tip_x + 0.16 + shift) * radius, cut_y - radius * 0.10),
-					Vector2(side * tip_x * radius, -radius * depth),
-				])
-				for clipped in Geometry2D.intersect_polygons(tooth, streak):
-					draw_colored_polygon(clipped, Color(0.65, 0.013, 0.045))
-		var outline := tooth.duplicate()
-		outline.append(tooth[0])
-		draw_polyline(outline, Color(0.10, 0.015, 0.02), 1.2, true)
