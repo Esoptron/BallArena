@@ -1,6 +1,7 @@
 extends Node2D
 ## Shared damage/healing numbers. They rise in world-up, dim and fade.
 
+@export_range(8, 96, 1) var font_size: int = 30
 @export var lifetime: float = 1.1
 @export var max_numbers: int = 64
 var numbers: Array[Dictionary] = []
@@ -12,7 +13,7 @@ func spawn(world_position: Vector2, amount: int, healing: bool) -> void:
 		return
 	if numbers.size() >= max_numbers:
 		numbers.pop_front()
-	var offset := Vector2(-8.0 if serial % 2 == 0 else 8.0, -20.0)
+	var offset := Vector2(-8.0 if serial % 2 == 0 else 8.0, -28.0)
 	serial += 1
 	numbers.append({"position": to_local(world_position) + offset,
 		"text": ("+" if healing else "-") + str(amount),
@@ -43,8 +44,8 @@ func _draw() -> void:
 		color = color.darkened(progress * 0.40)
 		color.a = alpha
 		var text: String = number["text"]
-		var bounds := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15)
+		var bounds := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 		var baseline: Vector2 = number["position"] + Vector2(-bounds.x * 0.5, 0.0)
-		draw_string_outline(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, 2,
+		draw_string_outline(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 3,
 			Color(0.025, 0.035, 0.055, alpha * 0.9))
-		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, color)
+		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)

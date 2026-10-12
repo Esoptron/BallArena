@@ -26,6 +26,7 @@ func run_checks() -> void:
 	await test_pair_corner_bounds()
 	await test_bite_body_pulse()
 	await test_visuals_and_health()
+	await test_general_overhealing()
 	await test_live_low_health()
 	test_blood()
 	await process_frame
@@ -172,8 +173,8 @@ func test_protected_bite() -> void:
 	await ticks(780)
 	check(not blue.is_immobilized() and not red.is_immobilized()
 		and not attacker.is_invulnerable(), "Bite must clean up movement and protection states.")
-	check(victim.current_health == 90 and attacker.current_health == 100,
-		"Protected vampire must deal ten damage without receiving reciprocal damage.")
+	check(victim.current_health == 90 and attacker.current_health == 110,
+		"Protected vampire must deal ten damage and heal above starting HP without reciprocal damage.")
 	await remove_arena(arena)
 
 
@@ -255,11 +256,28 @@ func test_visuals_and_health() -> void:
 	check(not blue.has_low_health() and is_equal_approx(blue.visual_diameter(), 70.0),
 		"Exactly 30 percent health must not pulse.")
 	blue.current_health = 99
-	check(blue.heal(10) == 1 and blue.current_health == 100, "Healing must respect maximum HP.")
-	check(blue.take_damage(150) == 100 and blue.current_health == 0,
+	check(blue.heal(10) == 10 and blue.current_health == 109, "Healing must exceed reference HP.")
+	check(blue.take_damage(150) == 109 and blue.current_health == 0,
 		"Health must not become negative.")
 	check(blue.heal(10) == 0 and blue.current_health == 0, "A defeated vampire must not revive itself.")
 	await remove_arena(arena)
+
+
+func test_general_overhealing() -> void:
+	var fighter := ArenaBall.new()
+	fighter.is_vampire = false
+	fighter.starting_health = 140
+	root.add_child(fighter)
+	check(fighter.current_health == 140, "Starting HP above the reference must survive initialization.")
+	check(fighter.heal(25) == 25 and fighter.current_health == 165,
+		"Future non-vampire healers must retain all healing above reference HP.")
+	check(fighter.heal(-10) == 0 and fighter.heal(0) == 0 and fighter.current_health == 165,
+		"Non-positive healing must not reduce overhealed HP.")
+	check(not fighter.has_low_health(), "Overhealed characters must not trigger the low-health pulse.")
+	check(fighter.take_damage(70) == 70 and fighter.current_health == 95,
+		"Damage must consume overhealed HP normally.")
+	fighter.queue_free()
+	await process_frame
 
 
 func test_blood() -> void:
@@ -303,8 +321,8 @@ func test_live_low_health() -> void:
 			var collision: CollisionShape2D = ball.get_node("CollisionShape2D")
 			var radius: float = (collision.shape as CircleShape2D).radius
 			check(radius >= 23.749 and radius <= 35.001, "Collider exceeded the low-health and 5-percent bite pulse bounds.")
-			check(ball.current_health >= 0 and ball.current_health <= ball.max_health,
-				"Live combat exceeded health bounds.")
+			check(ball.current_health >= 0,
+				"Live combat produced negative health.")
 			if ball.is_immobilized():
 				check(ball.freeze, "Live paralysis failed to hold a victim.")
 			elif ball.current_health > 0:

@@ -58,15 +58,17 @@ func run() -> void:
 	check(fangs.try_bite(blue), "VFX fixture must start a real bite.")
 	fangs.set_physics_process(false)
 	effects.advance(0.16)
-	check(effects.drains.size() == 1 and arena_blood.splashes.size() >= 9,
-		"Active bite must create a drain link and many small blood sprays.")
+	check(effects.drains.size() == 1 and arena_blood.splashes.size() == 3,
+		"Active bite must create a drain link and three larger blood sprays at the reduced rate.")
 	check(not effects.orbs.is_empty() and effects.orbs.size() <= effects.max_orbs,
 		"Drain must create a bounded set of green spheres.")
+	effects.advance(0.24)
+	check(arena_blood.splashes.size() == 9, "Reduced spray rate must remain consistent across several batches.")
 	var spread := {}
 	for spray in arena_blood.splashes:
 		var velocity: Vector2 = spray["velocity"]
 		spread[int(floor(velocity.angle() * 2.0))] = true
-		check(float(spray["radius"]) < 2.0, "Spray drops must be smaller than existing large blood drops.")
+		check(float(spray["radius"]) >= 1.70 and float(spray["radius"]) <= 3.30, "Spray radius must be twice the previous 0.85-1.65 range.")
 	check(spread.size() > 2, "Blood spray must fly in multiple directions.")
 	var orb: Dictionary = effects.orbs[0]
 	orb["age"] = 0.0
@@ -87,9 +89,10 @@ func run() -> void:
 	numbers = effects.number_layer.get("numbers")
 	check(numbers[0]["position"].y < original_y, "Combat numbers must move upward.")
 	red.current_health = 100
-	check(red.heal(5) == 0 and (effects.number_layer.get("numbers") as Array).size() == 2,
-		"Full health must not create fake healing numbers.")
-	effects.number_layer.call("advance", 1.0)
+	check(red.heal(5) == 5 and red.current_health == 105
+		and (effects.number_layer.get("numbers") as Array).size() == 3,
+		"Healing above reference HP must apply and create a real healing number.")
+	effects.number_layer.call("advance", 1.2)
 	check((effects.number_layer.get("numbers") as Array).is_empty(),
 		"Combat numbers must expire after their fade.")
 	var old_spray := arena_blood.splashes.size()

@@ -14,7 +14,7 @@ func _draw() -> void:
 	var health := fighter.starting_health if Engine.is_editor_hint() else fighter.current_health
 	var text := str(health)
 	var font := ThemeDB.fallback_font
-	var size := int(clampf(fighter.visual_diameter() * 0.25, 12.0, 22.0))
+	var size := int(clampf(fighter.visual_diameter() * 0.28, 13.0, 25.0))
 	var bounds := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size)
 	var baseline := Vector2(-bounds.x * 0.5, font.get_ascent(size) - font.get_height(size) * 0.5)
 	draw_string_outline(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 3,

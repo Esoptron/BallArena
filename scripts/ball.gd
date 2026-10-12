@@ -19,6 +19,7 @@ const WOUND_LIFETIME := 5.0
 		queue_redraw()
 @export var initial_direction: Vector2 = Vector2(1.0, 0.29)
 @export var is_vampire: bool = true
+## Reference HP for low-health thresholds; healing can exceed this value.
 @export_range(1, 10000, 1) var max_health: int = 100
 @export_range(1, 10000, 1) var starting_health: int = 100
 @export_range(0.0, 1.0, 0.01) var low_health_threshold: float = 0.30
@@ -69,7 +70,7 @@ func _ready() -> void:
 	label.z_index = 6
 	label.set_script(preload("res://scripts/health_display.gd"))
 	add_child(label)
-	current_health = clampi(starting_health, 1, max_health)
+	current_health = maxi(starting_health, 1)
 	if not Engine.is_editor_hint():
 		start_motion()
 
@@ -243,7 +244,7 @@ func _advance_bite_marks(delta: float) -> void:
 func heal(amount: int) -> int:
 	if current_health <= 0:
 		return 0
-	var applied := mini(maxi(amount, 0), max_health - current_health)
+	var applied := maxi(amount, 0)
 	current_health += applied
 	if applied > 0:
 		health_changed.emit(current_health, max_health)

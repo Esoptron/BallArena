@@ -20,7 +20,7 @@ func capture() -> void:
 	var red := main.get_node("Arena/Balls/RedBall") as ArenaBall
 	var blue := main.get_node("Arena/Balls/BlueBall") as ArenaBall
 	var camera := main.get_node("Camera2D") as Camera2D
-	red.current_health = 72
+	red.current_health = 99
 	red.position = Vector2(530, 300)
 	blue.position = Vector2(440, 300)
 	red.reset_physics_interpolation()
@@ -32,6 +32,10 @@ func capture() -> void:
 		quit(1)
 		return
 	await frames(70, camera, red, blue)
+	if red.current_health <= red.max_health:
+		push_error("Rendered bite must heal beyond reference HP.")
+		quit(1)
+		return
 	await RenderingServer.frame_post_draw
 	var result := root.get_texture().get_image().save_png(OS.get_cmdline_user_args()[0])
 	if result != OK:

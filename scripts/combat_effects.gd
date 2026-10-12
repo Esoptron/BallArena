@@ -3,7 +3,7 @@ extends Node2D
 ## Reusable drain and spray service. Abilities explicitly start/stop their effects.
 
 @export var max_orbs: int = 96
-@export var spray_rate: float = 75.0
+@export var spray_rate: float = 25.0
 @export var orb_rate: float = 25.0
 var drains: Dictionary = {}
 var orbs: Array[Dictionary] = []
@@ -74,7 +74,7 @@ func advance(delta: float) -> void:
 			if is_instance_valid(attacker.blood_effects):
 				for index in 3:
 					var velocity := Vector2.from_angle(rng.randf_range(-PI, PI)) * rng.randf_range(70.0, 300.0)
-					attacker.blood_effects.call("spawn_spray", wound, velocity, rng.randf_range(0.85, 1.65))
+					attacker.blood_effects.call("spawn_spray", wound, velocity, rng.randf_range(1.70, 3.30))
 		drain["orb_elapsed"] += delta
 		while drain["orb_elapsed"] >= 1.0 / orb_rate:
 			drain["orb_elapsed"] -= 1.0 / orb_rate
