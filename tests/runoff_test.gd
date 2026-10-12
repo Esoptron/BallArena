@@ -62,11 +62,17 @@ func run() -> void:
 	blue.call("_advance_bite_marks", 3.01)
 	var age: float = runoff.get("age")
 	runoff.call("advance", 3.01 - age)
-	check(blue.bite_marks.is_empty() and bool(runoff.get("active")),
-		"Wounds must vanish at 3s while the surface line remains until 4s.")
+	check(blue.bite_marks.size() == 2 and blue.wound_opacity() < 0.4 and bool(runoff.get("active")),
+		"Wounds must fade gradually over 5s while runoff remains until 4s.")
 	runoff.call("advance", 1.0)
 	check(not bool(runoff.get("active")) and (runoff.get("paths") as Array).is_empty(),
 		"Experiment must remove its paths at 4s.")
+	blue.call("_advance_bite_marks", 1.0)
+	check(blue.bite_marks.size() == 2 and blue.wound_opacity() < 0.2,
+		"Faint wounds must remain after the 4-second runoff ends.")
+	blue.call("_advance_bite_marks", 1.0)
+	check(blue.bite_marks.is_empty() and blue.wound_opacity() == 0.0,
+		"Wounds must disappear completely at five seconds.")
 	check(blood.drops.size() <= 6, "A runoff event must emit a bounded small number of drops.")
 	blue.apply_bite_marks(blue.global_position + Vector2.LEFT * 100, 34.0)
 	runoff.set_process(false)
@@ -77,7 +83,7 @@ func run() -> void:
 	arena.queue_free()
 	await process_frame
 	if failures.is_empty():
-		print("PASS: 2 surface paths; downward flow; lower wounds drain sooner; connected drop then detach; 3s wounds/4s runoff; bounded drops; toggle")
+		print("PASS: 2 surface paths; downward flow; lower wounds drain sooner; connected drop then detach; 5s fading wounds/4s runoff; bounded drops; toggle")
 		quit(0)
 	else:
 		quit(1)

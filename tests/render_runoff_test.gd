@@ -20,7 +20,9 @@ func capture() -> void:
 	camera.position = Vector2(240, 130)
 	camera.zoom = Vector2.ONE * 3.0
 	root.add_child(camera)
-	var ages := [0.0, 0.38, 0.80, 1.18, 1.29, 1.46]
+	var args := OS.get_cmdline_user_args()
+	var fade_mode := args.size() > 1 and args[1] == "fade"
+	var ages := [0.0, 1.0, 2.0, 3.0, 4.0, 4.9]
 	for index in ages.size():
 		var ball := BALL.instantiate() as ArenaBall
 		ball.is_vampire = false
@@ -38,7 +40,11 @@ func capture() -> void:
 		runoff.set_process(false)
 		var arrival: float = runoff.get("first_arrival")
 		var stages := [0.0, arrival * 0.45, arrival + 0.15, arrival + 0.43, arrival + 0.66, arrival + 0.82]
-		runoff.call("advance", stages[index])
+		var age: float = ages[index] if fade_mode else stages[index]
+		if fade_mode:
+			ball.blood_effects = null
+			ball.call("_advance_bite_marks", age)
+		runoff.call("advance", age)
 		if index == ages.size() - 1:
 			blood.advance(0.10)
 	await frames(4)

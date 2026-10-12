@@ -5,6 +5,8 @@ extends RigidBody2D
 
 signal health_changed(value: int, maximum: int)
 
+const WOUND_LIFETIME := 5.0
+
 @export_range(4.0, 256.0, 1.0) var diameter: float = 70.0:
 	set(value):
 		diameter = value
@@ -207,7 +209,7 @@ func apply_bite_marks(attacker_position: Vector2, fang_spacing: float) -> void:
 		to_local(global_position + facing * depth + tangent * half_spacing),
 		to_local(global_position + facing * depth - tangent * half_spacing),
 	])
-	bite_marks_remaining = 3.0
+	bite_marks_remaining = WOUND_LIFETIME
 	wound_bleeding_remaining = 2.0
 	_wound_drip_elapsed = 0.0
 	var runoff := get_node_or_null("BloodRunoff")
@@ -309,15 +311,20 @@ func _draw_protection(radius: float) -> void:
 		draw_circle(tip, 2.4, Color(0.90, 1.0, 1.0))
 
 
+func wound_opacity() -> float:
+	return clampf(bite_marks_remaining / WOUND_LIFETIME, 0.0, 1.0)
+
+
 func _draw_puncture(point: Vector2, radius: float) -> void:
+	var alpha := wound_opacity()
 	var rim := PackedVector2Array()
 	for index in 18:
 		var angle := float(index) * TAU / 18.0
 		var irregular := 1.0 + 0.07 * sin(float(index) * 2.3)
 		rim.append(point + Vector2(cos(angle), sin(angle) * 0.85) * radius * irregular)
-	draw_colored_polygon(rim, Color(0.18, 0.004, 0.022))
-	draw_circle(point + Vector2(0.0, radius * 0.09), radius * 0.76, Color(0.035, 0.001, 0.006))
+	draw_colored_polygon(rim, Color(0.18, 0.004, 0.022, alpha))
+	draw_circle(point + Vector2(0.0, radius * 0.09), radius * 0.76, Color(0.035, 0.001, 0.006, alpha))
 	draw_arc(point + Vector2(0.0, radius * 0.04), radius * 0.78,
-		0.1, PI - 0.1, 16, Color(0.56, 0.018, 0.045), radius * 0.24, true)
+		0.1, PI - 0.1, 16, Color(0.56, 0.018, 0.045, alpha), radius * 0.24, true)
 	draw_arc(point, radius * 0.88, -PI + 0.3, -PI * 0.4,
-		12, Color(0.92, 0.18, 0.21), radius * 0.09, true)
+		12, Color(0.92, 0.18, 0.21, alpha), radius * 0.09, true)

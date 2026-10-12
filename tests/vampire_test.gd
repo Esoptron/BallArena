@@ -216,8 +216,11 @@ func test_shared_statuses_and_wounds() -> void:
 	for drop in blood.drops:
 		check(is_equal_approx(drop["radius"], 4.2), "New blood drops must be 1.5 times the old radius.")
 	blue.call("_advance_bite_marks", 0.91)
+	check(blue.bite_marks.size() == 2 and blue.wound_opacity() < 0.4 and blood.drops.size() == 10,
+		"Marks must fade while old bleeding stops at two seconds.")
+	blue.call("_advance_bite_marks", 2.0)
 	check(blue.bite_marks.is_empty() and blood.drops.size() == 10,
-		"Marks must disappear after three seconds without additional bleeding.")
+		"Marks must disappear at five seconds without more legacy bleeding.")
 	source_a.queue_free()
 	source_b.queue_free()
 	await remove_arena(arena)
