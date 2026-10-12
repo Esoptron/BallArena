@@ -30,6 +30,7 @@ func capture() -> void:
 	var red := main.get_node("Arena/Balls/RedBall") as ArenaBall
 	await frames(6)
 	await save_frame("vampire-aura.png")
+	await save_detail(main, red.global_position, "vampire-details-aura.png")
 	var blue_fangs := blue.get_node("Vampire") as VampireFangs
 	var red_fangs := red.get_node("Vampire") as VampireFangs
 	blue.position = Vector2(430, 300)
@@ -42,6 +43,8 @@ func capture() -> void:
 		return
 	await frames(36)
 	await save_frame("vampire-protected-bite.png")
+	await save_detail(main, (red.global_position + blue.global_position) * 0.5,
+		"vampire-details-bite.png")
 	if not red.is_invulnerable() or not red.freeze or not blue.freeze:
 		push_error("Both fighters must stop and the red vampire must be protected.")
 		quit(1)
@@ -52,6 +55,7 @@ func capture() -> void:
 		quit(1)
 		return
 	await save_frame("vampire-blood.png")
+	await save_detail(main, red.global_position, "vampire-details-stained.png")
 	await frames(115)
 	await save_frame("vampire-wounds.png")
 	blue_fangs.call("_finish_bite")
@@ -77,3 +81,16 @@ func capture() -> void:
 	await save_frame("vampire-low-health-50.png")
 	print("PASS: rendered aura, first-bite blood, and 70/50 low-health pulse from the canonical Desktop project")
 	quit(0)
+
+
+func save_detail(main: Node2D, focus: Vector2, file_name: String) -> void:
+	var camera := main.get_node("Camera2D") as Camera2D
+	var previous_zoom := camera.zoom
+	var previous_position := camera.global_position
+	camera.zoom = Vector2.ONE * 4.0
+	camera.global_position = focus
+	await frames(2)
+	await save_frame(file_name)
+	camera.zoom = previous_zoom
+	camera.global_position = previous_position
+	await frames(2)

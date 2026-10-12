@@ -21,6 +21,7 @@ func run_checks() -> void:
 	await test_bite_schedule()
 	await test_protected_bite()
 	await test_shared_statuses_and_wounds()
+	await test_tooth_immersion()
 	await test_visuals_and_health()
 	await test_live_low_health()
 	test_blood()
@@ -91,9 +92,9 @@ func test_bite_schedule() -> void:
 	blue.freeze = true
 	blue.current_health = 50
 	fangs.bite_tick.connect(on_bite_tick)
+	check(fangs.try_bite(red), "First bite should start.")
 	var pinned_position := red.position
 	var attacker_position := blue.position
-	check(fangs.try_bite(red), "First bite should start.")
 	check(not fangs.try_bite(red), "A bite must not stack/restart itself.")
 	check(fangs.has_bitten and red.is_paralyzed() and red.freeze,
 		"Bite should replace aura and immediately paralyze the victim.")
@@ -227,7 +228,7 @@ func test_visuals_and_health() -> void:
 	var aim := Vector2.UP.rotated(fangs.global_rotation)
 	var expected := (red.global_position - blue.global_position).normalized()
 	check(aim.dot(expected) > 0.9999, "Fangs must point towards the opponent.")
-	check(fangs.get_class() == "Node2D" and fangs.get_child_count() == 0,
+	check(fangs.get_class() == "Node2D" and fangs.find_children("*", "CollisionShape2D", true, false).is_empty(),
 		"Fangs must be visual only, with no solid collision shapes.")
 	var shape := (blue.get_node("CollisionShape2D") as CollisionShape2D).shape as CircleShape2D
 	blue.current_health = 29
@@ -306,4 +307,43 @@ func test_live_low_health() -> void:
 		check(blood.drops.size() <= blood.max_drops, "Live dripping exceeded its particle limit.")
 	print("60s live low-health combat: max wall penetration=%.3f, active drops=%d"
 		% [worst_penetration, blood.drops.size()])
+	await remove_arena(arena)
+
+
+func test_tooth_immersion() -> void:
+	for direction in [Vector2.RIGHT, Vector2(0.7, 0.7).normalized(), Vector2.UP]:
+		var arena := new_arena()
+		var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+		var red := arena.get_node("Balls/RedBall") as ArenaBall
+		blue.opponent = null
+		red.opponent = null
+		blue.position = Vector2(500, 300)
+		red.position = blue.position - direction * 95.0
+		var fangs := red.get_node("Vampire") as VampireFangs
+		check(fangs.try_bite(blue), "Immersion fixture must start a bite.")
+		var spacing := red.position.distance_to(blue.position)
+		var radius := red.visual_diameter() * 0.5
+		var side := fangs.fang_spacing() * 0.5
+		var front_surface := spacing - sqrt(35.0 * 35.0 - side * side)
+		var exposed_length := radius * 1.85 - sqrt(radius * radius - side * side)
+		var hidden_fraction := (radius * 1.85 - front_surface) / exposed_length
+		check(absf(hidden_fraction - 1.0 / 3.0) < 0.01,
+			"One third of the exposed long fangs must enter the opponent.")
+		check(spacing >= 70.0, "Circular bodies must remain separate during immersion.")
+		check(red.z_index + fangs.z_index < blue.z_index
+			and red.z_index + fangs.z_index > arena.z_index,
+			"Fangs must render above the floor but behind the victim body.")
+		await remove_arena(arena)
+	var arena := new_arena()
+	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+	var red := arena.get_node("Balls/RedBall") as ArenaBall
+	blue.opponent = null
+	red.opponent = null
+	red.position = Vector2(36, 36)
+	blue.position = Vector2(86, 36)
+	var fangs := red.get_node("Vampire") as VampireFangs
+	check(fangs.try_bite(blue), "Wall-adjacent immersion must start.")
+	for ball in [red, blue]:
+		check(ball.position.x >= 35.0 and ball.position.y >= 35.0,
+			"Immersion must not push either body outside the arena.")
 	await remove_arena(arena)
