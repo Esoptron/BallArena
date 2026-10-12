@@ -247,12 +247,18 @@ func _update_shape() -> void:
 func _draw() -> void:
 	var radius := visual_diameter() * 0.5
 	var color := body_color()
-	draw_circle(Vector2.ZERO, radius + 1.5, Color(0.015, 0.02, 0.045))
-	draw_circle(Vector2.ZERO, radius, color.darkened(0.20))
-	draw_circle(Vector2(-radius * 0.14, -radius * 0.17), radius * 0.82, color)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 96, color.lightened(0.15), 1.0, true)
-	draw_circle(Vector2(-radius * 0.46, -radius * 0.53), radius * 0.095,
-		Color(0.75, 0.95, 1.0, 0.8))
+	# Shared cartoon body: a broad soft highlight and a deep lower-right crescent.
+	draw_circle(Vector2.ZERO, radius + 1.25, Color(0.035, 0.015, 0.025))
+	draw_circle(Vector2.ZERO, radius, color.darkened(0.26))
+	var highlight_center := Vector2(-0.10, -0.13) * radius
+	for layer in 18:
+		var t := float(layer) / 17.0
+		draw_circle(highlight_center, radius * lerpf(0.83, 0.66, t),
+			color.lightened(t * 0.035))
+	draw_arc(Vector2.ZERO, radius - 0.35, -PI + 0.16, -0.06, 64,
+		color.lightened(0.17), 0.85, true)
+	draw_arc(Vector2.ZERO, radius - 0.35, 0.08, PI - 0.12, 64,
+		color.darkened(0.05), 0.65, true)
 
 	for point in bite_marks:
 		draw_circle(point, 3.5, Color(0.10, 0.005, 0.02))

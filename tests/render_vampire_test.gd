@@ -31,6 +31,7 @@ func capture() -> void:
 	await frames(6)
 	await save_frame("vampire-aura.png")
 	await save_detail(main, red.global_position, "vampire-details-aura.png")
+	await save_detail(main, blue.global_position, "ordinary-ball-details.png")
 	var blue_fangs := blue.get_node("Vampire") as VampireFangs
 	var red_fangs := red.get_node("Vampire") as VampireFangs
 	blue.position = Vector2(430, 300)
