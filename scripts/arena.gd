@@ -35,6 +35,11 @@ func _ready() -> void:
 	blue.blood_effects = $BloodEffects
 	red.blood_effects = $BloodEffects
 	$BloodEffects.floor_y = arena_size.y
+	$BloodEffects.arena_width = arena_size.x
+	blue.combat_effects = $CombatEffects
+	red.combat_effects = $CombatEffects
+	blue.health_delta.connect(_show_combat_number.bind(blue))
+	red.health_delta.connect(_show_combat_number.bind(red))
 
 
 func _create_walls() -> void:
@@ -70,3 +75,7 @@ func _draw() -> void:
 		arena_size + Vector2.ONE * wall_thickness * 2.0)
 	draw_rect(border, wall_color)
 	draw_rect(Rect2(Vector2.ZERO, arena_size), floor_color)
+
+
+func _show_combat_number(amount: int, healing: bool, fighter: ArenaBall) -> void:
+	$CombatEffects.spawn_number(fighter.global_position, amount, healing)

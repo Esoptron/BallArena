@@ -3,13 +3,17 @@ extends Node2D
 ## Blood positions are stored in arena space, independent of fang rotation.
 
 signal drop_landed
+signal spray_hit
 
+@export var arena_width: float = 960.0
+@export_range(16, 1024, 1) var max_splashes: int = 512
 @export var floor_y: float = 600.0
 @export_range(10.0, 3000.0, 10.0) var gravity: float = 750.0
 @export_range(0.1, 10.0, 0.1) var stain_lifetime: float = 1.25
 @export_range(4, 512, 1) var max_drops: int = 144
 
 var drops: Array[Dictionary] = []
+var splashes: Array[Dictionary] = []
 
 
 func spawn_drop(world_position: Vector2, radius: float = 2.8) -> void:
@@ -27,11 +31,39 @@ func spawn_drop(world_position: Vector2, radius: float = 2.8) -> void:
 	queue_redraw()
 
 
+# Reusable ballistic spray; unlike large drips it disappears only on boundary impact.
+func spawn_spray(world_position: Vector2, world_velocity: Vector2, radius: float = 1.2) -> bool:
+	if splashes.size() >= max_splashes:
+		return false
+	var p := to_local(world_position)
+	p = p.clamp(Vector2.ONE * radius, Vector2(arena_width - radius, floor_y - radius))
+	var velocity := to_local(world_position + world_velocity) - to_local(world_position)
+	splashes.append({"position": p, "velocity": velocity, "radius": radius})
+	return true
+
+
 func _process(delta: float) -> void:
 	advance(delta)
 
 
 func advance(delta: float) -> void:
+	for index in range(splashes.size() - 1, -1, -1):
+		var spray := splashes[index]
+		var p: Vector2 = spray["position"]
+		var velocity: Vector2 = spray["velocity"]
+		var radius: float = spray["radius"]
+		var next := p + velocity * delta + Vector2.DOWN * gravity * delta * delta * 0.5
+		var ceiling_hit := next.y <= radius
+		if velocity.y < 0.0:
+			var apex_time := -velocity.y / gravity
+			if apex_time > 0.0 and apex_time < delta:
+				ceiling_hit = ceiling_hit or p.y - velocity.y * velocity.y / (2.0 * gravity) <= radius
+		if ceiling_hit or next.x <= radius or next.x >= arena_width - radius or next.y >= floor_y - radius:
+			splashes.remove_at(index)
+			spray_hit.emit()
+		else:
+			spray["position"] = next
+			spray["velocity"] = velocity + Vector2.DOWN * gravity * delta
 	for index in range(drops.size() - 1, -1, -1):
 		var drop := drops[index]
 		var radius: float = drop["radius"]
@@ -54,6 +86,12 @@ func advance(delta: float) -> void:
 
 
 func _draw() -> void:
+	for spray in splashes:
+		var velocity: Vector2 = spray["velocity"]
+		var angle := Vector2.DOWN.angle_to(velocity.normalized()) if not velocity.is_zero_approx() else 0.0
+		draw_set_transform(spray["position"], angle)
+		BloodDrawing.draw_drop(self, Vector2.ZERO, spray["radius"], 1.0)
+	draw_set_transform(Vector2.ZERO)
 	for drop in drops:
 		var p: Vector2 = drop["position"]
 		var radius: float = drop["radius"]

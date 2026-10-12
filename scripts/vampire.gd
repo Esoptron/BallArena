@@ -25,6 +25,7 @@ var _clock: float = 0.0
 var _bite_elapsed: float = 0.0
 var _fixed_fang_diameter: float = 70.0
 var _carry_velocity: Vector2 = Vector2.ZERO
+var _drain_id: int = -1
 var _pair_offset: Vector2 = Vector2.ZERO
 var _victim_freeze_mode: int = RigidBody2D.FREEZE_MODE_STATIC
 
@@ -122,6 +123,8 @@ func try_bite(victim: ArenaBall) -> bool:
 	victim.paralyze(bite_duration)
 	_place_for_bite(victim)
 	_pair_offset = victim.global_position - fighter.global_position
+	if is_instance_valid(fighter.combat_effects):
+		_drain_id = fighter.combat_effects.call("start_drain", fighter, victim)
 	bite_started.emit(victim)
 	queue_redraw()
 	return true
@@ -130,6 +133,9 @@ func try_bite(victim: ArenaBall) -> bool:
 func _finish_bite() -> void:
 	if bite_target == null:
 		return
+	if is_instance_valid(fighter.combat_effects) and _drain_id >= 0:
+		fighter.combat_effects.call("stop_drain", _drain_id)
+	_drain_id = -1
 	var victim := bite_target
 	var completed := ticks_remaining == 0
 	var mark_spacing := fang_spacing()

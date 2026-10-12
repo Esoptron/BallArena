@@ -4,6 +4,7 @@ extends RigidBody2D
 ## A moving circle with health. The collider follows its pulsating body; fangs are non-solid.
 
 signal health_changed(value: int, maximum: int)
+signal health_delta(amount: int, healing: bool)
 
 const WOUND_LIFETIME := 5.0
 
@@ -31,6 +32,7 @@ var current_health: int = 100
 var paralysis_remaining: float = 0.0
 var opponent: ArenaBall
 var blood_effects: Node2D
+var combat_effects: Node2D
 var _last_direction: Vector2 = Vector2.RIGHT
 var _visual_time: float = 0.0
 var attack_recovery_remaining: float = 0.0
@@ -62,6 +64,11 @@ func _ready() -> void:
 	runoff.show_behind_parent = true
 	runoff.set_script(preload("res://scripts/bite_runoff.gd"))
 	add_child(runoff)
+	var label := Node2D.new()
+	label.name = "HealthDisplay"
+	label.z_index = 6
+	label.set_script(preload("res://scripts/health_display.gd"))
+	add_child(label)
 	current_health = clampi(starting_health, 1, max_health)
 	if not Engine.is_editor_hint():
 		start_motion()
@@ -146,6 +153,7 @@ func take_damage(amount: int) -> int:
 	current_health -= applied
 	if applied > 0:
 		health_changed.emit(current_health, max_health)
+		health_delta.emit(applied, false)
 	if current_health == 0:
 		freeze = true
 		linear_velocity = Vector2.ZERO
@@ -239,6 +247,7 @@ func heal(amount: int) -> int:
 	current_health += applied
 	if applied > 0:
 		health_changed.emit(current_health, max_health)
+		health_delta.emit(applied, true)
 	return applied
 
 
