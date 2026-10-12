@@ -19,6 +19,7 @@ const WOUND_LIFETIME := 5.0
 		queue_redraw()
 @export var initial_direction: Vector2 = Vector2(1.0, 0.29)
 @export var is_vampire: bool = true
+@export var is_swordsman: bool = false
 ## Reference HP for low-health thresholds; healing can exceed this value.
 @export_range(1, 10000, 1) var max_health: int = 100
 @export_range(1, 10000, 1) var starting_health: int = 100
@@ -128,9 +129,12 @@ func is_paralyzed() -> bool:
 	return paralysis_remaining > 0.0
 
 
+func can_attack() -> bool:
+	return current_health > 0 and not is_immobilized() and attack_recovery_remaining <= 0.0
+
+
 func can_start_bite() -> bool:
-	return is_vampire and current_health > 0 and not is_immobilized() \
-		and attack_recovery_remaining <= 0.0
+	return is_vampire and can_attack()
 
 
 func prevent_attacks(duration: float) -> void:

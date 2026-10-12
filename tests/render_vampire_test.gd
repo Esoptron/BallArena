@@ -25,6 +25,8 @@ func save_frame(name: String) -> void:
 func capture() -> void:
 	root.size = Vector2i(1280, 900)
 	var main := MAIN.instantiate() as Node2D
+	(main.get_node("Arena") as BallArena).blue_character = 0
+	(main.get_node("Arena") as BallArena).randomize_spawns = false
 	root.add_child(main)
 	var blue := main.get_node("Arena/Balls/BlueBall") as ArenaBall
 	var red := main.get_node("Arena/Balls/RedBall") as ArenaBall

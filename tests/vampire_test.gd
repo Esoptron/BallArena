@@ -44,6 +44,8 @@ func ticks(count: int) -> void:
 
 func new_arena() -> BallArena:
 	var arena := ARENA.instantiate() as BallArena
+	arena.blue_character = 0
+	arena.randomize_spawns = false
 	root.add_child(arena)
 	return arena
 

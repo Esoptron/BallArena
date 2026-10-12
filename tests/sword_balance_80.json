@@ -1,0 +1,9 @@
+[
+  {
+    "damage": 80,
+    "damage_gain": 8,
+    "name": "selected",
+    "speed": 320,
+    "speed_gain": 12
+  }
+]

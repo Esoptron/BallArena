@@ -41,6 +41,8 @@ func _new_arena(size: Vector2 = Vector2(960, 600),
 	arena.arena_size = size
 	arena.ball_diameter = diameter
 	arena.ball_speed = speed
+	arena.blue_character = 0
+	arena.randomize_spawns = false
 	root.add_child(arena)
 	for ball: ArenaBall in arena.get_node("Balls").get_children():
 		# Isolate movement regression checks from intentional bite paralysis.

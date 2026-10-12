@@ -1,0 +1,58 @@
+[
+  {
+    "damage": 64,
+    "damage_gain": 8,
+    "name": "D64_S320_G8_12",
+    "speed": 320,
+    "speed_gain": 12
+  },
+  {
+    "damage": 72,
+    "damage_gain": 8,
+    "name": "D72_S320_G8_12",
+    "speed": 320,
+    "speed_gain": 12
+  },
+  {
+    "damage": 80,
+    "damage_gain": 8,
+    "name": "D80_S320_G8_12",
+    "speed": 320,
+    "speed_gain": 12
+  },
+  {
+    "damage": 88,
+    "damage_gain": 8,
+    "name": "D88_S320_G8_12",
+    "speed": 320,
+    "speed_gain": 12
+  },
+  {
+    "damage": 96,
+    "damage_gain": 8,
+    "name": "D96_S320_G8_12",
+    "speed": 320,
+    "speed_gain": 12
+  },
+  {
+    "damage": 80,
+    "damage_gain": 8,
+    "name": "D80_S280_G8_12",
+    "speed": 280,
+    "speed_gain": 12
+  },
+  {
+    "damage": 80,
+    "damage_gain": 8,
+    "name": "D80_S360_G8_16",
+    "speed": 360,
+    "speed_gain": 16
+  },
+  {
+    "damage": 72,
+    "damage_gain": 12,
+    "name": "D72_S320_G12_16",
+    "speed": 320,
+    "speed_gain": 16
+  }
+]

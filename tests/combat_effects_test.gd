@@ -41,6 +41,8 @@ func run() -> void:
 		"Capacity must reject new spray without removing airborne particles.")
 	blood.queue_free()
 	var arena := ARENA.instantiate() as BallArena
+	arena.blue_character = 0
+	arena.randomize_spawns = false
 	root.add_child(arena)
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall

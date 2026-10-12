@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ball.gd" id="1_ball"]
 
 [ext_resource type="Script" path="res://scripts/vampire.gd" id="2_vampire"]
+
+[ext_resource type="Script" path="res://scripts/swordsman.gd" id="3_sword"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
 friction = 0.0
@@ -31,3 +33,7 @@ shape = SubResource("CircleShape2D_ball")
 [node name="Vampire" type="Node2D" parent="."]
 show_behind_parent = true
 script = ExtResource("2_vampire")
+
+[node name="Sword" type="Node2D" parent="."]
+show_behind_parent = true
+script = ExtResource("3_sword")
