@@ -23,6 +23,7 @@ func run_checks() -> void:
 	await test_shared_statuses_and_wounds()
 	await test_tooth_immersion()
 	await test_carried_direction()
+	await test_pair_corner_bounds()
 	await test_bite_body_pulse()
 	await test_visuals_and_health()
 	await test_live_low_health()
@@ -100,7 +101,7 @@ func test_bite_schedule() -> void:
 	check(not fangs.try_bite(red), "A bite must not stack/restart itself.")
 	check(fangs.has_bitten and red.is_paralyzed() and red.freeze,
 		"Bite should replace aura and immediately paralyze the victim.")
-	check(blue.freeze and blue.is_invulnerable(), "Attacker must be stopped and invulnerable during its bite.")
+	check(blue.freeze and blue.is_invulnerable(), "Attacker must be protected and driven by attached-pair movement.")
 	check(blue.take_damage(7) == 0 and blue.current_health == 50,
 		"Invulnerability must block actual damage.")
 	check(red.body_color().v < red.ball_color.v * 0.6,
@@ -115,8 +116,10 @@ func test_bite_schedule() -> void:
 		"Helpless victim must continue moving rather than remain pinned.")
 	check(absf((fangs.get("_carry_velocity") as Vector2).length() - blue.movement_speed / 3.0) < 0.05,
 		"Victim must move at exactly one third of the attacker's configured speed.")
-	check(blue.position.distance_to(attacker_position) < 0.01 and blue.freeze,
-		"Attacker must remain fixed for the entire bite.")
+	check(blue.position.distance_to(attacker_position) > 100.0 and blue.freeze,
+		"Attacker must travel with the victim while attached.")
+	check((blue.position - attacker_position).distance_to(red.position - pinned_position) < 0.01,
+		"Attacker and victim must share identical displacement through the bite.")
 	check(tick_damage.size() == 9, "Nine ticks should have completed before 3 seconds.")
 	await ticks(50)
 	check(red.current_health == 90 and blue.current_health == 60,
@@ -406,19 +409,53 @@ func test_carried_direction() -> void:
 			"Victim must inherit the vampire's incoming direction, not aim toward it.")
 		check(absf(displacement.length() / elapsed - speed / 3.0) < 0.05,
 			"Measured victim displacement must match one-third speed for different vampire speeds.")
-		check(red.position.distance_to(attacker_start) < 0.01,
-			"Attacker must remain stationary while its incoming motion is carried by the victim.")
+		check((red.position - attacker_start).distance_to(displacement) < 0.01,
+			"Both bodies must move together with constant bite attachment.")
 		# Put the victim close to the lower wall to exercise a reflected trajectory.
-		blue.position.y = arena.arena_size.y - 42.0
+		var wall_shift := Vector2(0.0, arena.arena_size.y - 42.0 - blue.position.y)
+		blue.position += wall_shift
+		red.position += wall_shift
 		blue.reset_physics_interpolation()
+		red.reset_physics_interpolation()
 		await ticks(60)
 		check(blue.position.y <= arena.arena_size.y - 35.0 + 0.1
 			and (fangs.get("_carry_velocity") as Vector2).y < 0.0,
 			"Carried victim must bounce at the arena wall.")
 		start = blue.position
+		attacker_start = red.position
 		var before_elapsed: float = fangs.get("_bite_elapsed")
 		await ticks(60)
 		elapsed = float(fangs.get("_bite_elapsed")) - before_elapsed
 		check(absf(blue.position.distance_to(start) / elapsed - speed / 3.0) < 0.05,
 			"Measured speed must remain one third after wall reflection.")
+		check((red.position - attacker_start).distance_to(blue.position - start) < 0.01,
+			"Wall reflections must not separate the attached pair.")
+		await remove_arena(arena)
+
+
+func test_pair_corner_bounds() -> void:
+	for direction in [Vector2.LEFT, Vector2.RIGHT, Vector2(-1, -1).normalized()]:
+		var arena := new_arena()
+		var red := arena.get_node("Balls/RedBall") as ArenaBall
+		var blue := arena.get_node("Balls/BlueBall") as ArenaBall
+		red.opponent = null
+		blue.opponent = null
+		red.position = Vector2(35.3, 35.0)
+		blue.position = Vector2(110.0, 35.0)
+		red.movement_speed = 900.0
+		red.linear_velocity = direction * red.movement_speed
+		var fangs := red.get_node("Vampire") as VampireFangs
+		check(fangs.try_bite(blue), "Pair corner fixture must start.")
+		var attachment := blue.position - red.position
+		for step in 600:
+			await physics_frame
+			check((blue.position - red.position).distance_to(attachment) < 0.01,
+				"Wall and corner reflections must preserve attachment at every step.")
+			for ball in [red, blue]:
+				check(ball.position.x >= 34.99 and ball.position.y >= 34.99
+					and ball.position.x <= arena.arena_size.x - 34.99
+					and ball.position.y <= arena.arena_size.y - 34.99,
+					"Neither attached body may cross arena walls.")
+		check(absf((fangs.get("_carry_velocity") as Vector2).length() - 300.0) < 0.05,
+			"Pair reflection must preserve the shared one-third speed.")
 		await remove_arena(arena)

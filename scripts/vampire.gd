@@ -25,6 +25,7 @@ var _clock: float = 0.0
 var _bite_elapsed: float = 0.0
 var _fixed_fang_diameter: float = 70.0
 var _carry_velocity: Vector2 = Vector2.ZERO
+var _pair_offset: Vector2 = Vector2.ZERO
 var _victim_freeze_mode: int = RigidBody2D.FREEZE_MODE_STATIC
 
 
@@ -120,6 +121,7 @@ func try_bite(victim: ArenaBall) -> bool:
 	victim.freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
 	victim.paralyze(bite_duration)
 	_place_for_bite(victim)
+	_pair_offset = victim.global_position - fighter.global_position
 	bite_started.emit(victim)
 	queue_redraw()
 	return true
@@ -160,17 +162,48 @@ func fang_diameter() -> float:
 
 
 func _advance_carried_motion(delta: float) -> void:
-	var motion := _carry_velocity * delta
-	for impact in 4:
-		var collision := bite_target.move_and_collide(motion, false, 0.001)
-		if collision == null:
-			break
-		var normal := collision.get_normal()
-		_carry_velocity = _carry_velocity.bounce(normal)
-		motion = collision.get_remainder().bounce(normal)
-		if motion.is_zero_approx():
-			break
-	bite_target.linear_velocity = _carry_velocity
+	var arena := fighter.get_parent().get_parent() as BallArena
+	if arena == null:
+		fighter.global_position += _carry_velocity * delta
+	else:
+		var position_local := arena.to_local(fighter.global_position)
+		var offset_local := arena.to_local(fighter.global_position + _pair_offset) - position_local
+		var velocity_local := arena.to_local(fighter.global_position + _carry_velocity) - position_local
+		# Sweep both circles as one rigid pair. Either body's wall contact reflects both.
+		var own_radius := fighter.diameter * 0.5
+		var victim_radius := bite_target.diameter * 0.5
+		var lower := Vector2(maxf(own_radius, victim_radius - offset_local.x),
+			maxf(own_radius, victim_radius - offset_local.y))
+		var upper := Vector2(minf(arena.arena_size.x - own_radius,
+			arena.arena_size.x - victim_radius - offset_local.x),
+			minf(arena.arena_size.y - own_radius,
+			arena.arena_size.y - victim_radius - offset_local.y))
+		position_local = position_local.clamp(lower, upper)
+		var remaining := delta
+		for impact in 8:
+			var hit_x := INF
+			var hit_y := INF
+			if absf(velocity_local.x) > 0.000001:
+				var boundary := upper.x if velocity_local.x > 0.0 else lower.x
+				hit_x = maxf(0.0, (boundary - position_local.x) / velocity_local.x)
+			if absf(velocity_local.y) > 0.000001:
+				var boundary := upper.y if velocity_local.y > 0.0 else lower.y
+				hit_y = maxf(0.0, (boundary - position_local.y) / velocity_local.y)
+			var contact_time := minf(hit_x, hit_y)
+			var travel := minf(remaining, contact_time)
+			position_local += velocity_local * travel
+			remaining -= travel
+			if contact_time > travel:
+				break
+			if hit_x <= hit_y + 0.0000001:
+				velocity_local.x = -velocity_local.x
+			if hit_y <= hit_x + 0.0000001:
+				velocity_local.y = -velocity_local.y
+			if remaining <= 0.0000001:
+				break
+		fighter.global_position = arena.to_global(position_local)
+		_carry_velocity = arena.to_global(velocity_local) - arena.to_global(Vector2.ZERO)
+	bite_target.global_position = fighter.global_position + _pair_offset
 
 
 func fang_spacing() -> float:
