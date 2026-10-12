@@ -203,6 +203,7 @@ func test_shared_statuses_and_wounds() -> void:
 	var blood := arena.get_node("BloodEffects") as ArenaBlood
 	blood.set_process(false)
 	blood.drops.clear()
+	blue.experimental_blood_runoff = false
 	blue.apply_bite_marks(red.global_position, 41.3)
 	check(is_equal_approx(blue.bite_marks[0].distance_to(blue.bite_marks[1]), 41.3),
 		"Wounds must retain the requested fang spacing.")

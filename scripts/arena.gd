@@ -10,6 +10,7 @@ extends Node2D
 @export_range(4.0, 256.0, 1.0) var ball_diameter: float = 70.0
 @export_range(1.0, 2000.0, 1.0) var ball_speed: float = 320.0
 @export_range(2.0, 64.0, 1.0) var wall_thickness: float = 12.0
+@export var experimental_blood_runoff: bool = true
 @export var floor_color: Color = Color(0.075, 0.095, 0.13)
 @export var wall_color: Color = Color(0.32, 0.38, 0.48)
 
@@ -25,6 +26,8 @@ func _ready() -> void:
 	var red := $Balls/RedBall as ArenaBall
 	blue.position = arena_size * Vector2(0.28, 0.38)
 	red.position = arena_size * Vector2(0.72, 0.62)
+	blue.experimental_blood_runoff = experimental_blood_runoff
+	red.experimental_blood_runoff = experimental_blood_runoff
 	blue.configure(ball_diameter, ball_speed)
 	red.configure(ball_diameter, ball_speed)
 	blue.opponent = red

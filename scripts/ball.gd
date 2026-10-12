@@ -24,6 +24,7 @@ signal health_changed(value: int, maximum: int)
 @export_range(0.0, 0.15, 0.005) var bite_pulse_amount: float = 0.05
 @export_range(0.1, 10.0, 0.1) var bite_pulse_frequency: float = 2.0
 
+var experimental_blood_runoff: bool = true
 var current_health: int = 100
 var paralysis_remaining: float = 0.0
 var opponent: ArenaBall
@@ -44,11 +45,21 @@ var bite_pulse_elapsed: float = 0.0
 
 func _ready() -> void:
 	_update_shape()
+	var plain_art := Node2D.new()
+	plain_art.name = "OrdinaryBallArt"
+	plain_art.show_behind_parent = true
+	plain_art.set_script(preload("res://scripts/ordinary_ball_art.gd"))
+	add_child(plain_art)
 	var art := Node2D.new()
 	art.name = "ApprovedVampireArt"
 	art.show_behind_parent = true
 	art.set_script(preload("res://scripts/approved_vampire_art.gd"))
 	add_child(art)
+	var runoff := Node2D.new()
+	runoff.name = "BloodRunoff"
+	runoff.show_behind_parent = true
+	runoff.set_script(preload("res://scripts/bite_runoff.gd"))
+	add_child(runoff)
 	current_health = clampi(starting_health, 1, max_health)
 	if not Engine.is_editor_hint():
 		start_motion()
@@ -190,7 +201,7 @@ func apply_bite_marks(attacker_position: Vector2, fang_spacing: float) -> void:
 		facing = Vector2.LEFT
 	var tangent := facing.orthogonal()
 	var half_spacing := fang_spacing * 0.5
-	var radius := visual_diameter() * 0.5 - 4.0
+	var radius := visual_diameter() * 0.5 - 6.0
 	var depth := sqrt(maxf(0.0, radius * radius - half_spacing * half_spacing))
 	bite_marks = PackedVector2Array([
 		to_local(global_position + facing * depth + tangent * half_spacing),
@@ -199,6 +210,9 @@ func apply_bite_marks(attacker_position: Vector2, fang_spacing: float) -> void:
 	bite_marks_remaining = 3.0
 	wound_bleeding_remaining = 2.0
 	_wound_drip_elapsed = 0.0
+	var runoff := get_node_or_null("BloodRunoff")
+	if experimental_blood_runoff and runoff != null:
+		runoff.call("start", bite_marks, visual_diameter() * 0.5)
 	queue_redraw()
 
 
@@ -209,7 +223,7 @@ func _advance_bite_marks(delta: float) -> void:
 	_wound_drip_elapsed += bleeding_step
 	while _wound_drip_elapsed + 0.000001 >= 0.4:
 		_wound_drip_elapsed -= 0.4
-		if is_instance_valid(blood_effects):
+		if not experimental_blood_runoff and is_instance_valid(blood_effects):
 			for point in bite_marks:
 				blood_effects.call("spawn_drop", to_global(point), 4.2)
 	if bite_marks_remaining <= 0.0:
@@ -272,23 +286,9 @@ func _update_shape() -> void:
 func _draw() -> void:
 	var radius := visual_diameter() * 0.5
 	var color := body_color()
-	if not is_vampire:
-		# Shared cartoon body: a broad soft highlight and a deep lower-right crescent.
-		draw_circle(Vector2.ZERO, radius + 1.25, Color(0.035, 0.015, 0.025))
-		draw_circle(Vector2.ZERO, radius, color.darkened(0.26))
-		var highlight_center := Vector2(-0.10, -0.13) * radius
-		for layer in 18:
-			var t := float(layer) / 17.0
-			draw_circle(highlight_center, radius * lerpf(0.83, 0.66, t),
-				color.lightened(t * 0.035))
-		draw_arc(Vector2.ZERO, radius - 0.35, -PI + 0.16, -0.06, 64,
-			color.lightened(0.17), 0.85, true)
-		draw_arc(Vector2.ZERO, radius - 0.35, 0.08, PI - 0.12, 64,
-			color.darkened(0.05), 0.65, true)
 
 	for point in bite_marks:
-		draw_circle(point, 3.5, Color(0.10, 0.005, 0.02))
-		draw_circle(point, 2.3, Color(0.34, 0.01, 0.045))
+		_draw_puncture(point, maxf(2.5, diameter * 0.073))
 	if is_invulnerable():
 		_draw_protection(radius)
 
@@ -307,3 +307,17 @@ func _draw_protection(radius: float) -> void:
 			24, Color(0.56, 0.98, 1.0, 0.9), 3.3, true)
 		var tip := Vector2.from_angle(angle + TAU * 0.19) * (shield_radius + 3.0)
 		draw_circle(tip, 2.4, Color(0.90, 1.0, 1.0))
+
+
+func _draw_puncture(point: Vector2, radius: float) -> void:
+	var rim := PackedVector2Array()
+	for index in 18:
+		var angle := float(index) * TAU / 18.0
+		var irregular := 1.0 + 0.07 * sin(float(index) * 2.3)
+		rim.append(point + Vector2(cos(angle), sin(angle) * 0.85) * radius * irregular)
+	draw_colored_polygon(rim, Color(0.18, 0.004, 0.022))
+	draw_circle(point + Vector2(0.0, radius * 0.09), radius * 0.76, Color(0.035, 0.001, 0.006))
+	draw_arc(point + Vector2(0.0, radius * 0.04), radius * 0.78,
+		0.1, PI - 0.1, 16, Color(0.56, 0.018, 0.045), radius * 0.24, true)
+	draw_arc(point, radius * 0.88, -PI + 0.3, -PI * 0.4,
+		12, Color(0.92, 0.18, 0.21), radius * 0.09, true)

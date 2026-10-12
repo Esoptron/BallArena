@@ -65,9 +65,11 @@ func _draw() -> void:
 			scale_factor = Vector2(lerpf(1.0, 2.8, squash), lerpf(1.0, 0.18, squash))
 			p.y = floor_y - radius * scale_factor.y
 			alpha *= pow(1.0 - clampf(age / stain_lifetime, 0.0, 1.0), 2.0)
-		draw_set_transform(p, 0.0, scale_factor)
-		draw_circle(Vector2.ZERO, radius, Color(0.82, 0.025, 0.055, alpha))
 		if not drop["landed"]:
-			draw_circle(Vector2(-radius * 0.25, -radius * 0.35), radius * 0.2,
-				Color(1.0, 0.60, 0.65, alpha))
+			BloodDrawing.draw_drop(self, p, radius, alpha)
+		else:
+			draw_set_transform(p, 0.0, scale_factor)
+			draw_circle(Vector2.ZERO, radius, Color(0.33, 0.005, 0.02, alpha))
+			draw_circle(Vector2.ZERO, radius * 0.83, Color(0.77, 0.012, 0.035, alpha))
+			draw_set_transform(Vector2.ZERO)
 	draw_set_transform(Vector2.ZERO)
