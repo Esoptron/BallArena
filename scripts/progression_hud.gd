@@ -1,13 +1,14 @@
 extends Control
 ## Screen-space cards beside a landscape arena, populated by abilities rather than hero IDs.
 const LAYOUT := preload("res://scripts/screen_layout.gd")
-const NAMES := preload("res://scripts/character_selection.gd").NAMES
+const NAMES := preload("res://scripts/ui/character_text.gd").NAMES
 var arena: BallArena
 var camera: Camera2D
 var cards: Array[PanelContainer] = []
 var labels: Array[Label] = []
 var actors: Array[ArenaBall] = []
 var _elapsed := 0.0
+var _refresh_pending := false
 var _layout_screen := Vector2(-1,-1)
 var _layout_transform := Transform2D()
 var _layout_zoom := Vector2.ZERO
@@ -77,15 +78,20 @@ func _invalidate_layout() -> void:
 func _process(delta: float) -> void:
 	layout()
 	_elapsed += delta
-	if _elapsed >= 0.1:
+	if _refresh_pending or _elapsed >= 0.1:
 		_elapsed = 0.0
 		refresh()
 
 func _on_event(event: Dictionary) -> void:
-	if event["kind"] == "hit":
-		refresh()
+	if event.get("kind") == "hit":
+		# Mass battles share one screen update; preserve the immediate duel API.
+		if arena.fighters.size() > 2:
+			_refresh_pending = true
+		else:
+			refresh()
 
 func refresh() -> void:
+	_refresh_pending = false
 	if arena.fighters.size() > 2:
 		_refresh_group()
 		return

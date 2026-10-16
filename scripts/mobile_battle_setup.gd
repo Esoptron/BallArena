@@ -2,8 +2,9 @@ extends Control
 signal roster_requested(roster: Array[Dictionary], format: StringName, title: String)
 signal selection_changed(side: int, id: StringName)
 signal mode_changed(format: StringName)
-const BALL := preload("res://scenes/ball.tscn")
-const OLD := preload("res://scripts/character_selection.gd")
+const TEXTS := preload("res://scripts/ui/character_text.gd")
+const PORTRAITS := preload("res://scripts/ui/portrait_preview.gd")
+const STYLES := preload("res://scripts/ui/menu_styles.gd")
 const FLAME := preload("res://scripts/copy_flame.gd")
 const BLUE := Color("83b2ff")
 const RED := Color("ff8491")
@@ -57,16 +58,7 @@ func _height_changed() -> void:
 	custom_minimum_size.y = column.size.y
 
 func _style(accent: Color = Color("34445e"), fill: Color = Color("131f32")) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = accent
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(14)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	return style
+	return STYLES.box(fill, accent, 14, 12, 8)
 
 func _button(text: String, action: Callable) -> Button:
 	var button := Button.new()
@@ -173,11 +165,14 @@ func _build_side(side: int) -> void:
 	stage.gui_input.connect(_swipe_input.bind(side))
 
 func cycle(side: int, direction: int) -> void:
+	if side < 0 or side >= panels.size() or ids.is_empty():
+		return
 	var index := ids.find(String(selections[side]))
 	select_character(side,StringName(ids[posmod(index+direction,ids.size())]),true,direction)
 
 func select_character(side: int, id: StringName, animate: bool = true, direction: int = 1) -> void:
-	if not ids.has(String(id)): return
+	if side < 0 or side >= panels.size() or not ids.has(String(id)):
+		return
 	selections[side] = id
 	selection_changed.emit(side,id)
 	var info: Dictionary = panels[side]
@@ -186,23 +181,14 @@ func select_character(side: int, id: StringName, animate: bool = true, direction
 	if is_instance_valid(info["outgoing"]): info["outgoing"].queue_free()
 	var old: ArenaBall = info["fighter"]
 	var profile := CharacterCatalog.character(id)
-	var fighter := BALL.instantiate() as ArenaBall
-	fighter.ball_color = Color(0.16,0.48,1.0) if side == 0 else Color(1.0,0.16,0.20)
-	info["viewport"].add_child(fighter)
-	CharacterCatalog.apply(fighter,profile,78.0)
+	var fighter := PORTRAITS.create(info["viewport"], profile, side)
 	_portrait_style(fighter, id)
-	fighter.freeze = true
-	fighter.collision_layer = 0
-	fighter.collision_mask = 0
-	fighter.linear_velocity = Vector2.ZERO
-	fighter.get_node("HealthDisplay").hide()
 
 	if fighter.has_node("Knives"): fighter.get_node("Knives").rotation = 0.0
-	_disable_combat(fighter)
 	info["fighter"] = fighter
-	info["title"].text = OLD.NAMES.get(String(id),profile.display_name)
-	info["description"].text = OLD.DESCRIPTIONS.get(String(id),"")
-	info["stats"].text = "%d HP · %s" % [profile.starting_health,["Лёгкий","Легче среднего","Средний","Тяжелее среднего","Тяжёлый"][profile.weight_class]]
+	info["title"].text = TEXTS.NAMES.get(String(id),profile.display_name)
+	info["description"].text = TEXTS.DESCRIPTIONS.get(String(id),"")
+	info["stats"].text = "%d HP · %s" % [profile.starting_health,TEXTS.weight_name(profile.weight_class)]
 	_position_portrait(side)
 	if animate:
 		info["outgoing"] = old
@@ -254,11 +240,17 @@ func _update_preview_resolution(info: Dictionary) -> void:
 	var stage_size: Vector2 = info["stage"].size
 	if stage_size.x <= 0 or stage_size.y <= 0: return
 	var logical_size := get_viewport_rect().size
+	if logical_size.x <= 0 or logical_size.y <= 0:
+		return
 	var physical_size := Vector2(get_window().size)
 	var density := clampf(maxf(physical_size.x/logical_size.x,physical_size.y/logical_size.y),2.0,3.0)
 	var viewport: SubViewport = info["viewport"]
-	viewport.size = Vector2i((stage_size*density).ceil())
-	viewport.canvas_transform = Transform2D.IDENTITY.scaled(Vector2.ONE*density)
+	var buffer_size := Vector2i((stage_size*density).ceil())
+	if viewport.size != buffer_size:
+		viewport.size = buffer_size
+	var transform := Transform2D.IDENTITY.scaled(Vector2.ONE*density)
+	if viewport.canvas_transform != transform:
+		viewport.canvas_transform = transform
 
 func set_landscape(value: bool) -> void:
 	if landscape_layout == value: return
@@ -284,10 +276,6 @@ func _portrait_style(fighter: ArenaBall, id: StringName) -> void:
 	fighter.get_node("Sword").rotation = angle
 	if fighter.has_node("Katana"): fighter.get_node("Katana").rotation = angle
 	if fighter.has_node("Club"): fighter.get_node("Club").rotation = -PI*0.90
-
-func _disable_combat(node: Node) -> void:
-	node.set_physics_process(false)
-	for child in node.get_children(): _disable_combat(child)
 
 func _swipe_input(event: InputEvent, side: int) -> void:
 	var info: Dictionary = panels[side]
@@ -355,6 +343,8 @@ func set_count(id: String, side: int, amount: int) -> void:
 	refresh()
 
 func change_count(side: int, delta: int) -> void:
+	if side < 0 or side >= selections.size():
+		return
 	var id := String(selections[side])
 	set_count(id,side,int(counts[id][side])+delta)
 
@@ -382,8 +372,8 @@ func refresh() -> void:
 		info["plus"].disabled = total >= 20 and not (mode == &"teams" and teams[index] == 0)
 		var pieces := PackedStringArray()
 		for hero in ids:
-			if counts[hero][index] > 0: pieces.append("%s ×%d" % [OLD.NAMES.get(hero,hero),counts[hero][index]])
-		info["summary"].text = "В бой: %s" % OLD.NAMES.get(id,id) if pieces.is_empty() and (mode == &"teams" or total_count() < 2) else ("Состав пуст" if pieces.is_empty() else " · ".join(pieces))
+			if counts[hero][index] > 0: pieces.append("%s ×%d" % [TEXTS.NAMES.get(hero,hero),counts[hero][index]])
+		info["summary"].text = "В бой: %s" % TEXTS.NAMES.get(id,id) if pieces.is_empty() and (mode == &"teams" or total_count() < 2) else ("Состав пуст" if pieces.is_empty() else " · ".join(pieces))
 	status_label.text = "%d / 20 участников" % total
 	if not valid: status_label.text += " · " + problem
 

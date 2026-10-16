@@ -3,7 +3,8 @@ signal battle_requested(roster: Array[Dictionary], format: StringName, title: St
 signal duel_requested
 signal quit_requested
 const LEVEL := preload("res://levels/level_01.tres")
-const NAMES := preload("res://scripts/character_selection.gd").NAMES
+const NAMES := preload("res://scripts/ui/character_text.gd").NAMES
+const STYLES := preload("res://scripts/ui/menu_styles.gd")
 const BLUE := Color("83b2ff")
 const GOLD := Color("e2b46d")
 const TEXT := Color("eef3ff")
@@ -13,7 +14,6 @@ var content: VBoxContainer
 var title_label: Label
 var buttons: Dictionary = {}
 var free_counts: Dictionary = {}
-var format_picker: OptionButton
 var status_label: Label
 var free_start: Button
 var format: StringName = &"teams"
@@ -43,16 +43,7 @@ func _ready() -> void:
 	show_page("home")
 
 func _style(accent: Color, filled: bool = false) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("193564") if filled else Color("131f32")
-	style.border_color = accent if filled else Color("34445e")
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(14)
-	style.content_margin_left = 18
-	style.content_margin_right = 18
-	style.content_margin_top = 14
-	style.content_margin_bottom = 14
-	return style
+	return STYLES.box(Color("193564") if filled else Color("131f32"), accent if filled else Color("34445e"), 14, 18, 14)
 
 func button(text: String, action: Callable, accent: Color = BLUE, primary: bool = false) -> Button:
 	var result := Button.new()
@@ -90,6 +81,8 @@ func card(parent: Node, accent: Color = BLUE) -> VBoxContainer:
 	return box
 
 func show_page(next: String) -> void:
+	if next not in ["home", "modes", "free", "settings"]:
+		return
 	page = next
 	for child in get_children():
 		remove_child(child)
@@ -97,6 +90,8 @@ func show_page(next: String) -> void:
 	buttons.clear()
 	sticky_footer = null
 	selector = null
+	free_start = null
+	status_label = null
 	title_label = null
 	home_grid = null
 	var background := ColorRect.new()

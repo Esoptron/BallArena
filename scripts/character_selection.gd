@@ -1,15 +1,16 @@
 extends Control
 signal battle_requested(player_id: StringName, opponent_id: StringName)
 signal back_requested
-const BALL := preload("res://scenes/ball.tscn")
+const TEXTS := preload("res://scripts/ui/character_text.gd")
+const PORTRAITS := preload("res://scripts/ui/portrait_preview.gd")
+const STYLES := preload("res://scripts/ui/menu_styles.gd")
 const BLUE := Color("5d9dff")
 const RED := Color("ff6977")
 const INK := Color("101827")
 const TEXT := Color("e9effc")
 const MUTED := Color("93a3bd")
-const NAMES := {"club": "Дубина", "katana": "Катанщик", "knifeman": "Ножевик", "ordinary": "Обычный шар", "swordsman": "Мечник", "vampire": "Вампир"}
-const DESCRIPTIONS := {"club": "Тяжёлая дубина отбрасывает врагов.\nПри получении удара: 5% на щит на 5 секунд.", "katana": "Длинный клинок. Шанс крита растёт.\nКриты вызывают кровотечение.", "knifeman": "Два кинжала. Каждый удар\nрезко ускоряет вращение.", "ordinary": "Чистая скорость и столкновения.
-Без оружия и способностей.", "swordsman": "Урон и скорость растут от попаданий.\nКрит включает берсерк на 5 секунд.", "vampire": "Присасывается и высасывает здоровье.\nОхота при HP ниже 20 — один раз за бой."}
+const NAMES := TEXTS.NAMES
+const DESCRIPTIONS := TEXTS.DESCRIPTIONS
 var lazy_ui: bool = false
 var _catalog_ids: Array[String] = []
 var selections: Array[StringName] = [&"swordsman", &"vampire"]
@@ -38,16 +39,7 @@ func ensure_ui() -> void:
 		select_character(side, selections[side])
 
 func _style(color: Color, border: Color = Color.TRANSPARENT, radius: int = 18) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.border_color = border
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 18
-	style.content_margin_right = 18
-	style.content_margin_top = 14
-	style.content_margin_bottom = 14
-	return style
+	return STYLES.box(color, border, radius, 18, 14)
 
 func _label(text: String, size: int, color: Color = TEXT) -> Label:
 	var label := Label.new()
@@ -62,16 +54,7 @@ func _label(text: String, size: int, color: Color = TEXT) -> Label:
 	return label
 
 func _button(text: String, accent: Color) -> Button:
-	var button := Button.new()
-	button.text = text
-	button.custom_minimum_size = Vector2(0, 52)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.add_theme_stylebox_override("normal", _style(Color("182337"), Color("2a3b56"), 12))
-	button.add_theme_stylebox_override("hover", _style(Color("23344d"), accent, 12))
-	button.add_theme_stylebox_override("pressed", _style(accent.darkened(0.65), accent, 12))
-	button.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, accent, 12))
-	return button
+	return STYLES.battle_button(text, accent)
 
 func _build() -> void:
 	var background := ColorRect.new()
@@ -165,13 +148,14 @@ func _build_side(side: int) -> void:
 	portrait.resized.connect(_position_portrait.bind(side))
 
 func select_character(side: int, id: StringName) -> void:
+	if side < 0 or side >= panels.size() or not _catalog_ids.has(String(id)):
+		return
 	selections[side] = id
 	var info: Dictionary = panels[side]
 	var profile := CharacterCatalog.character(id)
 	info["title"].text = NAMES.get(String(id), profile.display_name)
 	info["description"].text = DESCRIPTIONS.get(String(id), "Новый герой арены")
-	var weights := ["Лёгкий", "Легче среднего", "Средний", "Тяжелее среднего", "Тяжёлый"]
-	info["stats"].text = "%d HP    ·    Вес: %s" % [profile.starting_health, weights[profile.weight_class]]
+	info["stats"].text = "%d HP    ·    Вес: %s" % [profile.starting_health, TEXTS.weight_name(profile.weight_class)]
 	var accent := BLUE if side == 0 else RED
 	for key in info["buttons"]:
 		var button: Button = info["buttons"][key]
@@ -183,29 +167,15 @@ func select_character(side: int, id: StringName) -> void:
 		button.add_theme_color_override("font_color", accent.lightened(0.25) if chosen else MUTED)
 	if is_instance_valid(info["fighter"]):
 		info["fighter"].queue_free()
-	var fighter := BALL.instantiate() as ArenaBall
-	fighter.ball_color = Color(0.16, 0.48, 1.0) if side == 0 else Color(1.0, 0.16, 0.20)
-	info["viewport"].add_child(fighter)
-	CharacterCatalog.apply(fighter, profile, 78.0)
+	var fighter := PORTRAITS.create(info["viewport"], profile, side)
 	fighter.scale = Vector2.ONE * (1.0 if _catalog_ids.size() >= 5 else 1.2)
-	fighter.freeze = true
-	fighter.collision_layer = 0
-	fighter.collision_mask = 0
-	fighter.linear_velocity = Vector2.ZERO
-	fighter.get_node("HealthDisplay").hide()
 	fighter.get_node("Sword").rotation = -PI * 0.5
 	if fighter.has_node("Katana"):
 		fighter.get_node("Katana").rotation = -PI * 0.25
 	if fighter.has_node("Knives"):
 		fighter.get_node("Knives").rotation = 0.0
 	info["fighter"] = fighter
-	_disable_combat(fighter)
 	_position_portrait(side)
-
-func _disable_combat(node: Node) -> void:
-	node.set_physics_process(false)
-	for child in node.get_children():
-		_disable_combat(child)
 
 func _position_portrait(side: int) -> void:
 	if side >= panels.size():
@@ -235,8 +205,3 @@ func _resize() -> void:
 		content.move_child(replacement, index)
 		# The field stores BoxContainer because orientation changes at runtime.
 		cards = replacement
-
-
-func _process(_delta: float) -> void:
-	for side in panels.size():
-		_position_portrait(side)

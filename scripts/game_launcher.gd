@@ -1,5 +1,8 @@
 extends Node
 const MATCH := preload("res://scenes/main.tscn")
+const STYLES := preload("res://scripts/ui/menu_styles.gd")
+const CHARACTER_TEXT := preload("res://scripts/ui/character_text.gd")
+const ROSTER := preload("res://scripts/combat/battle_roster.gd")
 var menu: Control
 var front_menu: Control
 var battle: Node2D
@@ -49,15 +52,20 @@ func _close_duel() -> void:
 	front_menu.show_page("free")
 
 func start_battle(player_id: StringName, opponent_id: StringName) -> void:
+	var ids := CharacterCatalog.ids()
+	if not ids.has(String(player_id)) or not ids.has(String(opponent_id)):
+		return
 	selected_player = player_id
 	selected_opponent = opponent_id
 	return_screen = "duel"
 	last_roster.clear()
+	last_format = &"teams"
 	last_title = "Дуэль"
 	_create_battle()
 
 func start_roster_battle(roster: Array[Dictionary], format: StringName, title: String) -> void:
-	if roster.size() < 2 or roster.size() > 20: return
+	if not ROSTER.validation_errors(roster, format).is_empty():
+		return
 	last_roster = roster.duplicate(true)
 	last_format = format
 	last_title = title
@@ -68,12 +76,7 @@ func _create_battle() -> void:
 	for screen in [menu,front_menu]:
 		screen.hide()
 		screen.process_mode = Node.PROCESS_MODE_DISABLED
-	if is_instance_valid(battle):
-		remove_child(battle)
-		battle.queue_free()
-	if is_instance_valid(hud):
-		remove_child(hud)
-		hud.queue_free()
+	_clear_battle()
 	Engine.time_scale = 1.0
 	battle = MATCH.instantiate()
 	var arena := battle.get_node("Arena") as BallArena
@@ -100,7 +103,7 @@ func _build_hud() -> void:
 	bar.offset_top = 8 if preload("res://scripts/screen_layout.gd").landscape(get_viewport().get_visible_rect().size) else 12
 	bar.add_theme_constant_override("separation",8)
 	hud.add_child(bar)
-	var back: Button = menu._button("← Меню",return_color())
+	var back: Button = STYLES.battle_button("← Меню",return_color())
 	back.custom_minimum_size.y = 44
 	back.add_theme_font_size_override("font_size",15)
 	back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
@@ -113,7 +116,7 @@ func _build_hud() -> void:
 	winner_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	winner_label.add_theme_font_size_override("font_size",16)
 	bar.add_child(winner_label)
-	replay = menu._button("Заново ↻",return_color())
+	replay = STYLES.battle_button("Заново ↻",return_color())
 	replay.custom_minimum_size.y = 44
 	replay.add_theme_font_size_override("font_size",15)
 	replay.size_flags_horizontal = Control.SIZE_SHRINK_END
@@ -124,14 +127,14 @@ func return_color() -> Color:
 	return Color("83b2ff")
 
 func _on_battle_finished(team: StringName) -> void:
-	if match_finished: return
+	if match_finished or not is_instance_valid(battle) or not is_instance_valid(winner_label): return
 	match_finished = true
 	if team == &"": winner_label.text = "НИЧЬЯ"
 	elif last_format == &"ffa" and not last_roster.is_empty():
 		var arena := battle.get_node("Arena") as BallArena
 		for fighter in arena.fighters:
 			if fighter.current_health > 0:
-				winner_label.text = front_menu.NAMES.get(String(fighter.character_id),"Победитель")
+				winner_label.text = CHARACTER_TEXT.NAMES.get(String(fighter.character_id),"Победитель")
 				winner_label.add_theme_color_override("font_color",fighter.ball_color)
 	else:
 		if last_title == "Свободный бой": winner_label.text = "СИНИЕ ПОБЕДИЛИ" if team == &"blue" else "КРАСНЫЕ ПОБЕДИЛИ"
@@ -140,15 +143,24 @@ func _on_battle_finished(team: StringName) -> void:
 	if last_roster.is_empty() or last_format != &"ffa":
 		winner_label.add_theme_color_override("font_color",Color("83b2ff") if team == &"blue" else Color("ff8491"))
 
-func return_to_menu() -> void:
+func _clear_battle() -> void:
+	# Detach immediately: replay/back may run inside an old child's signal.
 	if is_instance_valid(battle):
-		remove_child(battle)
-		battle.queue_free()
-		battle = null
-	if is_instance_valid(hud):
-		remove_child(hud)
-		hud.queue_free()
-		hud = null
+		var arena := battle.get_node_or_null("Arena") as BallArena
+		if arena != null and arena.director != null and arena.director.match_finished.is_connected(_on_battle_finished):
+			arena.director.match_finished.disconnect(_on_battle_finished)
+	for node in [battle, hud]:
+		if is_instance_valid(node):
+			remove_child(node)
+			node.queue_free()
+	battle = null
+	hud = null
+	winner_label = null
+	replay = null
+	match_finished = false
+
+func return_to_menu() -> void:
+	_clear_battle()
 	Engine.time_scale = 1.0
 	if return_screen == "duel": open_duel()
 	else:
@@ -161,9 +173,5 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"): return
 	if is_instance_valid(battle): return_to_menu()
 	elif menu.visible:
-		menu.hide()
-		menu.process_mode = Node.PROCESS_MODE_DISABLED
-		front_menu.process_mode = Node.PROCESS_MODE_INHERIT
-		front_menu.show()
-		front_menu.show_page("free")
+		_close_duel()
 	else: front_menu.show_page("home")
