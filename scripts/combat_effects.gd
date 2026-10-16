@@ -91,8 +91,8 @@ func advance(delta: float) -> void:
 			slashes.remove_at(index)
 	for id in drains.keys():
 		var drain: Dictionary = drains[id]
-		var attacker: ArenaBall = drain["attacker"].get_ref()
-		var victim: ArenaBall = drain["victim"].get_ref()
+		var attacker := _drain_actor(drain["attacker"])
+		var victim := _drain_actor(drain["victim"])
 		if not is_instance_valid(attacker) or not is_instance_valid(victim):
 			stop_drain(id)
 			continue
@@ -133,11 +133,27 @@ func advance(delta: float) -> void:
 
 
 func orb_position(orb: Dictionary) -> Vector2:
+	# A caller may still hold an orb after its drain has ended or its actors left.
+	if not drains.has(orb["drain"]):
+		return Vector2.ZERO
 	var drain: Dictionary = drains[orb["drain"]]
-	var victim: ArenaBall = drain["victim"].get_ref()
-	var attacker: ArenaBall = drain["attacker"].get_ref()
+	var victim := _drain_actor(drain["victim"])
+	var attacker := _drain_actor(drain["attacker"])
+	if victim == null or attacker == null:
+		return Vector2.ZERO
+	return _orb_position(orb, victim, attacker)
+
+
+func _orb_position(orb: Dictionary, victim: ArenaBall, attacker: ArenaBall) -> Vector2:
 	var progress := smoothstep(0.0, 1.0, float(orb["age"]) / float(orb["duration"]))
 	return (victim.global_position + Vector2(orb["offset"])).lerp(attacker.global_position, progress)
+
+
+func _drain_actor(reference: WeakRef) -> ArenaBall:
+	var actor := reference.get_ref() as ArenaBall
+	if not is_instance_valid(actor) or not actor.is_inside_tree() or actor.is_queued_for_deletion():
+		return null
+	return actor
 
 
 func _draw() -> void:
@@ -145,8 +161,8 @@ func _draw() -> void:
 	_draw_counter_slashes()
 	_draw_slashes()
 	for drain in drains.values():
-		var victim: ArenaBall = drain["victim"].get_ref()
-		var attacker: ArenaBall = drain["attacker"].get_ref()
+		var victim := _drain_actor(drain["victim"])
+		var attacker := _drain_actor(drain["attacker"])
 		if not is_instance_valid(victim) or not is_instance_valid(attacker):
 			continue
 		var from := to_local(victim.global_position)
@@ -250,6 +266,8 @@ func _draw_counter_slashes() -> void:
 
 func _update_instances() -> void:
 	if not is_instance_valid(_spark_layer):return
+	BloodDrawing.ensure_capacity(_spark_layer, sparks.size())
+	BloodDrawing.ensure_capacity(_orb_layer, maxi(max_orbs, orbs.size()))
 	var multi := _spark_layer.multimesh
 	for index in sparks.size():
 		var spark := sparks[index]
@@ -262,8 +280,11 @@ func _update_instances() -> void:
 	for orb in orbs:
 		if not drains.has(orb["drain"]):continue
 		var drain: Dictionary=drains[orb["drain"]]
-		if drain["attacker"].get_ref() == null or drain["victim"].get_ref() == null:continue
-		var p := to_local(orb_position(orb))
+		var victim := _drain_actor(drain["victim"])
+		var attacker := _drain_actor(drain["attacker"])
+		if victim == null or attacker == null:
+			continue
+		var p := to_local(_orb_position(orb, victim, attacker))
 		multi.set_instance_transform_2d(index,Transform2D(0,Vector2.ONE*float(orb["radius"]),0,p))
 		multi.set_instance_color(index,Color(1,1,1,sin(float(orb["age"])/float(orb["duration"])*PI)))
 		index+=1

@@ -265,6 +265,9 @@ func draw_pools(canvas: Node2D) -> void:
 
 func _update_particles() -> void:
 	if not is_instance_valid(_particle_layer):return
+	BloodDrawing.ensure_capacity(_particle_layer, maxi(
+		max_drops + max_splashes + 160, drops.size() + splashes.size() + impact_drops.size()
+	))
 	var multi := _particle_layer.multimesh
 	var index := 0
 	for tiny in impact_drops:

@@ -31,19 +31,13 @@ func _draw() -> void:
 		var vertices := PackedVector3Array()
 		var colors := PackedColorArray()
 		var indices := PackedInt32Array()
-		BloodDrawing._add_circle(vertices,colors,indices,Vector2.ZERO,radius+1.25,Color(.035,.015,.025),64)
-		BloodDrawing._add_circle(vertices,colors,indices,Vector2.ZERO,radius,color.darkened(.26),64)
+		EffectMeshGeometry.add_circle(vertices,colors,indices,Vector2.ZERO,radius+1.25,Color(.035,.015,.025),64)
+		EffectMeshGeometry.add_circle(vertices,colors,indices,Vector2.ZERO,radius,color.darkened(.26),64)
 		var center := Vector2(-.10,-.13)*radius
 		for layer in 18:
 			var t := layer/17.0
-			BloodDrawing._add_circle(vertices,colors,indices,center,radius*lerpf(.83,.66,t),color.lightened(t*.035),64)
-		var arrays := []
-		arrays.resize(Mesh.ARRAY_MAX)
-		arrays[Mesh.ARRAY_VERTEX]=vertices
-		arrays[Mesh.ARRAY_COLOR]=colors
-		arrays[Mesh.ARRAY_INDEX]=indices
-		_mesh=ArrayMesh.new()
-		_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+			EffectMeshGeometry.add_circle(vertices,colors,indices,center,radius*lerpf(.83,.66,t),color.lightened(t*.035),64)
+		_mesh = EffectMeshGeometry.build_mesh(vertices, colors, indices)
 	draw_mesh(_mesh,null)
 	draw_arc(Vector2.ZERO, radius - 0.35, -PI + 0.16, -0.06, 64,
 		color.lightened(0.17), 0.85, true)

@@ -2,15 +2,23 @@
 extends Node2D
 ## Angular red eyes follow the approved body orientation and its pulse.
 var fighter: ArenaBall
+var _diameter := -1.0
 
 func _ready() -> void:
 	fighter = get_parent().get_parent() as ArenaBall
 	_process(0.0)
 
 func _process(_delta: float) -> void:
+	if not is_instance_valid(fighter):
+		visible = false
+		return
 	var fangs := fighter.get_node_or_null("Vampire") as VampireFangs
 	visible = fighter.is_vampire and fighter.current_health > 0 and fangs != null and fangs.hunting
-	if visible: queue_redraw()
+	if visible:
+		var diameter := fighter.visual_diameter()
+		if not is_equal_approx(diameter, _diameter):
+			_diameter = diameter
+			queue_redraw()
 
 func _draw() -> void:
 	if not visible: return

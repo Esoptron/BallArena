@@ -1,5 +1,5 @@
 extends RigidBody2D
-## Textured puzzle shard. Lifetime uses wall time, including during hit slow motion.
+## Textured puzzle shard. Lifetime uses wall time, independent of frame rate.
 var born_usec: int
 var lifetime: float = 3.0
 

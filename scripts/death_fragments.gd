@@ -10,6 +10,7 @@ static var _body_cells: Array[PackedVector2Array] = []
 var _captures: Dictionary = {}
 var _capture_queue: Array[Dictionary] = []
 var _capture_busy := false
+var _weapons_built := false
 var groups: Array[Node2D] = []
 var weapons: Array[Dictionary] = []
 var fighters: Array[ArenaBall] = []
@@ -24,8 +25,11 @@ func _ready() -> void:
 	if _body_cells.is_empty(): _prepare_body_cells()
 
 func watch(fighter: ArenaBall) -> void:
+	if not is_instance_valid(fighter) or fighter in fighters:
+		return
 	fighters.append(fighter)
 	fighter.died.connect(_on_death.bind(fighter))
+	_weapons_built = false
 
 func _on_death(attacker: ArenaBall, _ability: StringName, fighter: ArenaBall) -> void:
 	var portrait_size := fighter.visual_diameter()
@@ -36,10 +40,21 @@ func _on_death(attacker: ArenaBall, _ability: StringName, fighter: ArenaBall) ->
 	fighter.set_deferred("collision_layer", 0)
 	fighter.set_deferred("collision_mask", 0)
 	if DisplayServer.get_name() != "headless":
-		_capture_queue.append({"fighter":fighter,"diameter":portrait_size,"departure":departure})
+		_capture_queue.append({"fighter":weakref(fighter),"diameter":portrait_size,"departure":departure})
+
+func _begin_capture(request: Dictionary) -> void:
+	# Deferred calls must carry a weak reference: a freed typed Node argument
+	# would fail before _capture could execute its own validity check.
+	var fighter := request["fighter"].get_ref() as ArenaBall
+	if not is_instance_valid(fighter):
+		_capture_busy = false
+		return
+	_capture(fighter, request["diameter"], request["departure"])
+
 
 func _capture(fighter: ArenaBall, portrait_size: float, departure: Vector2) -> void:
-	if not is_inside_tree() or not is_instance_valid(fighter) or not fighter.is_inside_tree():
+	if not is_inside_tree() or not is_instance_valid(fighter) or not fighter.is_inside_tree() or fighter.is_queued_for_deletion():
+		_capture_busy = false
 		return
 	_capture_busy = true
 	var origin := fighter.global_position
@@ -101,7 +116,11 @@ func _capture(fighter: ArenaBall, portrait_size: float, departure: Vector2) -> v
 	_disable_processing(portrait)
 	portrait.queue_redraw()
 	await RenderingServer.frame_post_draw
-	if not is_inside_tree():
+	# Scene replacement or actor removal can happen while the GPU renders.
+	if not is_inside_tree() or not is_instance_valid(fighter) or not fighter.is_inside_tree() or fighter.is_queued_for_deletion():
+		if is_instance_valid(viewport):
+			viewport.queue_free()
+		_capture_busy = false
 		return
 	var group := _spawn_retained_puzzle(viewport.get_texture(),origin,portrait_size,fighter,departure)
 	_captures[group.get_instance_id()] = viewport
@@ -243,17 +262,22 @@ func _on_shard_contact(body: Node) -> void:
 
 func _process(_delta: float) -> void:
 	if not _capture_busy and not _capture_queue.is_empty():
-		var next: Dictionary = _capture_queue.pop_front()
-		if is_instance_valid(next["fighter"]) and next["fighter"].is_inside_tree():
-			_capture_busy = true
-			_capture.call_deferred(next["fighter"],next["diameter"],next["departure"])
+		var request: Dictionary = _capture_queue.pop_front()
+		_capture_busy = true
+		_begin_capture.call_deferred(request)
 	for index in range(groups.size() - 1, -1, -1):
-		if groups[index].get_child_count() == 0:
-			var key := groups[index].get_instance_id()
-			if _captures.has(key):
-				_captures[key].queue_free()
-				_captures.erase(key)
-			groups[index].queue_free()
+		if not is_instance_valid(groups[index]):
+			groups.remove_at(index)
+			_release_orphan_captures()
+			continue
+		var group := groups[index]
+		if group.get_child_count() == 0:
+			var id := group.get_instance_id()
+			if _captures.has(id):
+				if is_instance_valid(_captures[id]):
+					_captures[id].queue_free()
+				_captures.erase(id)
+			group.queue_free()
 			groups.remove_at(index)
 	if groups.is_empty():
 		_clear_weapons()
@@ -261,20 +285,35 @@ func _process(_delta: float) -> void:
 func _physics_process(_delta: float) -> void:
 	if groups.is_empty():
 		return
-	if weapons.is_empty():
+	if not _weapons_built:
+		_clear_weapons()
 		_build_weapons()
+		_weapons_built = true
 	for weapon in weapons:
-		var fighter: ArenaBall = weapon["fighter"]
-		var body: AnimatableBody2D = weapon["body"]
-		if not is_instance_valid(fighter) or fighter.current_health <= 0:
+		# Validate before typed assignment: Godot rejects a freed object at assignment,
+		# and comparing a freed reference to null cannot distinguish a fang proxy.
+		var fighter: Variant = weapon["fighter"]
+		var body: Variant = weapon["body"]
+		if not is_instance_valid(body):
+			continue
+		if not is_instance_valid(fighter) or not fighter.is_inside_tree() or fighter.current_health <= 0:
 			body.collision_layer = 0
 			continue
-		var segment := _weapon_segment(fighter, weapon["index"], weapon.get("ability"))
+		var ability: Variant = weapon.get("ability")
+		if not weapon["fangs"] and (not is_instance_valid(ability) or not ability.is_enabled()):
+			body.collision_layer = 0
+			continue
+		var segment := _weapon_segment(fighter, weapon["index"], ability)
+		if segment.size() < 2:
+			body.collision_layer = 0
+			continue
+		body.collision_layer = 8
 		body.global_position = (segment[0] + segment[1]) * 0.5
 		body.global_rotation = (segment[1] - segment[0]).angle() + PI * 0.5
 		var shape: CapsuleShape2D = weapon["shape"]
 		var height := maxf(shape.radius * 2.0, segment[0].distance_to(segment[1]) + shape.radius * 2.0)
-		if not is_equal_approx(shape.height,height):shape.height=height
+		if not is_equal_approx(shape.height, height):
+			shape.height = height
 
 func _build_weapons() -> void:
 	for fighter in fighters:
@@ -289,6 +328,9 @@ func _build_weapons() -> void:
 				_add_weapon_proxy(fighter,index,null)
 
 func _add_weapon_proxy(fighter: ArenaBall, index: int, ability: CombatAbility) -> void:
+	var initial_segment := _weapon_segment(fighter, index, ability)
+	if initial_segment.size() < 2:
+		return
 	var body := AnimatableBody2D.new()
 	body.collision_layer = 8
 	body.collision_mask = 4
@@ -298,17 +340,22 @@ func _add_weapon_proxy(fighter: ArenaBall, index: int, ability: CombatAbility) -
 	var collision := CollisionShape2D.new()
 	collision.shape = shape
 	body.add_child(collision)
-	var initial_segment := _weapon_segment(fighter,index,ability)
 	body.position = to_local((initial_segment[0] + initial_segment[1]) * 0.5)
 	body.rotation = (initial_segment[1] - initial_segment[0]).angle() + PI * 0.5 - global_rotation
-	shape.height = maxf(shape.radius * 2.0,initial_segment[0].distance_to(initial_segment[1]) + shape.radius * 2.0)
+	shape.height = maxf(shape.radius * 2.0, initial_segment[0].distance_to(initial_segment[1]) + shape.radius * 2.0)
 	add_child(body)
-	weapons.append({"fighter":fighter,"body":body,"shape":shape,"index":index,"ability":ability})
+	weapons.append({
+		"fighter": fighter, "body": body, "shape": shape, "index": index,
+		"ability": ability, "fangs": ability == null,
+	})
 
 func _weapon_segment(fighter: ArenaBall, index: int, ability: CombatAbility = null) -> PackedVector2Array:
 	if ability != null:
-		return ability.current_weapon_segments()[index]
-	var fangs := fighter.get_node("Vampire") as VampireFangs
+		var segments := ability.current_weapon_segments()
+		return segments[index] if index >= 0 and index < segments.size() else PackedVector2Array()
+	var fangs := fighter.get_node_or_null("Vampire") as VampireFangs
+	if fangs == null or not fighter.is_vampire:
+		return PackedVector2Array()
 	var pixel_tip := Vector2(447,903) if index == 0 else Vector2(712,923)
 	var offset := (pixel_tip - Vector2(626,513)) * fangs.fang_diameter() / 566.0
 	var tip := fighter.global_position + offset.rotated(fangs.global_rotation + PI)
@@ -317,5 +364,15 @@ func _weapon_segment(fighter: ArenaBall, index: int, ability: CombatAbility = nu
 
 func _clear_weapons() -> void:
 	for weapon in weapons:
-		weapon["body"].queue_free()
+		if is_instance_valid(weapon["body"]):
+			weapon["body"].queue_free()
 	weapons.clear()
+	_weapons_built = false
+
+
+func _release_orphan_captures() -> void:
+	for id in _captures.keys():
+		if not is_instance_valid(instance_from_id(id)):
+			if is_instance_valid(_captures[id]):
+				_captures[id].queue_free()
+			_captures.erase(id)
