@@ -1,0 +1,1273 @@
+{
+  "validation": {
+    "draws": 0,
+    "groups": {
+      "group=random": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 64,
+          "20to30": 273,
+          "30to45": 487,
+          "45to60": 150,
+          "60to90": 26,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.511,
+        "matches": 1000,
+        "mean_completed": 35.3140208333368,
+        "median_completed": 34.3312500000004,
+        "p10": 22.0454166666658,
+        "p90": 50.1408333333462,
+        "paired_bootstrap95": [
+          0.478,
+          0.545
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.842,
+                "hits": 4.842,
+                "mean_interval": 7.31890074613975,
+                "mean_success_interval": 7.31890074613975,
+                "median_interval": 5.42083333333299,
+                "starts": 4.842,
+                "successes": 4.842
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.50017499999991,
+            "damage_dealt": 100.995,
+            "damage_received": 75.815,
+            "healing": 0.0,
+            "hits": 4.842,
+            "mean_hit_interval": 7.31890074613975,
+            "mean_winning_hits": 5.52250489236791,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.747,
+                "hits": 0.0,
+                "mean_interval": 15.5372021419022,
+                "mean_success_interval": 15.5372021419022,
+                "median_interval": 13.8291666666659,
+                "starts": 2.236,
+                "successes": 2.236
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 75.815,
+            "damage_received": 100.995,
+            "healing": 16.91,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.50017499999991,
+            "recaptures_without_reply": 0.112
+          }
+        },
+        "restricted_mean": 35.3140208333368,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.480034395842196,
+          0.541881412388903
+        ],
+        "wins": {
+          "left": 511,
+          "right": 489
+        }
+      },
+      "speed=320.0": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 64,
+          "20to30": 273,
+          "30to45": 487,
+          "45to60": 150,
+          "60to90": 26,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.511,
+        "matches": 1000,
+        "mean_completed": 35.3140208333368,
+        "median_completed": 34.3312500000004,
+        "p10": 22.0454166666658,
+        "p90": 50.1408333333462,
+        "paired_bootstrap95": [
+          0.478,
+          0.545
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.842,
+                "hits": 4.842,
+                "mean_interval": 7.31890074613975,
+                "mean_success_interval": 7.31890074613975,
+                "median_interval": 5.42083333333299,
+                "starts": 4.842,
+                "successes": 4.842
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.50017499999991,
+            "damage_dealt": 100.995,
+            "damage_received": 75.815,
+            "healing": 0.0,
+            "hits": 4.842,
+            "mean_hit_interval": 7.31890074613975,
+            "mean_winning_hits": 5.52250489236791,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.747,
+                "hits": 0.0,
+                "mean_interval": 15.5372021419022,
+                "mean_success_interval": 15.5372021419022,
+                "median_interval": 13.8291666666659,
+                "starts": 2.236,
+                "successes": 2.236
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 75.815,
+            "damage_received": 100.995,
+            "healing": 16.91,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.50017499999991,
+            "recaptures_without_reply": 0.112
+          }
+        },
+        "restricted_mean": 35.3140208333368,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.480034395842196,
+          0.541881412388903
+        ],
+        "wins": {
+          "left": 511,
+          "right": 489
+        }
+      }
+    },
+    "histogram": {
+      "10to20": 64,
+      "20to30": 273,
+      "30to45": 487,
+      "45to60": 150,
+      "60to90": 26,
+      "over90": 0,
+      "under10": 0
+    },
+    "left_win_rate": 0.511,
+    "matches": 1000,
+    "mean_completed": 35.3140208333368,
+    "median_completed": 34.3312500000004,
+    "p10": 22.0454166666658,
+    "p90": 50.1408333333462,
+    "paired_bootstrap95": [
+      0.478,
+      0.545
+    ],
+    "participants": {
+      "left": {
+        "abilities": {
+          "state": {
+            "completed": 0.0,
+            "hits": 0.0,
+            "mean_interval": null,
+            "mean_success_interval": null,
+            "median_interval": null,
+            "starts": 0.0,
+            "successes": 0.0
+          },
+          "sword": {
+            "completed": 4.842,
+            "hits": 4.842,
+            "mean_interval": 7.31890074613975,
+            "mean_success_interval": 7.31890074613975,
+            "median_interval": 5.42083333333299,
+            "starts": 4.842,
+            "successes": 4.842
+          }
+        },
+        "attack_lock_seconds": 0.0,
+        "capture_seconds": 6.50017499999991,
+        "damage_dealt": 100.995,
+        "damage_received": 75.815,
+        "healing": 0.0,
+        "hits": 4.842,
+        "mean_hit_interval": 7.31890074613975,
+        "mean_winning_hits": 5.52250489236791,
+        "protection_seconds": 0.0,
+        "recaptures_without_reply": 0.0
+      },
+      "right": {
+        "abilities": {
+          "bite": {
+            "completed": 1.747,
+            "hits": 0.0,
+            "mean_interval": 15.5372021419022,
+            "mean_success_interval": 15.5372021419022,
+            "median_interval": 13.8291666666659,
+            "starts": 2.236,
+            "successes": 2.236
+          }
+        },
+        "attack_lock_seconds": 0.0,
+        "capture_seconds": 0.0,
+        "damage_dealt": 75.815,
+        "damage_received": 100.995,
+        "healing": 16.91,
+        "hits": 0.0,
+        "mean_hit_interval": null,
+        "mean_winning_hits": 0.0,
+        "protection_seconds": 6.50017499999991,
+        "recaptures_without_reply": 0.112
+      }
+    },
+    "restricted_mean": 35.3140208333368,
+    "timeouts": 0,
+    "two_hit_wins": 0,
+    "wilson95": [
+      0.480034395842196,
+      0.541881412388903
+    ],
+    "wins": {
+      "left": 511,
+      "right": 489
+    }
+  },
+  "stress": {
+    "draws": 0,
+    "groups": {
+      "group=corner": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 0,
+          "20to30": 5,
+          "30to45": 21,
+          "45to60": 9,
+          "60to90": 1,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.277777777777778,
+        "matches": 36,
+        "mean_completed": 39.3966435185235,
+        "median_completed": 37.3291666666694,
+        "p10": 29.4749999999986,
+        "p90": 50.6208333333467,
+        "paired_bootstrap95": [
+          0.138888888888889,
+          0.444444444444444
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.33333333333333,
+                "hits": 4.33333333333333,
+                "mean_interval": 9.14762396694307,
+                "mean_success_interval": 9.14762396694307,
+                "median_interval": 5.82499999999967,
+                "starts": 4.33333333333333,
+                "successes": 4.33333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.60972222222211,
+            "damage_dealt": 90.9444444444444,
+            "damage_received": 88.75,
+            "healing": 0.0,
+            "hits": 4.33333333333333,
+            "mean_hit_interval": 9.14762396694307,
+            "mean_winning_hits": 5.7,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.91666666666667,
+                "hits": 0.0,
+                "mean_interval": 18.645550847459,
+                "mean_success_interval": 18.645550847459,
+                "median_interval": 18.3916666666682,
+                "starts": 2.63888888888889,
+                "successes": 2.63888888888889
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 88.75,
+            "damage_received": 90.9444444444444,
+            "healing": 19.6666666666667,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.60972222222211,
+            "recaptures_without_reply": 0.277777777777778
+          }
+        },
+        "restricted_mean": 39.3966435185235,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.158481700258138,
+          0.439928002163451
+        ],
+        "wins": {
+          "left": 10,
+          "right": 26
+        }
+      },
+      "group=glancing": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 4,
+          "20to30": 12,
+          "30to45": 16,
+          "45to60": 4,
+          "60to90": 0,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.277777777777778,
+        "matches": 36,
+        "mean_completed": 31.7839120370386,
+        "median_completed": 32.0312499999985,
+        "p10": 21.7104166666658,
+        "p90": 45.1104166666756,
+        "paired_bootstrap95": [
+          0.138888888888889,
+          0.416666666666667
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.33333333333333,
+                "hits": 4.33333333333333,
+                "mean_interval": 7.06225694444451,
+                "mean_success_interval": 7.06225694444451,
+                "median_interval": 5.18124999999971,
+                "starts": 4.33333333333333,
+                "successes": 4.33333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.44305555555544,
+            "damage_dealt": 91.5833333333333,
+            "damage_received": 86.8055555555556,
+            "healing": 0.0,
+            "hits": 4.33333333333333,
+            "mean_hit_interval": 7.06225694444451,
+            "mean_winning_hits": 5.5,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.86111111111111,
+                "hits": 0.0,
+                "mean_interval": 14.9386695906437,
+                "mean_success_interval": 14.9386695906437,
+                "median_interval": 14.5083333333325,
+                "starts": 2.58333333333333,
+                "successes": 2.58333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 86.8055555555556,
+            "damage_received": 91.5833333333333,
+            "healing": 19.2222222222222,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.44305555555544,
+            "recaptures_without_reply": 0.138888888888889
+          }
+        },
+        "restricted_mean": 31.7839120370386,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.158481700258138,
+          0.439928002163451
+        ],
+        "wins": {
+          "left": 10,
+          "right": 26
+        }
+      },
+      "group=head_on": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 24,
+          "20to30": 12,
+          "30to45": 0,
+          "45to60": 0,
+          "60to90": 0,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.222222222222222,
+        "matches": 36,
+        "mean_completed": 18.9986111111104,
+        "median_completed": 18.8208333333326,
+        "p10": 16.9145833333327,
+        "p90": 20.7645833333325,
+        "paired_bootstrap95": [
+          0.0833333333333333,
+          0.361111111111111
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.58333333333333,
+                "hits": 4.58333333333333,
+                "mean_interval": 3.84534883720914,
+                "mean_success_interval": 3.84534883720914,
+                "median_interval": 3.29166666666648,
+                "starts": 4.58333333333333,
+                "successes": 4.58333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 8.00277777777765,
+            "damage_dealt": 96.1666666666667,
+            "damage_received": 93.3333333333333,
+            "healing": 0.0,
+            "hits": 4.58333333333333,
+            "mean_hit_interval": 3.84534883720914,
+            "mean_winning_hits": 6.0,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.0,
+                "hits": 0.0,
+                "mean_interval": 8.37519531249969,
+                "mean_success_interval": 8.37519531249969,
+                "median_interval": 8.12499999999984,
+                "starts": 2.77777777777778,
+                "successes": 2.77777777777778
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 93.3333333333333,
+            "damage_received": 96.1666666666667,
+            "healing": 20.6666666666667,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 8.00277777777765,
+            "recaptures_without_reply": 0.0277777777777778
+          }
+        },
+        "restricted_mean": 18.9986111111104,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.117161929748396,
+          0.380850198278591
+        ],
+        "wins": {
+          "left": 8,
+          "right": 28
+        }
+      },
+      "group=parallel": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 33,
+          "20to30": 3,
+          "30to45": 0,
+          "45to60": 0,
+          "60to90": 0,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 1.0,
+        "matches": 36,
+        "mean_completed": 14.815856481481,
+        "median_completed": 13.8208333333329,
+        "p10": 11.745833333333,
+        "p90": 19.0854166666659,
+        "paired_bootstrap95": [
+          1.0,
+          1.0
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "sword": {
+                "completed": 5.0,
+                "hits": 5.0,
+                "mean_interval": 3.38564814814802,
+                "mean_success_interval": 3.38564814814802,
+                "median_interval": 2.81666666666657,
+                "starts": 5.0,
+                "successes": 5.0
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 100.0,
+            "damage_received": 0.0,
+            "healing": 0.0,
+            "hits": 5.0,
+            "mean_hit_interval": 3.38564814814802,
+            "mean_winning_hits": 5.0,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {},
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 0.0,
+            "damage_received": 100.0,
+            "healing": 0.0,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": null,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          }
+        },
+        "restricted_mean": 14.815856481481,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.903578169551424,
+          1.0
+        ],
+        "wins": {
+          "left": 36,
+          "right": 0
+        }
+      },
+      "group=random": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 4,
+          "20to30": 8,
+          "30to45": 18,
+          "45to60": 5,
+          "60to90": 1,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.472222222222222,
+        "matches": 36,
+        "mean_completed": 35.080902777781,
+        "median_completed": 34.3812500000004,
+        "p10": 20.5708333333325,
+        "p90": 47.3104166666774,
+        "paired_bootstrap95": [
+          0.277777777777778,
+          0.667361111111107
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.58333333333333,
+                "hits": 4.58333333333333,
+                "mean_interval": 7.17099483204181,
+                "mean_success_interval": 7.17099483204181,
+                "median_interval": 5.42916666666636,
+                "starts": 4.58333333333333,
+                "successes": 4.58333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.3590277777777,
+            "damage_dealt": 95.8055555555556,
+            "damage_received": 74.1666666666667,
+            "healing": 0.0,
+            "hits": 4.58333333333333,
+            "mean_hit_interval": 7.17099483204181,
+            "mean_winning_hits": 5.41176470588235,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 15.1886111111123,
+                "mean_success_interval": 15.1886111111123,
+                "median_interval": 13.8833333333325,
+                "starts": 2.19444444444444,
+                "successes": 2.19444444444444
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 74.1666666666667,
+            "damage_received": 95.8055555555556,
+            "healing": 16.5,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.3590277777777,
+            "recaptures_without_reply": 0.0833333333333333
+          }
+        },
+        "restricted_mean": 35.080902777781,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.319857929072093,
+          0.629943283730605
+        ],
+        "wins": {
+          "left": 17,
+          "right": 19
+        }
+      },
+      "group=wall": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 3,
+          "20to30": 9,
+          "30to45": 18,
+          "45to60": 3,
+          "60to90": 3,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.388888888888889,
+        "matches": 36,
+        "mean_completed": 36.1032407407447,
+        "median_completed": 36.2208333333352,
+        "p10": 20.5708333333325,
+        "p90": 47.4020833333441,
+        "paired_bootstrap95": [
+          0.25,
+          0.527777777777778
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.75,
+                "hits": 4.75,
+                "mean_interval": 7.8295679012353,
+                "mean_success_interval": 7.8295679012353,
+                "median_interval": 5.40833333333303,
+                "starts": 4.75,
+                "successes": 4.75
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.24027777777768,
+            "damage_dealt": 98.9722222222222,
+            "damage_received": 84.4444444444444,
+            "healing": 0.0,
+            "hits": 4.75,
+            "mean_hit_interval": 7.8295679012353,
+            "mean_winning_hits": 5.71428571428571,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.88888888888889,
+                "hits": 0.0,
+                "mean_interval": 17.9329475308657,
+                "mean_success_interval": 17.9329475308657,
+                "median_interval": 15.5583333333326,
+                "starts": 2.5,
+                "successes": 2.5
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 84.4444444444444,
+            "damage_received": 98.9722222222222,
+            "healing": 18.7777777777778,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.24027777777768,
+            "recaptures_without_reply": 0.0277777777777778
+          }
+        },
+        "restricted_mean": 36.1032407407447,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.247846554178229,
+          0.551358297032565
+        ],
+        "wins": {
+          "left": 14,
+          "right": 22
+        }
+      },
+      "speed=240.0": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 21,
+          "20to30": 15,
+          "30to45": 22,
+          "45to60": 10,
+          "60to90": 4,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.652777777777778,
+        "matches": 72,
+        "mean_completed": 31.6418981481515,
+        "median_completed": 29.6666666666653,
+        "p10": 15.3195833333328,
+        "p90": 53.0112500000152,
+        "paired_bootstrap95": [
+          0.541666666666667,
+          0.763888888888889
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 5.09722222222222,
+                "hits": 5.09722222222222,
+                "mean_interval": 6.5708474576277,
+                "mean_success_interval": 6.5708474576277,
+                "median_interval": 3.92083333333311,
+                "starts": 5.09722222222222,
+                "successes": 5.09722222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 5.2274305555555,
+            "damage_dealt": 104.861111111111,
+            "damage_received": 60.9722222222222,
+            "healing": 0.0,
+            "hits": 5.09722222222222,
+            "mean_hit_interval": 6.5708474576277,
+            "mean_winning_hits": 5.4468085106383,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.44444444444444,
+                "hits": 0.0,
+                "mean_interval": 17.3620305164337,
+                "mean_success_interval": 17.3620305164337,
+                "median_interval": 15.1499999999997,
+                "starts": 1.79166666666667,
+                "successes": 1.79166666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 60.9722222222222,
+            "damage_received": 104.861111111111,
+            "healing": 13.6388888888889,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 5.2274305555555,
+            "recaptures_without_reply": 0.0416666666666667
+          }
+        },
+        "restricted_mean": 31.6418981481515,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.537610884708554,
+          0.752467383682408
+        ],
+        "wins": {
+          "left": 47,
+          "right": 25
+        }
+      },
+      "speed=320.0": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 26,
+          "20to30": 13,
+          "30to45": 27,
+          "45to60": 5,
+          "60to90": 1,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.416666666666667,
+        "matches": 72,
+        "mean_completed": 28.3657986111129,
+        "median_completed": 29.164583333332,
+        "p10": 13.1454166666662,
+        "p90": 44.4833333333418,
+        "paired_bootstrap95": [
+          0.291666666666667,
+          0.541666666666667
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.69444444444444,
+                "hits": 4.69444444444444,
+                "mean_interval": 6.10606203007543,
+                "mean_success_interval": 6.10606203007543,
+                "median_interval": 3.95416666666644,
+                "starts": 4.69444444444444,
+                "successes": 4.69444444444444
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.1687499999999,
+            "damage_dealt": 98.4166666666667,
+            "damage_received": 71.9444444444444,
+            "healing": 0.0,
+            "hits": 4.69444444444444,
+            "mean_hit_interval": 6.10606203007543,
+            "mean_winning_hits": 5.33333333333333,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.55555555555556,
+                "hits": 0.0,
+                "mean_interval": 14.287987588653,
+                "mean_success_interval": 14.287987588653,
+                "median_interval": 13.0520833333368,
+                "starts": 2.13888888888889,
+                "successes": 2.13888888888889
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 71.9444444444444,
+            "damage_received": 98.4166666666667,
+            "healing": 15.9444444444444,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.1687499999999,
+            "recaptures_without_reply": 0.0555555555555556
+          }
+        },
+        "restricted_mean": 28.3657986111129,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.309850382224964,
+          0.531925107743602
+        ],
+        "wins": {
+          "left": 30,
+          "right": 42
+        }
+      },
+      "speed=400.0": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 21,
+          "20to30": 21,
+          "30to45": 24,
+          "45to60": 6,
+          "60to90": 0,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.25,
+        "matches": 72,
+        "mean_completed": 28.0818865740752,
+        "median_completed": 25.6895833333322,
+        "p10": 16.8962499999994,
+        "p90": 44.1962500000082,
+        "paired_bootstrap95": [
+          0.138888888888889,
+          0.388888888888889
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.0,
+                "hits": 4.0,
+                "mean_interval": 6.25508832565286,
+                "mean_success_interval": 6.25508832565286,
+                "median_interval": 4.71249999999973,
+                "starts": 4.0,
+                "successes": 4.0
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.93124999999987,
+            "damage_dealt": 83.4583333333333,
+            "damage_received": 80.8333333333333,
+            "healing": 0.0,
+            "hits": 4.0,
+            "mean_hit_interval": 6.25508832565286,
+            "mean_winning_hits": 5.33333333333333,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 13.7166301169595,
+                "mean_success_interval": 13.7166301169595,
+                "median_interval": 13.0083333333329,
+                "starts": 2.41666666666667,
+                "successes": 2.41666666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 80.8333333333333,
+            "damage_received": 83.4583333333333,
+            "healing": 17.8333333333333,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.93124999999987,
+            "recaptures_without_reply": 0.180555555555556
+          }
+        },
+        "restricted_mean": 28.0818865740752,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.164389211253258,
+          0.360937258652441
+        ],
+        "wins": {
+          "left": 18,
+          "right": 54
+        }
+      }
+    },
+    "histogram": {
+      "10to20": 68,
+      "20to30": 49,
+      "30to45": 73,
+      "45to60": 21,
+      "60to90": 5,
+      "over90": 0,
+      "under10": 0
+    },
+    "left_win_rate": 0.439814814814815,
+    "matches": 216,
+    "mean_completed": 29.3631944444465,
+    "median_completed": 27.1666666666654,
+    "p10": 14.0124999999995,
+    "p90": 46.6479166666768,
+    "paired_bootstrap95": [
+      0.356481481481481,
+      0.513888888888889
+    ],
+    "participants": {
+      "left": {
+        "abilities": {
+          "state": {
+            "completed": 0.0,
+            "hits": 0.0,
+            "mean_interval": null,
+            "mean_success_interval": null,
+            "median_interval": null,
+            "starts": 0.0,
+            "successes": 0.0
+          },
+          "sword": {
+            "completed": 4.59722222222222,
+            "hits": 4.59722222222222,
+            "mean_interval": 6.3238646101117,
+            "mean_success_interval": 6.3238646101117,
+            "median_interval": 4.25416666666824,
+            "starts": 4.59722222222222,
+            "successes": 4.59722222222222
+          }
+        },
+        "attack_lock_seconds": 0.0,
+        "capture_seconds": 6.10914351851842,
+        "damage_dealt": 95.5787037037037,
+        "damage_received": 71.25,
+        "healing": 0.0,
+        "hits": 4.59722222222222,
+        "mean_hit_interval": 6.3238646101117,
+        "mean_winning_hits": 5.38947368421053,
+        "protection_seconds": 0.0,
+        "recaptures_without_reply": 0.0
+      },
+      "right": {
+        "abilities": {
+          "bite": {
+            "completed": 1.55555555555556,
+            "hits": 0.0,
+            "mean_interval": 14.8368130227009,
+            "mean_success_interval": 14.8368130227009,
+            "median_interval": 13.3625000000033,
+            "starts": 2.11574074074074,
+            "successes": 2.11574074074074
+          }
+        },
+        "attack_lock_seconds": 0.0,
+        "capture_seconds": 0.0,
+        "damage_dealt": 71.25,
+        "damage_received": 95.5787037037037,
+        "healing": 15.8055555555556,
+        "hits": 0.0,
+        "mean_hit_interval": null,
+        "mean_winning_hits": 0.0,
+        "protection_seconds": 6.10914351851842,
+        "recaptures_without_reply": 0.0925925925925926
+      }
+    },
+    "restricted_mean": 29.3631944444465,
+    "timeouts": 0,
+    "two_hit_wins": 0,
+    "wilson95": [
+      0.375243277665974,
+      0.50648975193352
+    ],
+    "wins": {
+      "left": 95,
+      "right": 121
+    }
+  },
+  "acceptance": {
+    "win_rate_45_55": true,
+    "mean_20_45": true,
+    "median_20_45": true,
+    "at_least_70_percent_20_45": true,
+    "at_most_5_percent_under10": true,
+    "no_two_hit_wins": true,
+    "no_timeouts": true,
+    "sword_winner_hits_5_8": true,
+    "vamp_winner_bites_3_5": true
+  },
+  "effective_profiles": {
+    "final": {
+      "swordsman": {
+        "abilities": [
+          {
+            "ability_id": "sword",
+            "parameters": {
+              "base_damage": 20.0,
+              "blade_length": 80.0,
+              "damage_gain": 1.0,
+              "hit_cooldown": 2.5,
+              "max_damage": 30.0,
+              "max_speed": 400.0,
+              "speed_gain": 6.0,
+              "spin_speed": 20.0,
+              "starting_speed_ratio": 1.0
+            },
+            "script": "res://scripts/swordsman.gd",
+            "tags": [
+              "weapon"
+            ]
+          }
+        ],
+        "health": 100.0,
+        "id": "swordsman",
+        "movement_speed": 320.0,
+        "reference_health": 100.0
+      },
+      "vampire": {
+        "abilities": [
+          {
+            "ability_id": "bite",
+            "parameters": {
+              "bite_duration": 3.0,
+              "bite_units": 35.0,
+              "capture_immunity": 1.0,
+              "heal_units": 8.0,
+              "recovery_time": 4.0,
+              "tooth_immersion": 0.3333333333
+            },
+            "script": "res://scripts/vampire.gd",
+            "tags": [
+              "capture",
+              "drain"
+            ]
+          }
+        ],
+        "health": 100.0,
+        "id": "vampire",
+        "movement_speed": 320.0,
+        "reference_health": 100.0
+      }
+    }
+  },
+  "source_hashes": {
+    "res://characters/abilities/bite.tres": "75632f3212101b5b51d4b3e4419d4b8efc9dfab192372e421c1c88eec34761e9",
+    "res://characters/abilities/sword.tres": "a92345a6dc746c8db646a3bb62db8e04dd2c40837a28c28cc6d66d5bad581f4e",
+    "res://characters/ordinary.tres": "50d6989dddf6e28a7b32de408ae23aff3474e51750214e5542eaf595f19f423a",
+    "res://characters/swordsman.tres": "5188d50fa7a6881219c9de172fc5bcf0777ceb356195805d96079e6bda102da9",
+    "res://characters/vampire.tres": "c1241d9ec114c8b434314ceafd83ce33fc1597daded8b021f5600d507d2ba586",
+    "res://project.godot": "40ca3f02ab3d43b0f502a1bc2ab0d4ab87a46c4925998a03316a759ceeff29d1",
+    "res://scenes/arena.tscn": "5032573d782092ab48cd8d23ad6221b0bb1778919259a4f753fb223236c3b8bb",
+    "res://scenes/ball.tscn": "20c915b7f31c457c68e0402690bfdcba4823b86925ad761413805a9cd947ddab",
+    "res://scenes/main.tscn": "cb96c46010bce1e6a333f5ffda903c6126fa249ff454990e0c639a8339c793dd",
+    "res://scripts/approved_vampire.gdshader": "a124da893b743d59e8688929ee9de756cce7243e5a10cd0e3c683b68571b9b6d",
+    "res://scripts/approved_vampire_art.gd": "c19dbee523e5c3bbc7338d8102a79d63ef01f8d5b6ff4c59bc58a0ed4d204aaf",
+    "res://scripts/arena.gd": "64cb452e87ce0b187e4ea22dcf81454cda2926c9e8371121a18a63b48543b02a",
+    "res://scripts/ball.gd": "b413978c9b246400cd7623f9f5b41f58f91a9f7a3c884166c11d765ecec0e76b",
+    "res://scripts/bite_runoff.gd": "8a8921a4f9bc0421bed8a74d23769d3bd3519db836eaace650cec7043bb12632",
+    "res://scripts/blood_drawing.gd": "981fbeb05f1fb2784edf42f88b08f4a0e0083596836991fe05d3db9fa41dd9ef",
+    "res://scripts/blood_effects.gd": "4523b0dc71251336dc9022faf6f6c80414dfa97b27bf00a5984a37973d409b92",
+    "res://scripts/combat/ability_definition.gd": "ca2a1cbc01e897a3d26453a76fc91d8163a06936533136681eaaac70404d5f17",
+    "res://scripts/combat/balance_snapshot.gd": "ebb025eebd787b227affa24959047f819b0a187331fb801028151990b9b63862",
+    "res://scripts/combat/character_catalog.gd": "a11529ee85b33294d4ed33ca7350a2aa2e9a02319d6c036098ee35b555ca0600",
+    "res://scripts/combat/character_definition.gd": "ccba9e88027e4058278ed1da4c575f2527c588ad158b08b687723cbecc22375a",
+    "res://scripts/combat/combat_ability.gd": "4017374257c4df6c7303319d4b1e5ad1e80475c8bbcc2e088535b4289c9bc779",
+    "res://scripts/combat/combat_director.gd": "d6f17054c58bddad96129d5c039b1a1bb4372e1e2b139be0be0c2a3de8d2654c",
+    "res://scripts/combat/combat_metrics.gd": "930a9438e812cb384f40cead28da1fc3c1e333e1654d4075217e93b012b77dc7",
+    "res://scripts/combat/combat_statistics.gd": "8e44c380d6be854746e2b4b7afa86e654cfffd96a13989cb8ab34d587b0842cd",
+    "res://scripts/combat/scenario_factory.gd": "5524124b3dfc2d3b99331e00e7978c4c580e89b879869d29584938241914f4c7",
+    "res://scripts/combat_effects.gd": "de7f6c95e76329dbf4a39f066b18a0458a137d584647d3fd662754e1abb9ebed",
+    "res://scripts/combat_numbers.gd": "3f5c82e6fd8071b448a8dbdbeba4d3b0a5db43dc1eb702dc0ccbabc1464ee3fb",
+    "res://scripts/fang_mist.gdshader": "07d34423baae8a53030c929d57bf8642c2a03e553d6928ea5cd80943333edc39",
+    "res://scripts/health_display.gd": "322e8fc1275b36a43ca49ed602ff2b1eadeb5fbead49de40aa37ffcc7d9850d7",
+    "res://scripts/main.gd": "3657838f2a8e7b58f87e39f2e62a9fa9b4c2f97c280acb62cbe5f79edb22dc6f",
+    "res://scripts/ordinary_ball_art.gd": "278b869a39fa2e6a4b574d537b68c07c22daaaf2df64c34a534b52aec23d8deb",
+    "res://scripts/swordsman.gd": "c3e7f54a44b9d752b51e41829403a781b687146013e9597d73019714c6823586",
+    "res://scripts/vampire.gd": "6226f4bafb44a68c2d502c8fd66861d2360cb1df3c6550b8d55a837f7045e1f0",
+    "res://scripts/vampire_fur.gd": "76616b4857767f5ca212cf0d57efd57eadc2da9499c71d2f1a93fed7236fb9eb",
+    "res://tests/combat_balance.gd": "ca151d1821e64c129e380b399f714b193e65676e537a4b0603816c164cd4ba58",
+    "res://tests/combat_effects_test.gd": "b45e3e12488ed4b14608a87d8e9af13762b3b4b05dbfcecaacbe65918561e717",
+    "res://tests/combat_system_test.gd": "4a9e88be91d1804d81b85c8060d785eb5b643b56d2e5deef1bb1211b85ec310e",
+    "res://tests/fixtures/probe_ability.gd": "a1225bf5a95a0afa88c89439e8cf6c06b9e9dec0d2fb7328f304376db343ff68",
+    "res://tests/prototype_test.gd": "2db3faa251951666c297e341e2f665afa384896e365d5bd9771e06d32a1289f8",
+    "res://tests/render_combat_effects_test.gd": "3642c333ba31b3f190cfba408cae80951a76c275ae173060b846e26513a7149d",
+    "res://tests/render_runoff_test.gd": "8c3d346e5a272c16acbba950dacf827295d733c4ef2748994a10a56a396d8608",
+    "res://tests/render_swordsman_test.gd": "3973ed4ed08b4a1cbe4a2a81548deacc55303481ea1115b7ee8e51869b43e350",
+    "res://tests/render_vampire_test.gd": "0d2c7436f6649fd935b97dc2761677c3fadc1bf5b71e2adc4ae1e3d3f6dab1f2",
+    "res://tests/runoff_test.gd": "63fa8a0e3e78100a1382baa8a6bed71e3e9c959cfac54929684114416844604c",
+    "res://tests/summarize_balance.gd": "adfb93c4c4febb5febd628bdc0466bc7a172d22ad0f3a53827f3df1ccfc83f31",
+    "res://tests/swordsman_balance.gd": "6017fe600edba28f87a5711b643ec7f1e15ecb545ce86dd3b4b26eb3b15fdcc7",
+    "res://tests/swordsman_test.gd": "d6f15402cd337038dac1a38f191d4b8effbf3c498e8bb013d70d5661ff0ffea0",
+    "res://tests/vampire_test.gd": "e454e3a65e4d6714b2c2ab561ac5782c16bfcf0383c40d424cb48ff324d312a0"
+  },
+  "engine_version": "4.7.2-stable (official)"
+}

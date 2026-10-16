@@ -1,12 +1,22 @@
 @tool
 extends Node2D
 
+var _radius := -1.0
+var _color := Color.TRANSPARENT
+var _mesh: ArrayMesh
+var _mesh_radius := -1.0
+var _mesh_color := Color.TRANSPARENT
 
 func _process(_delta: float) -> void:
 	var fighter := get_parent() as ArenaBall
 	visible = fighter != null and not fighter.is_vampire
 	if visible:
-		queue_redraw()
+		var radius := fighter.visual_diameter() * 0.5
+		var color := fighter.body_color()
+		if radius != _radius or color != _color:
+			_radius = radius
+			_color = color
+			queue_redraw()
 
 
 func _draw() -> void:
@@ -15,14 +25,26 @@ func _draw() -> void:
 		return
 	var radius := fighter.visual_diameter() * 0.5
 	var color := fighter.body_color()
-	# Shared cartoon body: a broad soft highlight and a deep lower-right crescent.
-	draw_circle(Vector2.ZERO, radius + 1.25, Color(0.035, 0.015, 0.025))
-	draw_circle(Vector2.ZERO, radius, color.darkened(0.26))
-	var highlight_center := Vector2(-0.10, -0.13) * radius
-	for layer in 18:
-		var t := float(layer) / 17.0
-		draw_circle(highlight_center, radius * lerpf(0.83, 0.66, t),
-			color.lightened(t * 0.035))
+	if _mesh == null or radius != _mesh_radius or color != _mesh_color:
+		_mesh_radius=radius
+		_mesh_color=color
+		var vertices := PackedVector3Array()
+		var colors := PackedColorArray()
+		var indices := PackedInt32Array()
+		BloodDrawing._add_circle(vertices,colors,indices,Vector2.ZERO,radius+1.25,Color(.035,.015,.025),64)
+		BloodDrawing._add_circle(vertices,colors,indices,Vector2.ZERO,radius,color.darkened(.26),64)
+		var center := Vector2(-.10,-.13)*radius
+		for layer in 18:
+			var t := layer/17.0
+			BloodDrawing._add_circle(vertices,colors,indices,center,radius*lerpf(.83,.66,t),color.lightened(t*.035),64)
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX]=vertices
+		arrays[Mesh.ARRAY_COLOR]=colors
+		arrays[Mesh.ARRAY_INDEX]=indices
+		_mesh=ArrayMesh.new()
+		_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+	draw_mesh(_mesh,null)
 	draw_arc(Vector2.ZERO, radius - 0.35, -PI + 0.16, -0.06, 64,
 		color.lightened(0.17), 0.85, true)
 	draw_arc(Vector2.ZERO, radius - 0.35, 0.08, PI - 0.12, 64,

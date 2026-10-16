@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" format=3 uid="uid://dmcrql816xdpi"]
+
+[ext_resource type="Script" uid="uid://8bwe1b5iqnob" path="res://scripts/combat/character_definition.gd" id="1"]
+[ext_resource type="Resource" uid="uid://bwul4kuamjcaj" path="res://characters/abilities/bite.tres" id="2"]
+[ext_resource type="Script" uid="uid://dv7ftwhib1xuh" path="res://scripts/combat/ability_definition.gd" id="3"]
+
+[resource]
+script = ExtResource("1")
+character_id = &"vampire"
+display_name = "Vampire"
+tags = PackedStringArray("vampire")
+weight_class = 3
+diameter_multiplier = 1.1
+wall_boost_scale = null
+boost_decay_seconds = null
+abilities = Array[ExtResource("3")]([ExtResource("2")])

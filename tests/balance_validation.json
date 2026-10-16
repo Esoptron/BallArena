@@ -1,0 +1,16 @@
+{
+  "pair_runs": 2,
+  "mixed": false,
+  "time_limit": 150,
+  "concurrent": 16,
+  "left": "swordsman",
+  "right": "vampire",
+  "candidates": [
+    {
+      "id": "final",
+      "overrides": {}
+    }
+  ],
+  "seed_base": 1100000,
+  "scenario_count": 500
+}

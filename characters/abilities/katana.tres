@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://c771chxcbxavg"]
+
+[ext_resource type="Script" uid="uid://dv7ftwhib1xuh" path="res://scripts/combat/ability_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://dvak4vw5ydtqp" path="res://scripts/katana.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"katana"
+node_name = &"Katana"
+implementation = ExtResource("2")
+tags = PackedStringArray("weapon", "critical", "bleed")
+weapon_weight_class = 0
+impact_strength = 150.0
+parameters = {
+"base_damage": 1,
+"blade_length": 130.0,
+"bleed_tick_damage": 1,
+"bleed_tick_interval": 1.0,
+"critical_chance_gain": 0.1,
+"critical_max_chance": 1.0,
+"critical_start_chance": 0.2,
+"damage_gain": 1,
+"hit_cooldown": 1.0,
+"max_damage": 8,
+"max_speed": 400.0,
+"post_hit_slow_duration": 0.0,
+"post_hit_speed_ratio": 1.0,
+"speed_gain": 0.0,
+"spin_speed": 8.0,
+"starting_speed_ratio": 1.0
+}

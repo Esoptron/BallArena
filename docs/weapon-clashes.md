@@ -1,0 +1,11 @@
+# Weapon clashes and blood impacts
+
+Melee abilities opt into weapon clashes via CombatAbility.weapon_segments_at(fraction), weapon_radius(), and deflect_weapon(fraction). The director samples both weapons over each physics step, orders clashes with ordinary contacts by substep time, and resolves a pair once until it separates. Swords reverse immediately on a clash without adding damage, progression, attack cooldown, or global slow motion. Fangs return no segments and cannot clash. The same interface is available to future weapons.
+
+Successful sword damage uses emit_weapon_blood(), producing exactly three glossy ballistic drops of radius 4.2 (the existing post-bite drip radius). Blocked hits emit none. This uses the blood service's cosmetic random generator, independent of seeded combat randomness.
+
+ArenaBlood analytically finds the first impact against any of the four arena boundaries. Primary ballistic droplets and large falling drips produce five small droplets plus a glossy persistent surface pool. Secondary splashes are 50% larger than the initial version, bounded, short-lived, and do not recursively emit. Their surface impacts also leave small pools. Pools remain until the arena is replaced for the next fight; touching deposits and bridging chains merge into a single surface record with one cached outline. The merged footprint retains the full occupied interval rather than shrinking to a capped circle. A fixed 48-vertex outline bounds drawing cost even for long connected pools, and each surface has a reserved pool budget. All use BloodDrawing for the established glossy style. Spark streaks are similarly bounded and fade within 0.35 game seconds.
+
+Tests: weapon_clash_test.gd covers contact/reversal/rearming, substep crossings, no cooldown or damage on clash, fang exclusion, exact blood count/size, blocked hits, all four walls, floor drips, expiry. render_weapon_clash_test.gd checks actual drawing with the Compatibility renderer.
+
+Body contacts now reflect the sword even during attack cooldown or target protection, once per continuous contact. Damage/progression/blood/slow-motion remain limited to successful damaging hits. An earlier body reflection invalidates later queued weapon clashes computed on the old sweep path, preventing a double reversal in the same physics step. Tests: sword_body_reflection_test.gd.

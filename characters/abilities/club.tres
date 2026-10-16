@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/ability_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/club.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"club"
+node_name = &"Club"
+implementation = ExtResource("2")
+tags = PackedStringArray("weapon", "heavy")
+weapon_weight_class = 4
+impact_strength = 380.0
+parameters = {
+"base_damage": 20,
+"damage_gain": 5,
+"max_damage": 0,
+"starting_speed_ratio": 1.0,
+"speed_gain": 0.0,
+"max_speed": 220.0,
+"spin_speed": 2.6,
+"hit_cooldown": 3.0,
+"post_hit_slow_duration": 0.0,
+"post_hit_speed_ratio": 1.0,
+"blade_length": 80.0,
+"weapon_scale": 1.5,
+"shield_chance": 0.05,
+"shield_duration": 5.0,
+"impact_restitution": 0.65,
+"impact_recovery": 0.8,
+"launch_strength": 700.0,
+"launch_recovery": 0.45
+}

@@ -31,7 +31,7 @@ func run_checks() -> void:
 	test_blood()
 	await process_frame
 	if failures.is_empty():
-		print("PASS: 10 unit damage/heal ticks over 3s; paralysis/recovery; aim; non-solid fangs; 70-50 pulse; downward blood/squash/fade/cap")
+		print("PASS: separate unit damage/heal budgets over 3s; configured recovery; paralysis/recovery; aim; non-solid fangs; 70-50 pulse; downward blood/squash/fade/cap")
 		quit(0)
 	else:
 		quit(1)
@@ -75,11 +75,12 @@ func test_default_matchup() -> void:
 	check(is_equal_approx(blue.visual_diameter(), 70.0) and is_equal_approx(shape.radius, 35.0),
 		"A normal blue ball must not use the vampire low-health pulse.")
 	check(not blue_fangs.try_bite(red), "Normal blue ball must not start vampire attacks.")
+	blue.current_health = 100
 	red.current_health = 50
-	await ticks(600)
+	await ticks(ceili(600 * Engine.physics_ticks_per_second / 240.0))
 	check(red_fangs.has_bitten and not blue_fangs.has_bitten,
 		"Default gameplay must produce only the red vampire's bite.")
-	check(blue.is_paralyzed() and blue.current_health < 20 and red.current_health > 50,
+	check(blue.is_paralyzed() and blue.current_health < 100 and red.current_health > 50,
 		"Red vampire must paralyze/damage blue and heal itself in default gameplay.")
 	check(not blue_fangs.visible and red_fangs.visible,
 		"Only red vampire fangs and effects must be visible in the default scene.")
@@ -91,9 +92,12 @@ func test_bite_schedule() -> void:
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
 	var fangs := blue.get_node("Vampire") as VampireFangs
+	# Isolate constant-speed bite geometry; HP speed has its own integration test.
+	fangs.health_speed_per_hp = 0.0
 	blue.opponent = null
 	red.opponent = null
 	blue.is_vampire = true
+	(blue.get_node("Vampire") as VampireFangs).enabled = true
 	red.is_vampire = false
 	blue.freeze = true
 	blue.current_health = 50
@@ -111,10 +115,10 @@ func test_bite_schedule() -> void:
 		"Paralyzed victim must be visibly darker.")
 	check(red.current_health == 100 and blue.current_health == 50,
 		"Bite must not apply all damage/healing instantly.")
-	await ticks(77)
-	check(red.current_health == 99 and blue.current_health == 51,
-		"First 0.3-second tick should deal and heal exactly one unit.")
-	await ticks(620)
+	await ticks(int(2.1*fangs.bite_duration/fangs.bite_units*Engine.physics_ticks_per_second))
+	check(red.current_health == 98 and blue.current_health == 50+floori(2.0*fangs.heal_units/fangs.bite_units),
+		"Unit damage must start gradually; healing must follow its separate unit budget.")
+	await ticks(int((fangs.bite_duration-0.06)*Engine.physics_ticks_per_second)-int(2.1*fangs.bite_duration/fangs.bite_units*Engine.physics_ticks_per_second))
 	check(red.is_paralyzed() and red.position.distance_to(pinned_position) > 100.0,
 		"Helpless victim must continue moving rather than remain pinned.")
 	check(absf((fangs.get("_carry_velocity") as Vector2).length() - blue.movement_speed / 3.0) < 0.05,
@@ -123,16 +127,16 @@ func test_bite_schedule() -> void:
 		"Attacker must travel with the victim while attached.")
 	check((blue.position - attacker_position).distance_to(red.position - pinned_position) < 0.01,
 		"Attacker and victim must share identical displacement through the bite.")
-	check(tick_damage.size() == 9, "Nine ticks should have completed before 3 seconds.")
-	await ticks(50)
-	check(red.current_health == 90 and blue.current_health == 60,
-		"One completed bite should total exactly 10 damage and 10 healing.")
-	check(tick_damage.size() == 10 and tick_healing.size() == 10,
-		"Damage and healing must consist of exactly ten ticks.")
+	check(tick_damage.size() == fangs.bite_units-1, "Final unit must wait until the full bite duration.")
+	await ticks(ceili(50 * Engine.physics_ticks_per_second / 240.0))
+	check(red.current_health == 100-fangs.bite_units and blue.current_health == 50+fangs.heal_units,
+		"One completed bite must match the configured damage and healing budgets.")
+	check(tick_damage.size() == fangs.bite_units and tick_healing.size() == fangs.bite_units,
+		"Damage steps and heal budget must cover the full bite.")
 	for amount in tick_damage:
 		check(amount == 1, "Each damage tick must be one unit.")
 	for amount in tick_healing:
-		check(amount == 1, "Each healing tick must be one unit.")
+		check(amount == 0 or amount == 1, "Healing must remain integral and distributed over the bite.")
 	check(not red.is_paralyzed() and not red.freeze, "Paralysis should end at three seconds.")
 	check(absf(red.linear_velocity.length() - red.movement_speed) < 0.05,
 		"Victim should recover its original movement speed.")
@@ -147,8 +151,10 @@ func test_bite_schedule() -> void:
 		"Bite marks must match long fang tip spacing.")
 	check(red.body_color().is_equal_approx(red.ball_color), "Victim color must restore after paralysis.")
 	check(not fangs.try_bite(red), "Recovery period should prevent an immediate new bite.")
-	await ticks(250)
-	check(fangs.try_bite(red), "Bite should become available after recovery.")
+	await ticks(maxi(0,int(fangs.cooldown_remaining*Engine.physics_ticks_per_second)-ceili(20*Engine.physics_ticks_per_second/240.0)))
+	check(not fangs.try_bite(red), "Configured recovery must not expire early.")
+	await ticks(ceili(30 * Engine.physics_ticks_per_second / 240.0))
+	check(fangs.try_bite(red), "Bite must become available after its configured recovery.")
 	await remove_arena(arena)
 
 
@@ -157,26 +163,30 @@ func test_protected_bite() -> void:
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
 	blue.is_vampire = true
+	(blue.get_node("Vampire") as VampireFangs).enabled = true
 	blue.position = Vector2(430, 300)
 	red.position = Vector2(520, 300)
 	blue.reset_physics_interpolation()
 	red.reset_physics_interpolation()
-	await ticks(10)
+	await ticks(ceili(10 * Engine.physics_ticks_per_second / 240.0))
 	var blue_fangs := blue.get_node("Vampire") as VampireFangs
 	var red_fangs := red.get_node("Vampire") as VampireFangs
 	check(blue_fangs.has_bitten != red_fangs.has_bitten,
 		"An invulnerable attacker must prevent a reciprocal bite.")
 	var attacker := blue if blue_fangs.has_bitten else red
 	var victim := red if blue_fangs.has_bitten else blue
+	# Release permits counterattacks; isolate the first protected bite here.
+	(victim.get_node("Vampire") as VampireFangs).set_physics_process(false)
 	check(attacker.is_invulnerable() and attacker.freeze and victim.is_paralyzed() and victim.freeze,
 		"Both balls must stop, with protection only on the attacker.")
 	check(blue.current_health == 100 and red.current_health == 100,
 		"Opening a protected bite must not deal instant damage.")
-	await ticks(780)
+	await ticks(ceili(780 * Engine.physics_ticks_per_second / 240.0))
 	check(not blue.is_immobilized() and not red.is_immobilized()
 		and not attacker.is_invulnerable(), "Bite must clean up movement and protection states.")
-	check(victim.current_health == 90 and attacker.current_health == 110,
-		"Protected vampire must deal ten damage and heal above starting HP without reciprocal damage.")
+	var active_fangs := attacker.get_node("Vampire") as VampireFangs
+	check(victim.current_health == 100-active_fangs.bite_units and attacker.current_health == 100+active_fangs.heal_units,
+		"Protected vampire must deal configured damage and heal above starting HP.")
 	await remove_arena(arena)
 
 
@@ -197,6 +207,13 @@ func test_shared_statuses_and_wounds() -> void:
 		"One ability must not remove another ability's protection.")
 	blue.set_invulnerable(source_b, false)
 	check(blue.take_damage(5) == 5, "Damage must resume after all protection sources end.")
+	blue.paralyze(2.0,source_a)
+	blue.paralyze(4.0,source_b)
+	blue.cancel_paralysis(source_a)
+	check(blue.is_paralyzed() and blue.paralysis_remaining == 4.0,
+		"Finishing one ability must preserve another ability's control.")
+	blue.cancel_paralysis(source_b)
+	check(not blue.is_paralyzed(), "Last control source must release paralysis.")
 	blue.hold_motion(source_a)
 	blue.hold_motion(source_b)
 	blue.release_motion(source_a, Vector2.LEFT)
@@ -235,6 +252,7 @@ func test_visuals_and_health() -> void:
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
 	var fangs := blue.get_node("Vampire") as VampireFangs
 	blue.is_vampire = true
+	(blue.get_node("Vampire") as VampireFangs).enabled = true
 	blue.freeze = true
 	red.freeze = true
 	red.position = blue.position + Vector2(50, 180)
@@ -313,8 +331,11 @@ func test_live_low_health() -> void:
 	var blue := arena.get_node("Balls/BlueBall") as ArenaBall
 	var red := arena.get_node("Balls/RedBall") as ArenaBall
 	blue.is_vampire = true
+	(blue.get_node("Vampire") as VampireFangs).enabled = true
 	blue.current_health = 20
 	red.current_health = 25
+	# Direct fixture assignments need a physics tick before measuring travel speed.
+	await ticks(ceili(2 * Engine.physics_ticks_per_second / 240.0))
 	var blood := arena.get_node("BloodEffects") as ArenaBlood
 	var worst_penetration: float = 0.0
 	for step in Engine.physics_ticks_per_second * 60:
@@ -322,14 +343,14 @@ func test_live_low_health() -> void:
 		for ball in [blue, red]:
 			var collision: CollisionShape2D = ball.get_node("CollisionShape2D")
 			var radius: float = (collision.shape as CircleShape2D).radius
-			check(radius >= 23.749 and radius <= 35.001, "Collider exceeded the low-health and 5-percent bite pulse bounds.")
+			check(radius >= ball.diameter * ball.pulse_minimum_ratio * (1.0 - ball.bite_pulse_amount) * 0.5 - 0.001 and radius <= ball.diameter * 0.5 + 0.001, "Collider exceeded the low-health and 5-percent bite pulse bounds.")
 			check(ball.current_health >= 0,
 				"Live combat produced negative health.")
 			if ball.is_immobilized():
 				check(ball.freeze, "Live paralysis failed to hold a victim.")
 			elif ball.current_health > 0:
-				check(absf(ball.linear_velocity.length() - ball.movement_speed) < 0.05,
-					"Moving vampire lost its configured speed.")
+				check(absf(ball.linear_velocity.length() - ball.effective_movement_speed()) < 0.05,
+					"Moving vampire must retain base speed plus the current wall bonus.")
 			var p: Vector2 = ball.position
 			var penetration := maxf(maxf(radius - p.x, radius - p.y),
 				maxf(p.x + radius - arena.arena_size.x, p.y + radius - arena.arena_size.y))
@@ -399,14 +420,14 @@ func test_bite_body_pulse() -> void:
 	red.bite_pulse_elapsed = 0.5 / red.bite_pulse_frequency
 	red.call("_sync_pulse_shape")
 	art.call("_process", 0.0)
-	check(is_equal_approx(red.visual_diameter(), 66.5),
-		"Feeding body must pulse between 70 and 66.5: five percent.")
+	check(is_equal_approx(red.visual_diameter(), red.diameter * 0.95),
+		"Feeding body must pulse by five percent at the configured diameter.")
 	check(is_equal_approx(body.scale.x / full_body_scale, 0.95)
 		and is_equal_approx(teeth.scale.x, fixed_tooth_scale)
 		and is_equal_approx(fangs.fang_diameter(), fixed_fang_size),
 		"Only the body sprite may pulse; tooth sprite and bite geometry must stay fixed.")
 	check(is_equal_approx(((red.get_node("CollisionShape2D") as CollisionShape2D).shape
-		as CircleShape2D).radius, 33.25), "Collider must follow the subtle body pulse.")
+		as CircleShape2D).radius, red.diameter * 0.475), "Collider must follow the subtle body pulse.")
 	await remove_arena(arena)
 
 
@@ -423,10 +444,12 @@ func test_carried_direction() -> void:
 		# Incoming vampire moves down, while the victim is to its right.
 		red.linear_velocity = Vector2.DOWN * speed
 		var fangs := red.get_node("Vampire") as VampireFangs
+		# Isolate constant-speed bite geometry; HP speed has its own integration test.
+		fangs.health_speed_per_hp = 0.0
 		check(fangs.try_bite(blue), "Carried-motion fixture must start.")
 		var start := blue.position
 		var attacker_start := red.position
-		await ticks(60)
+		await ticks(ceili(60 * Engine.physics_ticks_per_second / 240.0))
 		var elapsed: float = fangs.get("_bite_elapsed")
 		var displacement := blue.position - start
 		check(absf(displacement.x) < 0.01 and displacement.y > 0.0,
@@ -441,14 +464,14 @@ func test_carried_direction() -> void:
 		red.position += wall_shift
 		blue.reset_physics_interpolation()
 		red.reset_physics_interpolation()
-		await ticks(60)
+		await ticks(ceili(60 * Engine.physics_ticks_per_second / 240.0))
 		check(blue.position.y <= arena.arena_size.y - 35.0 + 0.1
 			and (fangs.get("_carry_velocity") as Vector2).y < 0.0,
 			"Carried victim must bounce at the arena wall.")
 		start = blue.position
 		attacker_start = red.position
 		var before_elapsed: float = fangs.get("_bite_elapsed")
-		await ticks(60)
+		await ticks(ceili(60 * Engine.physics_ticks_per_second / 240.0))
 		elapsed = float(fangs.get("_bite_elapsed")) - before_elapsed
 		check(absf(blue.position.distance_to(start) / elapsed - speed / 3.0) < 0.05,
 			"Measured speed must remain one third after wall reflection.")
@@ -469,9 +492,11 @@ func test_pair_corner_bounds() -> void:
 		red.movement_speed = 900.0
 		red.linear_velocity = direction * red.movement_speed
 		var fangs := red.get_node("Vampire") as VampireFangs
+		# Isolate constant-speed bite geometry; HP speed has its own integration test.
+		fangs.health_speed_per_hp = 0.0
 		check(fangs.try_bite(blue), "Pair corner fixture must start.")
 		var attachment := blue.position - red.position
-		for step in 600:
+		for step in ceili(600 * Engine.physics_ticks_per_second / 240.0):
 			await physics_frame
 			check((blue.position - red.position).distance_to(attachment) < 0.01,
 				"Wall and corner reflections must preserve attachment at every step.")
