@@ -1,0 +1,13 @@
+# Performance changes — 14 October 2026
+
+Global hit slow motion has been removed, including its callbacks and tweens. Weapon recovery spin remains a character mechanic. Character profiles, damage/healing budgets, cooldowns and APK architectures have not been changed.
+
+Ordinary gameplay uses 120 physics ticks/second with physics interpolation. Small, exceptionally fast custom balls fall back to the previous tested 240 Hz; active arenas register their requirement and restore the normal rate on exit. A 60 Hz trial was rejected because body collision/relocation stress checks failed.
+
+Weapon detection now rejects distant bodies and uses bounded conservative advancement rather than a uniform dense scan. Segment distance and maximum endpoint travel bound the safe jump in normalized time. Contacts use a 0.025-unit numerical margin. Weapon/weapon filtering uses endpoint bounds plus a rigorous radius×angle²/8 arc deviation margin; rotations above PI retain a full-circle envelope. Start/end segments and movement bounds are prepared once per weapon/step, nested endpoint checks no longer regenerate the other weapon's segments, and initiative slot names are cached. Continuous-sweep tests compare detection against 1,025-sample reference scans and include targets crossed only between endpoint poses.
+
+Stable body, HP and weapon drawings are retained until visual state changes. Body layers, blood drops, sparks, green drain spheres and the grizzly badge use retained meshes; moving particles are rendered through three fixed-capacity MultiMesh groups. Those groups update once per rendered frame and have physics interpolation disabled, while character interpolation stays enabled. Settled pools have a separate retained canvas. Vampire shader materials are shared among identical visual states. Ability component and collision-shape references are cached, including dynamic child registration.
+
+Death portraits remain GPU textures. Shared body cells replace per-death Voronoi/pixel analysis; captures are queued one/frame and shards no longer collide with one another. See death-fragments.md. Temporary viewports are released after the pieces expire.
+
+Validation includes motion/CCD parameter stress, body/weapon reflections, continuous sweeps, vampire scheduling/corner attachment, counters and arena bounds, health-dependent hunting/Berserk, particle batch transforms/populations/lifetimes, menus, and graphical deaths of all armed heroes. Actual APK resources are separately exercised before delivery. No claim of measured phone FPS is made: local GPU measurements use RTX 3050, window 1280×720, VSync disabled, fixed seed and short high-HP diagnostic fights without deaths. Real match/death checks complement those measurements.

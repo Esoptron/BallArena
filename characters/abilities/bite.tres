@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://bwul4kuamjcaj"]
+
+[ext_resource type="Script" uid="uid://dv7ftwhib1xuh" path="res://scripts/combat/ability_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://bpiswm67bhdqn" path="res://scripts/vampire.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"bite"
+node_name = &"Vampire"
+implementation = ExtResource("2")
+tags = PackedStringArray("capture", "drain")
+parameters = {
+"bite_duration": 3.0,
+"bite_units": 15,
+"capture_immunity": 1.0,
+"heal_units": 10,
+"health_speed_max_ratio": 1.5,
+"health_speed_min_ratio": 0.25,
+"health_speed_per_hp": 0.005,
+"health_speed_reference": 100.0,
+"hunt_health_threshold": 20,
+"hunt_delay": 3.0,
+"hunt_speed_bonus": 0.20,
+"recovery_time": 4.0,
+"tooth_immersion": 0.3333333333
+}

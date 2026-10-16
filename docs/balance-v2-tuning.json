@@ -1,0 +1,5905 @@
+{
+  "records": [
+    {
+      "report": "balance-orbit-pilot-0.json",
+      "raw_sha256": "37016fc7bd8ab3afd09329b4bc2fc77ec4884c6fd24a49f9ef3178885b7c7a67",
+      "candidate": "Spin8V25H8C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin8V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 8.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin12V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 24.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 0.65,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 8.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 25.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 5,
+          "20to30": 1,
+          "30to45": 8,
+          "45to60": 10,
+          "60to90": 15,
+          "over90": 5,
+          "under10": 4
+        },
+        "left_win_rate": 0.270833333333333,
+        "matches": 48,
+        "mean_completed": 52.6111979166741,
+        "median_completed": 54.7500000000166,
+        "p10": 12.002083333333,
+        "p90": 87.5237500000026,
+        "paired_bootstrap95": [
+          0.125,
+          0.4375
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.375,
+                "hits": 3.375,
+                "mean_interval": 9.63706896551876,
+                "mean_success_interval": 9.63706896551876,
+                "median_interval": 5.12916666666458,
+                "starts": 3.375,
+                "successes": 3.375
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 9.49999999999973,
+            "damage_dealt": 69.5833333333333,
+            "damage_received": 79.1666666666667,
+            "healing": 0.0,
+            "hits": 3.375,
+            "mean_hit_interval": 9.63706896551876,
+            "mean_winning_hits": 5.38461538461539,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 3.16666666666667,
+                "hits": 0.0,
+                "mean_interval": 19.3522321428602,
+                "mean_success_interval": 19.3522321428602,
+                "median_interval": 17.2104166666798,
+                "starts": 3.16666666666667,
+                "successes": 3.16666666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 79.1666666666667,
+            "damage_received": 69.5833333333333,
+            "healing": 25.3333333333333,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 9.49999999999973,
+            "recaptures_without_reply": 0.854166666666667
+          }
+        },
+        "restricted_mean": 52.6111979166741,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.165658035616329,
+          0.409972346162011
+        ],
+        "wins": {
+          "left": 13,
+          "right": 35
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-pilot-0.json",
+      "raw_sha256": "37016fc7bd8ab3afd09329b4bc2fc77ec4884c6fd24a49f9ef3178885b7c7a67",
+      "candidate": "Spin12V25H8C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin8V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 8.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin12V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 24.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 0.65,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 12.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 25.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 6,
+          "20to30": 5,
+          "30to45": 10,
+          "45to60": 9,
+          "60to90": 12,
+          "over90": 4,
+          "under10": 2
+        },
+        "left_win_rate": 0.3125,
+        "matches": 48,
+        "mean_completed": 50.1787326388947,
+        "median_completed": 48.9979166666787,
+        "p10": 17.9133333333326,
+        "p90": 87.2145833333362,
+        "paired_bootstrap95": [
+          0.166666666666667,
+          0.479166666666667
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.83333333333333,
+                "hits": 3.83333333333333,
+                "mean_interval": 10.764872262775,
+                "mean_success_interval": 10.764872262775,
+                "median_interval": 6.33333333333837,
+                "starts": 3.83333333333333,
+                "successes": 3.83333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 9.37499999999974,
+            "damage_dealt": 79.9583333333333,
+            "damage_received": 78.125,
+            "healing": 0.0,
+            "hits": 3.83333333333333,
+            "mean_hit_interval": 10.764872262775,
+            "mean_winning_hits": 5.4,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 3.125,
+                "hits": 0.0,
+                "mean_interval": 18.3061363636392,
+                "mean_success_interval": 18.3061363636392,
+                "median_interval": 14.1583333333386,
+                "starts": 3.125,
+                "successes": 3.125
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 78.125,
+            "damage_received": 79.9583333333333,
+            "healing": 25.0,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 9.37499999999974,
+            "recaptures_without_reply": 0.708333333333333
+          }
+        },
+        "restricted_mean": 50.1787326388947,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.199455121677315,
+          0.453333372504963
+        ],
+        "wins": {
+          "left": 15,
+          "right": 33
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-pilot-0.json",
+      "raw_sha256": "37016fc7bd8ab3afd09329b4bc2fc77ec4884c6fd24a49f9ef3178885b7c7a67",
+      "candidate": "Spin16V25H8C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin8V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 8.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin12V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16V25H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 25.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 24.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 0.65,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 16.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 25.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 6,
+          "20to30": 3,
+          "30to45": 9,
+          "45to60": 15,
+          "60to90": 6,
+          "over90": 4,
+          "under10": 5
+        },
+        "left_win_rate": 0.395833333333333,
+        "matches": 48,
+        "mean_completed": 45.5268229166721,
+        "median_completed": 46.045833333343,
+        "p10": 12.5724999999996,
+        "p90": 84.2375000000056,
+        "paired_bootstrap95": [
+          0.249479166666667,
+          0.5625
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.41666666666667,
+                "hits": 4.41666666666667,
+                "mean_interval": 9.39794207317182,
+                "mean_success_interval": 9.39794207317182,
+                "median_interval": 5.15416666666653,
+                "starts": 4.41666666666667,
+                "successes": 4.41666666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 8.81249999999977,
+            "damage_dealt": 92.1875,
+            "damage_received": 73.4375,
+            "healing": 0.0,
+            "hits": 4.41666666666667,
+            "mean_hit_interval": 9.39794207317182,
+            "mean_winning_hits": 5.47368421052632,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.9375,
+                "hits": 0.0,
+                "mean_interval": 17.7396452145239,
+                "mean_success_interval": 17.7396452145239,
+                "median_interval": 14.6708333333328,
+                "starts": 2.9375,
+                "successes": 2.9375
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 73.4375,
+            "damage_received": 92.1875,
+            "healing": 23.5,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 8.81249999999977,
+            "recaptures_without_reply": 0.479166666666667
+          }
+        },
+        "restricted_mean": 45.5268229166721,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.270206264959506,
+          0.536898454030649
+        ],
+        "wins": {
+          "left": 19,
+          "right": 29
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-pilot-1.json",
+      "raw_sha256": "b2b47bc48154df55670a09ccaed90468212f50e827211978f325a0de7cb7fe49",
+      "candidate": "Spin12V30H8C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin12V30H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16V30H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin12V30H12C4",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 12.0,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 24.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 0.65,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 12.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 5,
+          "20to30": 5,
+          "30to45": 12,
+          "45to60": 8,
+          "60to90": 13,
+          "over90": 3,
+          "under10": 2
+        },
+        "left_win_rate": 0.291666666666667,
+        "matches": 48,
+        "mean_completed": 49.1863715277832,
+        "median_completed": 44.1125000000081,
+        "p10": 17.9133333333326,
+        "p90": 84.9095833333383,
+        "paired_bootstrap95": [
+          0.145833333333333,
+          0.43802083333333
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.8125,
+                "hits": 3.8125,
+                "mean_interval": 10.7255821078446,
+                "mean_success_interval": 10.7255821078446,
+                "median_interval": 6.26250000000198,
+                "starts": 3.8125,
+                "successes": 3.8125
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 8.08333333333315,
+            "damage_dealt": 79.3958333333333,
+            "damage_received": 80.8333333333333,
+            "healing": 0.0,
+            "hits": 3.8125,
+            "mean_hit_interval": 10.7255821078446,
+            "mean_winning_hits": 5.42857142857143,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.45833333333333,
+                "hits": 0.0,
+                "mean_interval": 18.1708705357167,
+                "mean_success_interval": 18.1708705357167,
+                "median_interval": 14.0958333333385,
+                "starts": 3.16666666666667,
+                "successes": 3.16666666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 80.8333333333333,
+            "damage_received": 79.3958333333333,
+            "healing": 21.0833333333333,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 8.08333333333315,
+            "recaptures_without_reply": 0.708333333333333
+          }
+        },
+        "restricted_mean": 49.1863715277832,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.182414160618634,
+          0.431795277361675
+        ],
+        "wins": {
+          "left": 14,
+          "right": 34
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-pilot-1.json",
+      "raw_sha256": "b2b47bc48154df55670a09ccaed90468212f50e827211978f325a0de7cb7fe49",
+      "candidate": "Spin16V30H8C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin12V30H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16V30H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin12V30H12C4",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 12.0,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 24.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 0.65,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 16.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 6,
+          "20to30": 3,
+          "30to45": 12,
+          "45to60": 13,
+          "60to90": 5,
+          "over90": 4,
+          "under10": 5
+        },
+        "left_win_rate": 0.395833333333333,
+        "matches": 48,
+        "mean_completed": 44.3184895833384,
+        "median_completed": 44.0458333333414,
+        "p10": 12.5724999999996,
+        "p90": 82.2375000000074,
+        "paired_bootstrap95": [
+          0.25,
+          0.541666666666667
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.41666666666667,
+                "hits": 4.41666666666667,
+                "mean_interval": 9.39794207317182,
+                "mean_success_interval": 9.39794207317182,
+                "median_interval": 5.15416666666653,
+                "starts": 4.41666666666667,
+                "successes": 4.41666666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.6041666666665,
+            "damage_dealt": 92.1875,
+            "damage_received": 76.0416666666667,
+            "healing": 0.0,
+            "hits": 4.41666666666667,
+            "mean_hit_interval": 9.39794207317182,
+            "mean_winning_hits": 5.47368421052632,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.33333333333333,
+                "hits": 0.0,
+                "mean_interval": 17.7396452145239,
+                "mean_success_interval": 17.7396452145239,
+                "median_interval": 14.6708333333328,
+                "starts": 2.9375,
+                "successes": 2.9375
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 76.0416666666667,
+            "damage_received": 92.1875,
+            "healing": 19.875,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.6041666666665,
+            "recaptures_without_reply": 0.479166666666667
+          }
+        },
+        "restricted_mean": 44.3184895833384,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.270206264959506,
+          0.536898454030649
+        ],
+        "wins": {
+          "left": 19,
+          "right": 29
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-pilot-1.json",
+      "raw_sha256": "b2b47bc48154df55670a09ccaed90468212f50e827211978f325a0de7cb7fe49",
+      "candidate": "Spin12V30H12C4",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin12V30H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16V30H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin12V30H12C4",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 0.65,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 12.0,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 24.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 0.65,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 12.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 12.0,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 5,
+          "20to30": 8,
+          "30to45": 10,
+          "45to60": 7,
+          "60to90": 12,
+          "over90": 4,
+          "under10": 2
+        },
+        "left_win_rate": 0.208333333333333,
+        "matches": 48,
+        "mean_completed": 48.544097222227,
+        "median_completed": 42.8770833333405,
+        "p10": 17.9133333333326,
+        "p90": 86.2804166666704,
+        "paired_bootstrap95": [
+          0.0625,
+          0.375
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.60416666666667,
+                "hits": 3.60416666666667,
+                "mean_interval": 10.9365410052923,
+                "mean_success_interval": 10.9365410052923,
+                "median_interval": 6.11666666666648,
+                "starts": 3.60416666666667,
+                "successes": 3.60416666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 8.22916666666647,
+            "damage_dealt": 75.5625,
+            "damage_received": 82.2916666666667,
+            "healing": 0.0,
+            "hits": 3.60416666666667,
+            "mean_hit_interval": 10.9365410052923,
+            "mean_winning_hits": 5.3,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.47916666666667,
+                "hits": 0.0,
+                "mean_interval": 17.6626068376088,
+                "mean_success_interval": 17.6626068376088,
+                "median_interval": 14.0250000000112,
+                "starts": 3.27083333333333,
+                "successes": 3.27083333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.2916666666667,
+            "damage_received": 75.5625,
+            "healing": 32.9166666666667,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 8.22916666666647,
+            "recaptures_without_reply": 0.854166666666667
+          }
+        },
+        "restricted_mean": 48.544097222227,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.117301477958898,
+          0.342591735213535
+        ],
+        "wins": {
+          "left": 10,
+          "right": 38
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-grid-0.json",
+      "raw_sha256": "f5625e856684be8278c98e227d552db7108443ff7b40bb6350243cc06e94ebc4",
+      "candidate": "Spin20Cd2.5V35H6C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin20Cd2.5V35H6C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 6.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V35H6C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 6.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V35H10C6",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 10.0,
+                    "recovery_time": 6.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 6.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 10,
+          "20to30": 21,
+          "30to45": 22,
+          "45to60": 13,
+          "60to90": 5,
+          "over90": 1,
+          "under10": 0
+        },
+        "left_win_rate": 0.222222222222222,
+        "matches": 72,
+        "mean_completed": 35.9086226851896,
+        "median_completed": 34.6229166666673,
+        "p10": 19.0041666666659,
+        "p90": 54.1825000000162,
+        "paired_bootstrap95": [
+          0.111111111111111,
+          0.347222222222222
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.61111111111111,
+                "hits": 3.61111111111111,
+                "mean_interval": 9.05724734042639,
+                "mean_success_interval": 9.05724734042639,
+                "median_interval": 5.49166666666651,
+                "starts": 3.61111111111111,
+                "successes": 3.61111111111111
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.00277777777764,
+            "damage_dealt": 74.9166666666667,
+            "damage_received": 81.6666666666667,
+            "healing": 0.0,
+            "hits": 3.61111111111111,
+            "mean_hit_interval": 9.05724734042639,
+            "mean_winning_hits": 5.25,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 17.545294540232,
+                "mean_success_interval": 17.545294540232,
+                "median_interval": 14.9604166666661,
+                "starts": 2.44444444444444,
+                "successes": 2.44444444444444
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 81.6666666666667,
+            "damage_received": 74.9166666666667,
+            "healing": 13.8888888888889,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.00277777777764,
+            "recaptures_without_reply": 0.208333333333333
+          }
+        },
+        "restricted_mean": 35.9086226851896,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.141673239205201,
+          0.330911727356686
+        ],
+        "wins": {
+          "left": 16,
+          "right": 56
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-grid-0.json",
+      "raw_sha256": "f5625e856684be8278c98e227d552db7108443ff7b40bb6350243cc06e94ebc4",
+      "candidate": "Spin24Cd2.5V35H6C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin20Cd2.5V35H6C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 6.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V35H6C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 6.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V35H10C6",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 10.0,
+                    "recovery_time": 6.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 24.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 6.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 12,
+          "20to30": 21,
+          "30to45": 22,
+          "45to60": 12,
+          "60to90": 5,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.263888888888889,
+        "matches": 72,
+        "mean_completed": 34.0208333333371,
+        "median_completed": 30.8145833333319,
+        "p10": 16.9187499999994,
+        "p90": 55.9725000000176,
+        "paired_bootstrap95": [
+          0.138888888888889,
+          0.388888888888889
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.73611111111111,
+                "hits": 3.73611111111111,
+                "mean_interval": 8.38007614213271,
+                "mean_success_interval": 8.38007614213271,
+                "median_interval": 5.60416666666635,
+                "starts": 3.73611111111111,
+                "successes": 3.73611111111111
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.72881944444432,
+            "damage_dealt": 77.8055555555556,
+            "damage_received": 78.4722222222222,
+            "healing": 0.0,
+            "hits": 3.73611111111111,
+            "mean_hit_interval": 8.38007614213271,
+            "mean_winning_hits": 5.15789473684211,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.61111111111111,
+                "hits": 0.0,
+                "mean_interval": 16.2626146789008,
+                "mean_success_interval": 16.2626146789008,
+                "median_interval": 13.4874999999992,
+                "starts": 2.34722222222222,
+                "successes": 2.34722222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 78.4722222222222,
+            "damage_received": 77.8055555555556,
+            "healing": 13.3472222222222,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.72881944444432,
+            "recaptures_without_reply": 0.166666666666667
+          }
+        },
+        "restricted_mean": 34.0208333333371,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.175936415965527,
+          0.375760805612077
+        ],
+        "wins": {
+          "left": 19,
+          "right": 53
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-grid-0.json",
+      "raw_sha256": "f5625e856684be8278c98e227d552db7108443ff7b40bb6350243cc06e94ebc4",
+      "candidate": "Spin24Cd2.5V35H10C6",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin20Cd2.5V35H6C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 6.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V35H6C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 6.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V35H10C6",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 10.0,
+                    "recovery_time": 6.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 24.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 10.0,
+                "recovery_time": 6.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 10,
+          "20to30": 23,
+          "30to45": 25,
+          "45to60": 9,
+          "60to90": 5,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.277777777777778,
+        "matches": 72,
+        "mean_completed": 33.7561342592626,
+        "median_completed": 31.1916666666652,
+        "p10": 16.9187499999994,
+        "p90": 51.4229166666806,
+        "paired_bootstrap95": [
+          0.166666666666667,
+          0.402777777777778
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.75,
+                "hits": 3.75,
+                "mean_interval": 8.13011363636429,
+                "mean_success_interval": 8.13011363636429,
+                "median_interval": 5.33333333333303,
+                "starts": 3.75,
+                "successes": 3.75
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.69305555555543,
+            "damage_dealt": 78.4305555555556,
+            "damage_received": 78.0555555555556,
+            "healing": 0.0,
+            "hits": 3.75,
+            "mean_hit_interval": 8.13011363636429,
+            "mean_winning_hits": 5.2,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.61111111111111,
+                "hits": 0.0,
+                "mean_interval": 16.1910108024705,
+                "mean_success_interval": 16.1910108024705,
+                "median_interval": 13.4749999999994,
+                "starts": 2.33333333333333,
+                "successes": 2.33333333333333
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 78.0555555555556,
+            "damage_received": 78.4305555555556,
+            "healing": 21.8888888888889,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.69305555555543,
+            "recaptures_without_reply": 0.180555555555556
+          }
+        },
+        "restricted_mean": 33.7561342592626,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.187601460053229,
+          0.39046651319628
+        ],
+        "wins": {
+          "left": 20,
+          "right": 52
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-grid-1.json",
+      "raw_sha256": "34209a609da6bdf745a3d2e02e79c7ac3a3dafd4a7feb0eac4a182ebffe5b67f",
+      "candidate": "Spin28Cd2.5V35H8C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin28Cd2.5V35H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 28.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V30H4C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 4.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V30H8C6",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 6.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 28.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 13,
+          "20to30": 20,
+          "30to45": 21,
+          "45to60": 16,
+          "60to90": 2,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.25,
+        "matches": 72,
+        "mean_completed": 33.9097222222262,
+        "median_completed": 32.3166666666654,
+        "p10": 16.5299999999994,
+        "p90": 52.5575000000149,
+        "paired_bootstrap95": [
+          0.125,
+          0.388888888888889
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.15277777777778,
+                "hits": 4.15277777777778,
+                "mean_interval": 7.9256057268728,
+                "mean_success_interval": 7.9256057268728,
+                "median_interval": 4.85833333333306,
+                "starts": 4.15277777777778,
+                "successes": 4.15277777777778
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.84791666666654,
+            "damage_dealt": 87.3472222222222,
+            "damage_received": 79.8611111111111,
+            "healing": 0.0,
+            "hits": 4.15277777777778,
+            "mean_hit_interval": 7.9256057268728,
+            "mean_winning_hits": 5.22222222222222,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.63888888888889,
+                "hits": 0.0,
+                "mean_interval": 16.7875000000019,
+                "mean_success_interval": 16.7875000000019,
+                "median_interval": 14.8062500000009,
+                "starts": 2.38888888888889,
+                "successes": 2.38888888888889
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 79.8611111111111,
+            "damage_received": 87.3472222222222,
+            "healing": 17.6111111111111,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.84791666666654,
+            "recaptures_without_reply": 0.111111111111111
+          }
+        },
+        "restricted_mean": 33.9097222222262,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.164389211253258,
+          0.360937258652441
+        ],
+        "wins": {
+          "left": 18,
+          "right": 54
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-grid-1.json",
+      "raw_sha256": "34209a609da6bdf745a3d2e02e79c7ac3a3dafd4a7feb0eac4a182ebffe5b67f",
+      "candidate": "Spin24Cd2.5V30H4C5",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin28Cd2.5V35H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 28.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V30H4C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 4.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V30H8C6",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 6.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 24.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 4.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 12,
+          "20to30": 11,
+          "30to45": 18,
+          "45to60": 22,
+          "60to90": 9,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.5,
+        "matches": 72,
+        "mean_completed": 41.1104745370438,
+        "median_completed": 41.6291666666728,
+        "p10": 16.9187499999994,
+        "p90": 61.2779166666885,
+        "paired_bootstrap95": [
+          0.375,
+          0.625
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.55555555555556,
+                "hits": 4.55555555555556,
+                "mean_interval": 8.90292968750142,
+                "mean_success_interval": 8.90292968750142,
+                "median_interval": 6.36458333333297,
+                "starts": 4.55555555555556,
+                "successes": 4.55555555555556
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.20833333333319,
+            "damage_dealt": 94.5555555555556,
+            "damage_received": 72.0833333333333,
+            "healing": 0.0,
+            "hits": 4.55555555555556,
+            "mean_hit_interval": 8.90292968750142,
+            "mean_winning_hits": 5.25,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.23611111111111,
+                "hits": 0.0,
+                "mean_interval": 16.0595498783481,
+                "mean_success_interval": 16.0595498783481,
+                "median_interval": 13.5416666666774,
+                "starts": 2.73611111111111,
+                "successes": 2.73611111111111
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 72.0833333333333,
+            "damage_received": 94.5555555555556,
+            "healing": 9.44444444444444,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.20833333333319,
+            "recaptures_without_reply": 0.25
+          }
+        },
+        "restricted_mean": 41.1104745370438,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.387468960047243,
+          0.612531039952757
+        ],
+        "wins": {
+          "left": 36,
+          "right": 36
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-grid-1.json",
+      "raw_sha256": "34209a609da6bdf745a3d2e02e79c7ac3a3dafd4a7feb0eac4a182ebffe5b67f",
+      "candidate": "Spin24Cd2.5V30H8C6",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin28Cd2.5V35H8C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 28.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V30H4C5",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 4.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin24Cd2.5V30H8C6",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "recovery_time": 6.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 24.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 6.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 10,
+          "20to30": 7,
+          "30to45": 20,
+          "45to60": 24,
+          "60to90": 10,
+          "over90": 1,
+          "under10": 0
+        },
+        "left_win_rate": 0.430555555555556,
+        "matches": 72,
+        "mean_completed": 43.4806134259334,
+        "median_completed": 44.6125000000085,
+        "p10": 16.9187499999994,
+        "p90": 62.6912500000229,
+        "paired_bootstrap95": [
+          0.305555555555556,
+          0.569444444444444
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.72222222222222,
+                "hits": 4.72222222222222,
+                "mean_interval": 8.86377487562336,
+                "mean_success_interval": 8.86377487562336,
+                "median_interval": 6.3395833333331,
+                "starts": 4.72222222222222,
+                "successes": 4.72222222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.56944444444428,
+            "damage_dealt": 99.2916666666667,
+            "damage_received": 75.6944444444444,
+            "healing": 0.0,
+            "hits": 4.72222222222222,
+            "mean_hit_interval": 8.86377487562336,
+            "mean_winning_hits": 5.48387096774194,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.33333333333333,
+                "hits": 0.0,
+                "mean_interval": 16.2129753915016,
+                "mean_success_interval": 16.2129753915016,
+                "median_interval": 13.4999999999995,
+                "starts": 2.90277777777778,
+                "successes": 2.90277777777778
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 75.6944444444444,
+            "damage_received": 99.2916666666667,
+            "healing": 19.8055555555556,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.56944444444428,
+            "recaptures_without_reply": 0.305555555555556
+          }
+        },
+        "restricted_mean": 43.4806134259334,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.322577233664532,
+          0.54556900797594
+        ],
+        "wins": {
+          "left": 31,
+          "right": 41
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-recovery-0.json",
+      "raw_sha256": "781a2755d4671b8f54bab577e1b86c3e9ac315cd23d88cd6cf9d3525a5f8ff06",
+      "candidate": "Spin12Cd2.5V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin12Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin20Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 12.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 10,
+          "20to30": 25,
+          "30to45": 20,
+          "45to60": 10,
+          "60to90": 7,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.194444444444444,
+        "matches": 72,
+        "mean_completed": 34.9693865740782,
+        "median_completed": 30.9979166666652,
+        "p10": 19.0974999999992,
+        "p90": 58.199166666686,
+        "paired_bootstrap95": [
+          0.0833333333333333,
+          0.319444444444444
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 2.72222222222222,
+                "hits": 2.72222222222222,
+                "mean_interval": 9.25108974359063,
+                "mean_success_interval": 9.25108974359063,
+                "median_interval": 6.43333333333312,
+                "starts": 2.72222222222222,
+                "successes": 2.72222222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.07430555555542,
+            "damage_dealt": 56.0,
+            "damage_received": 82.5,
+            "healing": 0.0,
+            "hits": 2.72222222222222,
+            "mean_hit_interval": 9.25108974359063,
+            "mean_winning_hits": 5.14285714285714,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 16.3258474576293,
+                "mean_success_interval": 16.3258474576293,
+                "median_interval": 13.5208333333364,
+                "starts": 2.47222222222222,
+                "successes": 2.47222222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.5,
+            "damage_received": 56.0,
+            "healing": 18.1666666666667,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.07430555555542,
+            "recaptures_without_reply": 0.527777777777778
+          }
+        },
+        "restricted_mean": 34.9693865740782,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.119513710434176,
+          0.300329752783899
+        ],
+        "wins": {
+          "left": 14,
+          "right": 58
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-recovery-0.json",
+      "raw_sha256": "781a2755d4671b8f54bab577e1b86c3e9ac315cd23d88cd6cf9d3525a5f8ff06",
+      "candidate": "Spin16Cd2.5V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin12Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin20Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 16.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 14,
+          "20to30": 20,
+          "30to45": 20,
+          "45to60": 11,
+          "60to90": 7,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.194444444444444,
+        "matches": 72,
+        "mean_completed": 35.0592013888934,
+        "median_completed": 31.2083333333319,
+        "p10": 18.3445833333326,
+        "p90": 58.6850000000197,
+        "paired_bootstrap95": [
+          0.0833333333333333,
+          0.333333333333333
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.0,
+                "hits": 3.0,
+                "mean_interval": 8.89868721461312,
+                "mean_success_interval": 8.89868721461312,
+                "median_interval": 5.30624999999985,
+                "starts": 3.0,
+                "successes": 3.0
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.07430555555542,
+            "damage_dealt": 61.9583333333333,
+            "damage_received": 82.5,
+            "healing": 0.0,
+            "hits": 3.0,
+            "mean_hit_interval": 8.89868721461312,
+            "mean_winning_hits": 5.14285714285714,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 16.6350635593243,
+                "mean_success_interval": 16.6350635593243,
+                "median_interval": 13.5604166666661,
+                "starts": 2.47222222222222,
+                "successes": 2.47222222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.5,
+            "damage_received": 61.9583333333333,
+            "healing": 18.1666666666667,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.07430555555542,
+            "recaptures_without_reply": 0.388888888888889
+          }
+        },
+        "restricted_mean": 35.0592013888934,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.119513710434176,
+          0.300329752783899
+        ],
+        "wins": {
+          "left": 14,
+          "right": 58
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-recovery-0.json",
+      "raw_sha256": "781a2755d4671b8f54bab577e1b86c3e9ac315cd23d88cd6cf9d3525a5f8ff06",
+      "candidate": "Spin20Cd2.5V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin12Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 12.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin20Cd2.5V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 16,
+          "20to30": 15,
+          "30to45": 24,
+          "45to60": 11,
+          "60to90": 6,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.236111111111111,
+        "matches": 72,
+        "mean_completed": 34.885590277782,
+        "median_completed": 32.6354166666657,
+        "p10": 18.0074999999993,
+        "p90": 57.5508333333522,
+        "paired_bootstrap95": [
+          0.125,
+          0.361111111111111
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.48611111111111,
+                "hits": 3.48611111111111,
+                "mean_interval": 8.99082867784089,
+                "mean_success_interval": 8.99082867784089,
+                "median_interval": 5.48333333333302,
+                "starts": 3.48611111111111,
+                "successes": 3.48611111111111
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.92534722222209,
+            "damage_dealt": 72.2916666666667,
+            "damage_received": 80.7638888888889,
+            "healing": 0.0,
+            "hits": 3.48611111111111,
+            "mean_hit_interval": 8.99082867784089,
+            "mean_winning_hits": 5.23529411764706,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.65277777777778,
+                "hits": 0.0,
+                "mean_interval": 17.038888888891,
+                "mean_success_interval": 17.038888888891,
+                "median_interval": 14.1770833333325,
+                "starts": 2.41666666666667,
+                "successes": 2.41666666666667
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 80.7638888888889,
+            "damage_received": 72.2916666666667,
+            "healing": 17.8055555555556,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.92534722222209,
+            "recaptures_without_reply": 0.25
+          }
+        },
+        "restricted_mean": 34.885590277782,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.152965846259455,
+          0.345989871974337
+        ],
+        "wins": {
+          "left": 17,
+          "right": 55
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-recovery-1.json",
+      "raw_sha256": "dda6914e7b02cf11a2b98c98c30e0a0f0887389e8af9a6da99a14b71817ab6a7",
+      "candidate": "Spin16Cd2.5V30H8C3R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin16Cd2.5V30H8C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2.5V35H12C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 12.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2V35H12C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.0,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 12.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 16.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 3.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 8,
+          "20to30": 17,
+          "30to45": 18,
+          "45to60": 20,
+          "60to90": 7,
+          "over90": 2,
+          "under10": 0
+        },
+        "left_win_rate": 0.208333333333333,
+        "matches": 72,
+        "mean_completed": 41.4405671296359,
+        "median_completed": 39.6062500000046,
+        "p10": 19.9441666666659,
+        "p90": 64.9095833333559,
+        "paired_bootstrap95": [
+          0.0972222222222222,
+          0.347222222222222
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 3.51388888888889,
+                "hits": 3.51388888888889,
+                "mean_interval": 10.6225138121562,
+                "mean_success_interval": 10.6225138121562,
+                "median_interval": 6.27083333333832,
+                "starts": 3.51388888888889,
+                "successes": 3.51388888888889
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 8.16666666666648,
+            "damage_dealt": 73.0833333333333,
+            "damage_received": 81.6666666666667,
+            "healing": 0.0,
+            "hits": 3.51388888888889,
+            "mean_hit_interval": 10.6225138121562,
+            "mean_winning_hits": 5.2,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.45833333333333,
+                "hits": 0.0,
+                "mean_interval": 14.3321120689679,
+                "mean_success_interval": 14.3321120689679,
+                "median_interval": 11.7937500000065,
+                "starts": 3.25,
+                "successes": 3.25
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 81.6666666666667,
+            "damage_received": 73.0833333333333,
+            "healing": 21.25,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 8.16666666666648,
+            "recaptures_without_reply": 0.736111111111111
+          }
+        },
+        "restricted_mean": 41.4405671296359,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.130519408990401,
+          0.31569480589958
+        ],
+        "wins": {
+          "left": 15,
+          "right": 57
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-recovery-1.json",
+      "raw_sha256": "dda6914e7b02cf11a2b98c98c30e0a0f0887389e8af9a6da99a14b71817ab6a7",
+      "candidate": "Spin16Cd2.5V35H12C3R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin16Cd2.5V30H8C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2.5V35H12C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 12.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2V35H12C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.0,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 12.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 16.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 12.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 3.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 21,
+          "20to30": 15,
+          "30to45": 21,
+          "45to60": 10,
+          "60to90": 5,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.194444444444444,
+        "matches": 72,
+        "mean_completed": 32.7289351851885,
+        "median_completed": 30.1812499999986,
+        "p10": 16.612916666666,
+        "p90": 56.1187500000177,
+        "paired_bootstrap95": [
+          0.0694444444444444,
+          0.333333333333333
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 2.77777777777778,
+                "hits": 2.77777777777778,
+                "mean_interval": 9.17404580152787,
+                "mean_success_interval": 9.17404580152787,
+                "median_interval": 5.2999999999997,
+                "starts": 2.77777777777778,
+                "successes": 2.77777777777778
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.07430555555542,
+            "damage_dealt": 57.2638888888889,
+            "damage_received": 82.5,
+            "healing": 0.0,
+            "hits": 2.77777777777778,
+            "mean_hit_interval": 9.17404580152787,
+            "mean_winning_hits": 5.14285714285714,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 15.2132062146909,
+                "mean_success_interval": 15.2132062146909,
+                "median_interval": 13.3437499999992,
+                "starts": 2.47222222222222,
+                "successes": 2.47222222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.5,
+            "damage_received": 57.2638888888889,
+            "healing": 28.0555555555556,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.07430555555542,
+            "recaptures_without_reply": 0.472222222222222
+          }
+        },
+        "restricted_mean": 32.7289351851885,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.119513710434176,
+          0.300329752783899
+        ],
+        "wins": {
+          "left": 14,
+          "right": 58
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-recovery-1.json",
+      "raw_sha256": "dda6914e7b02cf11a2b98c98c30e0a0f0887389e8af9a6da99a14b71817ab6a7",
+      "candidate": "Spin16Cd2V35H12C3R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Spin16Cd2.5V30H8C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2.5V35H12C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 12.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "Spin16Cd2V35H12C3R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "hit_cooldown": 2.0,
+                    "spin_speed": 16.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 12.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 3.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 36.0,
+        "seed_base": 90000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.0,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 16.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 12.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 3.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 24,
+          "20to30": 12,
+          "30to45": 21,
+          "45to60": 9,
+          "60to90": 6,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.194444444444444,
+        "matches": 72,
+        "mean_completed": 32.323842592596,
+        "median_completed": 30.1812499999986,
+        "p10": 15.7887499999994,
+        "p90": 56.9812500000184,
+        "paired_bootstrap95": [
+          0.0833333333333333,
+          0.333333333333333
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 2.86111111111111,
+                "hits": 2.86111111111111,
+                "mean_interval": 8.5461070559621,
+                "mean_success_interval": 8.5461070559621,
+                "median_interval": 4.31666666666642,
+                "starts": 2.86111111111111,
+                "successes": 2.86111111111111
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.07430555555542,
+            "damage_dealt": 59.1666666666667,
+            "damage_received": 82.5,
+            "healing": 0.0,
+            "hits": 2.86111111111111,
+            "mean_hit_interval": 8.5461070559621,
+            "mean_winning_hits": 5.14285714285714,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.66666666666667,
+                "hits": 0.0,
+                "mean_interval": 15.2475282485892,
+                "mean_success_interval": 15.2475282485892,
+                "median_interval": 13.3437499999992,
+                "starts": 2.47222222222222,
+                "successes": 2.47222222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.5,
+            "damage_received": 59.1666666666667,
+            "healing": 28.0555555555556,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.07430555555542,
+            "recaptures_without_reply": 0.472222222222222
+          }
+        },
+        "restricted_mean": 32.323842592596,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.119513710434176,
+          0.300329752783899
+        ],
+        "wins": {
+          "left": 14,
+          "right": 58
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-random-0.json",
+      "raw_sha256": "d3e0284666437e42c58e20d3c1fc240518e588b55eb2f531fcdb1fdddd3c8e17",
+      "candidate": "Blade43Spin24V30H4C5R0",
+      "config": {
+        "candidates": [
+          {
+            "id": "Blade43Spin24V30H4C5R0",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "blade_length": 43.0,
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 24.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 30.0,
+                    "heal_units": 4.0,
+                    "incoming_hit_recovery": 0.0,
+                    "recovery_time": 5.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 100.0,
+        "seed_base": 91000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 43.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 24.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 30.0,
+                "capture_immunity": 1.0,
+                "heal_units": 4.0,
+                "incoming_hit_recovery": 0.0,
+                "recovery_time": 5.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 3,
+          "20to30": 13,
+          "30to45": 49,
+          "45to60": 77,
+          "60to90": 57,
+          "over90": 1,
+          "under10": 0
+        },
+        "left_win_rate": 0.525,
+        "matches": 200,
+        "mean_completed": 51.3140416666783,
+        "median_completed": 50.9708333333469,
+        "p10": 31.1324999999986,
+        "p90": 69.812083333352,
+        "paired_bootstrap95": [
+          0.455,
+          0.595
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.595,
+                "hits": 4.595,
+                "mean_interval": 11.0326437181297,
+                "mean_success_interval": 11.0326437181297,
+                "median_interval": 8.2041666666662,
+                "starts": 4.595,
+                "successes": 4.595
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 8.21499999999985,
+            "damage_dealt": 96.045,
+            "damage_received": 82.15,
+            "healing": 0.0,
+            "hits": 4.595,
+            "mean_hit_interval": 11.0326437181297,
+            "mean_winning_hits": 5.31428571428571,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 2.58,
+                "hits": 0.0,
+                "mean_interval": 17.5797343876762,
+                "mean_success_interval": 17.5797343876762,
+                "median_interval": 16.066666666666,
+                "starts": 3.055,
+                "successes": 3.055
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.15,
+            "damage_received": 96.045,
+            "healing": 10.795,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 8.21499999999985,
+            "recaptures_without_reply": 0.435
+          }
+        },
+        "restricted_mean": 51.3140416666783,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.45597270710507,
+          0.593084992599014
+        ],
+        "wins": {
+          "left": 105,
+          "right": 95
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-random-1.json",
+      "raw_sha256": "6d692536506ec4a25eb9ab6c0bfb7870522f57c39919ca57ff50d248b2a8e179",
+      "candidate": "Blade60Spin20V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Blade60Spin20V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "blade_length": 60.0,
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 100.0,
+        "seed_base": 91000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 60.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 3,
+          "20to30": 37,
+          "30to45": 92,
+          "45to60": 55,
+          "60to90": 13,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.25,
+        "matches": 200,
+        "mean_completed": 40.4923541666729,
+        "median_completed": 39.5125000000045,
+        "p10": 25.2966666666656,
+        "p90": 56.7220833333515,
+        "paired_bootstrap95": [
+          0.19,
+          0.315
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.065,
+                "hits": 4.065,
+                "mean_interval": 9.38176318651578,
+                "mean_success_interval": 9.38176318651578,
+                "median_interval": 7.23333333333292,
+                "starts": 4.065,
+                "successes": 4.065
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.60124999999987,
+            "damage_dealt": 85.295,
+            "damage_received": 88.65,
+            "healing": 0.0,
+            "hits": 4.065,
+            "mean_hit_interval": 9.38176318651578,
+            "mean_winning_hits": 5.6,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.89,
+                "hits": 0.0,
+                "mean_interval": 16.8946717171741,
+                "mean_success_interval": 16.8946717171741,
+                "median_interval": 14.5749999999994,
+                "starts": 2.64,
+                "successes": 2.64
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 88.65,
+            "damage_received": 85.295,
+            "healing": 19.62,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.60124999999987,
+            "recaptures_without_reply": 0.255
+          }
+        },
+        "restricted_mean": 40.4923541666729,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.195080768162965,
+          0.314342234796195
+        ],
+        "wins": {
+          "left": 50,
+          "right": 150
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-random-2.json",
+      "raw_sha256": "96b32afb3ea17df8086319d8a1ff07d49f68da8dde0ca1d335da416c13ff39d2",
+      "candidate": "Blade75Spin20V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Blade75Spin20V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "blade_length": 75.0,
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 100.0,
+        "seed_base": 91000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 75.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 5,
+          "20to30": 46,
+          "30to45": 102,
+          "45to60": 39,
+          "60to90": 8,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.42,
+        "matches": 200,
+        "mean_completed": 37.6725833333377,
+        "median_completed": 36.362500000002,
+        "p10": 24.2174999999989,
+        "p90": 51.875416666681,
+        "paired_bootstrap95": [
+          0.345,
+          0.495
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.635,
+                "hits": 4.635,
+                "mean_interval": 7.89300206327453,
+                "mean_success_interval": 7.89300206327453,
+                "median_interval": 6.04999999999966,
+                "starts": 4.635,
+                "successes": 4.635
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 7.0434999999999,
+            "damage_dealt": 95.995,
+            "damage_received": 82.15,
+            "healing": 0.0,
+            "hits": 4.635,
+            "mean_hit_interval": 7.89300206327453,
+            "mean_winning_hits": 5.69047619047619,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.85,
+                "hits": 0.0,
+                "mean_interval": 15.787313218392,
+                "mean_success_interval": 15.787313218392,
+                "median_interval": 13.7437500000028,
+                "starts": 2.43,
+                "successes": 2.43
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 82.15,
+            "damage_received": 95.995,
+            "healing": 18.28,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 7.0434999999999,
+            "recaptures_without_reply": 0.17
+          }
+        },
+        "restricted_mean": 37.6725833333377,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.353734823501717,
+          0.489280537445214
+        ],
+        "wins": {
+          "left": 84,
+          "right": 116
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-random-3.json",
+      "raw_sha256": "754eea927ed28f27525fbe580cba472cf6ec9e9bc6658c1a2f64eac2b683d6da",
+      "candidate": "Blade90Spin20V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Blade90Spin20V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "blade_length": 90.0,
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 100.0,
+        "seed_base": 91000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 90.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 13,
+          "20to30": 56,
+          "30to45": 101,
+          "45to60": 27,
+          "60to90": 3,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.555,
+        "matches": 200,
+        "mean_completed": 35.0062291666699,
+        "median_completed": 34.1458333333335,
+        "p10": 22.642499999999,
+        "p90": 50.4816666666799,
+        "paired_bootstrap95": [
+          0.48,
+          0.625124999999999
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": 0.0,
+                "mean_success_interval": null,
+                "median_interval": 0.0,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.945,
+                "hits": 4.945,
+                "mean_interval": 7.21755914659961,
+                "mean_success_interval": 7.21755914659961,
+                "median_interval": 5.45833333333302,
+                "starts": 4.945,
+                "successes": 4.945
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.38087499999992,
+            "damage_dealt": 102.545,
+            "damage_received": 74.425,
+            "healing": 0.0,
+            "hits": 4.945,
+            "mean_hit_interval": 7.21755914659961,
+            "mean_winning_hits": 5.56756756756757,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.745,
+                "hits": 0.0,
+                "mean_interval": 15.2065179806369,
+                "mean_success_interval": 15.2065179806369,
+                "median_interval": 13.2583333333326,
+                "starts": 2.19,
+                "successes": 2.19
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 74.425,
+            "damage_received": 102.545,
+            "healing": 16.63,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.38087499999992,
+            "recaptures_without_reply": 0.075
+          }
+        },
+        "restricted_mean": 35.0062291666699,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.485731756323639,
+          0.622195183025346
+        ],
+        "wins": {
+          "left": 111,
+          "right": 89
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-orbit-confirm-0.json",
+      "raw_sha256": "6d05923457b837d31dad28735b6b9a70464e82ac7f12d44d75cc803b986318e6",
+      "candidate": "Blade85Spin20V35H8C4R0",
+      "config": {
+        "candidates": [
+          {
+            "id": "Blade85Spin20V35H8C4R0",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "blade_length": 85.0,
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.0,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 100.0,
+        "seed_base": 91000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 85.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.0,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 11,
+          "20to30": 59,
+          "30to45": 96,
+          "45to60": 31,
+          "60to90": 3,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.515,
+        "matches": 200,
+        "mean_completed": 35.2734583333367,
+        "median_completed": 34.5750000000006,
+        "p10": 22.5704166666657,
+        "p90": 49.8958333333461,
+        "paired_bootstrap95": [
+          0.44,
+          0.585
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.82,
+                "hits": 4.82,
+                "mean_interval": 7.31006762652764,
+                "mean_success_interval": 7.31006762652764,
+                "median_interval": 5.47083333333315,
+                "starts": 4.82,
+                "successes": 4.82
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.60387499999992,
+            "damage_dealt": 99.63,
+            "damage_received": 77.025,
+            "healing": 0.0,
+            "hits": 4.82,
+            "mean_hit_interval": 7.31006762652764,
+            "mean_winning_hits": 5.62135922330097,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.785,
+                "hits": 0.0,
+                "mean_interval": 15.1893087855304,
+                "mean_success_interval": 15.1893087855304,
+                "median_interval": 13.1416666666661,
+                "starts": 2.27,
+                "successes": 2.27
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 77.025,
+            "damage_received": 99.63,
+            "healing": 17.19,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.60387499999992,
+            "recaptures_without_reply": 0.11
+          }
+        },
+        "restricted_mean": 35.2734583333367,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.446107244746303,
+          0.583327375076148
+        ],
+        "wins": {
+          "left": 103,
+          "right": 97
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-orbit-confirm-1.json",
+      "raw_sha256": "ab503fe577deb3a4e175ee0276cd50de49320034e9c483df40e2e3a1e92af16c",
+      "candidate": "Blade85Spin20V35H8C4R0.16",
+      "config": {
+        "candidates": [
+          {
+            "id": "Blade85Spin20V35H8C4R0.16",
+            "overrides": {
+              "swordsman": {
+                "abilities": {
+                  "sword": {
+                    "blade_length": 85.0,
+                    "hit_cooldown": 2.5,
+                    "spin_speed": 20.0
+                  }
+                }
+              },
+              "vampire": {
+                "abilities": {
+                  "bite": {
+                    "bite_units": 35.0,
+                    "heal_units": 8.0,
+                    "incoming_hit_recovery": 0.16,
+                    "recovery_time": 4.0
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 100.0,
+        "seed_base": 91000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 85.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "incoming_hit_recovery": 0.16,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 11,
+          "20to30": 59,
+          "30to45": 96,
+          "45to60": 31,
+          "60to90": 3,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.515,
+        "matches": 200,
+        "mean_completed": 35.2734583333367,
+        "median_completed": 34.5750000000006,
+        "p10": 22.5704166666657,
+        "p90": 49.8958333333461,
+        "paired_bootstrap95": [
+          0.44,
+          0.585
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.82,
+                "hits": 4.82,
+                "mean_interval": 7.31006762652764,
+                "mean_success_interval": 7.31006762652764,
+                "median_interval": 5.47083333333315,
+                "starts": 4.82,
+                "successes": 4.82
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.60387499999992,
+            "damage_dealt": 99.63,
+            "damage_received": 77.025,
+            "healing": 0.0,
+            "hits": 4.82,
+            "mean_hit_interval": 7.31006762652764,
+            "mean_winning_hits": 5.62135922330097,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.785,
+                "hits": 0.0,
+                "mean_interval": 15.1893087855304,
+                "mean_success_interval": 15.1893087855304,
+                "median_interval": 13.1416666666661,
+                "starts": 2.27,
+                "successes": 2.27
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 77.025,
+            "damage_received": 99.63,
+            "healing": 17.19,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.60387499999992,
+            "recaptures_without_reply": 0.11
+          }
+        },
+        "restricted_mean": 35.2734583333367,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.446107244746303,
+          0.583327375076148
+        ],
+        "wins": {
+          "left": 103,
+          "right": 97
+        }
+      },
+      "excluded": true,
+      "note": "Requested incoming-hit recovery was not exercised by the early runner, which disconnected health_delta callbacks. Not used as evidence for that mechanic."
+    },
+    {
+      "report": "balance-final-validation.json",
+      "raw_sha256": "e17b18a3f9c59863576356adae9850e35f7d64ab65969df93c61202c8f8bdf59",
+      "candidate": "final",
+      "config": {
+        "candidates": [
+          {
+            "id": "final",
+            "overrides": {}
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 500.0,
+        "seed_base": 1000000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20.0,
+                "blade_length": 85.0,
+                "damage_gain": 1.0,
+                "hit_cooldown": 2.5,
+                "max_damage": 30.0,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100.0,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100.0
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100.0,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100.0
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 87,
+          "20to30": 299,
+          "30to45": 449,
+          "45to60": 144,
+          "60to90": 21,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.566,
+        "matches": 1000,
+        "mean_completed": 34.3105666666697,
+        "median_completed": 33.427083333333,
+        "p10": 20.9308333333324,
+        "p90": 48.7483333333452,
+        "paired_bootstrap95": [
+          0.532,
+          0.599
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.936,
+                "hits": 4.936,
+                "mean_interval": 7.00657075711439,
+                "mean_success_interval": 7.00657075711439,
+                "median_interval": 5.28749999999969,
+                "starts": 4.936,
+                "successes": 4.936
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.24754999999992,
+            "damage_dealt": 102.616,
+            "damage_received": 72.87,
+            "healing": 0.0,
+            "hits": 4.936,
+            "mean_hit_interval": 7.00657075711439,
+            "mean_winning_hits": 5.51943462897527,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.71,
+                "hits": 0.0,
+                "mean_interval": 15.1403757888708,
+                "mean_success_interval": 15.1403757888708,
+                "median_interval": 13.1895833333327,
+                "starts": 2.144,
+                "successes": 2.144
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 72.87,
+            "damage_received": 102.616,
+            "healing": 16.284,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.24754999999992,
+            "recaptures_without_reply": 0.091
+          }
+        },
+        "restricted_mean": 34.3105666666697,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.535086073277536,
+          0.596408776109061
+        ],
+        "wins": {
+          "left": 566,
+          "right": 434
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-final-stress.json",
+      "raw_sha256": "da03cc0af5922feb4333d99e36e2203e4fb46ff0568b57d05df12c1081f53de3",
+      "candidate": "final",
+      "config": {
+        "candidates": [
+          {
+            "id": "final",
+            "overrides": {}
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 108.0,
+        "seed_base": 2000000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 85.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35,
+                "capture_immunity": 1.0,
+                "heal_units": 8,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 79,
+          "20to30": 58,
+          "30to45": 52,
+          "45to60": 22,
+          "60to90": 5,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.518518518518518,
+        "matches": 216,
+        "mean_completed": 28.2844328703722,
+        "median_completed": 24.5645833333323,
+        "p10": 14.9270833333328,
+        "p90": 47.6083333333443,
+        "paired_bootstrap95": [
+          0.435185185185185,
+          0.597222222222222
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.84259259259259,
+                "hits": 4.84259259259259,
+                "mean_interval": 6.06215863453848,
+                "mean_success_interval": 6.06215863453848,
+                "median_interval": 3.88541666666645,
+                "starts": 4.84259259259259,
+                "successes": 4.84259259259259
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 5.87870370370362,
+            "damage_dealt": 100.277777777778,
+            "damage_received": 68.5648148148148,
+            "healing": 0.0,
+            "hits": 4.84259259259259,
+            "mean_hit_interval": 6.06215863453848,
+            "mean_winning_hits": 5.44642857142857,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.5462962962963,
+                "hits": 0.0,
+                "mean_interval": 14.2756298449617,
+                "mean_success_interval": 14.2756298449617,
+                "median_interval": 11.1520833333329,
+                "starts": 2.02777777777778,
+                "successes": 2.02777777777778
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 68.5648148148148,
+            "damage_received": 100.277777777778,
+            "healing": 15.2592592592593,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 5.87870370370362,
+            "recaptures_without_reply": 0.0324074074074074
+          }
+        },
+        "restricted_mean": 28.2844328703722,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.452144089142596,
+          0.584245747903714
+        ],
+        "wins": {
+          "left": 112,
+          "right": 104
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-final80-validation.json",
+      "raw_sha256": "abbc2199155ab10b16126aeb9c13c228b3a94395dbb1af9c5db3f8d07c61e5e4",
+      "candidate": "final",
+      "config": {
+        "candidates": [
+          {
+            "id": "final",
+            "overrides": {}
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": false,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 500.0,
+        "seed_base": 1100000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20.0,
+                "blade_length": 80.0,
+                "damage_gain": 1.0,
+                "hit_cooldown": 2.5,
+                "max_damage": 30.0,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100.0,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100.0
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35.0,
+                "capture_immunity": 1.0,
+                "heal_units": 8.0,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100.0,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100.0
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 64,
+          "20to30": 273,
+          "30to45": 487,
+          "45to60": 150,
+          "60to90": 26,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.511,
+        "matches": 1000,
+        "mean_completed": 35.3140208333368,
+        "median_completed": 34.3312500000004,
+        "p10": 22.0454166666658,
+        "p90": 50.1408333333462,
+        "paired_bootstrap95": [
+          0.478,
+          0.545
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.842,
+                "hits": 4.842,
+                "mean_interval": 7.31890074613975,
+                "mean_success_interval": 7.31890074613975,
+                "median_interval": 5.42083333333299,
+                "starts": 4.842,
+                "successes": 4.842
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.50017499999991,
+            "damage_dealt": 100.995,
+            "damage_received": 75.815,
+            "healing": 0.0,
+            "hits": 4.842,
+            "mean_hit_interval": 7.31890074613975,
+            "mean_winning_hits": 5.52250489236791,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.747,
+                "hits": 0.0,
+                "mean_interval": 15.5372021419022,
+                "mean_success_interval": 15.5372021419022,
+                "median_interval": 13.8291666666659,
+                "starts": 2.236,
+                "successes": 2.236
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 75.815,
+            "damage_received": 100.995,
+            "healing": 16.91,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.50017499999991,
+            "recaptures_without_reply": 0.112
+          }
+        },
+        "restricted_mean": 35.3140208333368,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.480034395842196,
+          0.541881412388903
+        ],
+        "wins": {
+          "left": 511,
+          "right": 489
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    },
+    {
+      "report": "balance-final80-stress.json",
+      "raw_sha256": "f78ea0f64347f119f6f7eadc47352a50ac1375f4e3241dc81cc6d2ba24fd68cd",
+      "candidate": "final",
+      "config": {
+        "candidates": [
+          {
+            "id": "final",
+            "overrides": {}
+          }
+        ],
+        "concurrent": 16.0,
+        "left": "swordsman",
+        "mixed": true,
+        "pair_runs": 2.0,
+        "right": "vampire",
+        "scenario_count": 108.0,
+        "seed_base": 2100000.0,
+        "time_limit": 150.0
+      },
+      "profiles": {
+        "swordsman": {
+          "abilities": [
+            {
+              "ability_id": "sword",
+              "parameters": {
+                "base_damage": 20,
+                "blade_length": 80.0,
+                "damage_gain": 1,
+                "hit_cooldown": 2.5,
+                "max_damage": 30,
+                "max_speed": 400.0,
+                "speed_gain": 6.0,
+                "spin_speed": 20.0,
+                "starting_speed_ratio": 1.0
+              },
+              "script": "res://scripts/swordsman.gd",
+              "tags": [
+                "weapon"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "swordsman",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        },
+        "vampire": {
+          "abilities": [
+            {
+              "ability_id": "bite",
+              "parameters": {
+                "bite_duration": 3.0,
+                "bite_units": 35,
+                "capture_immunity": 1.0,
+                "heal_units": 8,
+                "recovery_time": 4.0,
+                "tooth_immersion": 0.3333333333
+              },
+              "script": "res://scripts/vampire.gd",
+              "tags": [
+                "capture",
+                "drain"
+              ]
+            }
+          ],
+          "health": 100,
+          "id": "vampire",
+          "movement_speed": 320.0,
+          "reference_health": 100
+        }
+      },
+      "metrics": {
+        "draws": 0,
+        "histogram": {
+          "10to20": 68,
+          "20to30": 49,
+          "30to45": 73,
+          "45to60": 21,
+          "60to90": 5,
+          "over90": 0,
+          "under10": 0
+        },
+        "left_win_rate": 0.439814814814815,
+        "matches": 216,
+        "mean_completed": 29.3631944444465,
+        "median_completed": 27.1666666666654,
+        "p10": 14.0124999999995,
+        "p90": 46.6479166666768,
+        "paired_bootstrap95": [
+          0.356481481481481,
+          0.513888888888889
+        ],
+        "participants": {
+          "left": {
+            "abilities": {
+              "state": {
+                "completed": 0.0,
+                "hits": 0.0,
+                "mean_interval": null,
+                "mean_success_interval": null,
+                "median_interval": null,
+                "starts": 0.0,
+                "successes": 0.0
+              },
+              "sword": {
+                "completed": 4.59722222222222,
+                "hits": 4.59722222222222,
+                "mean_interval": 6.3238646101117,
+                "mean_success_interval": 6.3238646101117,
+                "median_interval": 4.25416666666824,
+                "starts": 4.59722222222222,
+                "successes": 4.59722222222222
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 6.10914351851842,
+            "damage_dealt": 95.5787037037037,
+            "damage_received": 71.25,
+            "healing": 0.0,
+            "hits": 4.59722222222222,
+            "mean_hit_interval": 6.3238646101117,
+            "mean_winning_hits": 5.38947368421053,
+            "protection_seconds": 0.0,
+            "recaptures_without_reply": 0.0
+          },
+          "right": {
+            "abilities": {
+              "bite": {
+                "completed": 1.55555555555556,
+                "hits": 0.0,
+                "mean_interval": 14.8368130227009,
+                "mean_success_interval": 14.8368130227009,
+                "median_interval": 13.3625000000033,
+                "starts": 2.11574074074074,
+                "successes": 2.11574074074074
+              }
+            },
+            "attack_lock_seconds": 0.0,
+            "capture_seconds": 0.0,
+            "damage_dealt": 71.25,
+            "damage_received": 95.5787037037037,
+            "healing": 15.8055555555556,
+            "hits": 0.0,
+            "mean_hit_interval": null,
+            "mean_winning_hits": 0.0,
+            "protection_seconds": 6.10914351851842,
+            "recaptures_without_reply": 0.0925925925925926
+          }
+        },
+        "restricted_mean": 29.3631944444465,
+        "timeouts": 0,
+        "two_hit_wins": 0,
+        "wilson95": [
+          0.375243277665974,
+          0.50648975193352
+        ],
+        "wins": {
+          "left": 95,
+          "right": 121
+        }
+      },
+      "excluded": false,
+      "note": "Valid current-weapon mechanics; final80 uses fresh validation seeds."
+    }
+  ],
+  "superseded_directional_swing_reports": [
+    "balance-v2-first.json",
+    "balance-v2-grid.json",
+    "balance-v2-grid2.json",
+    "balance-v2-grid3.json",
+    "balance-v2-grid4.json",
+    "balance-v2-grid5.json",
+    "balance-v2-grid6.json",
+    "balance-v2-grid7.json"
+  ],
+  "notes": [
+    "Directional swings were withdrawn after the user clarified continuous orbit and hit reversal.",
+    "The 85-unit independent validation became calibration feedback; the final 80-unit check uses a new seed range.",
+    "Read the final report for stress-scenario geometry limitations."
+  ]
+}

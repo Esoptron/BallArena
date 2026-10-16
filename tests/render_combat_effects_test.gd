@@ -8,7 +8,8 @@ func _initialize() -> void:
 
 
 func frames(count: int, camera: Camera2D, red: ArenaBall, blue: ArenaBall) -> void:
-	for frame in count:
+	var started := Time.get_ticks_usec()
+	while Time.get_ticks_usec()-started < int(count/60.0*1000000):
 		await process_frame
 		camera.global_position = (red.global_position + blue.global_position) * 0.5 + Vector2(0, 15)
 
@@ -34,6 +35,10 @@ func capture() -> void:
 		quit(1)
 		return
 	await frames(70, camera, red, blue)
+	if (fangs.get("_mist") as Polygon2D).visible:
+		push_error("Cooldown aura must stay hidden during a bite.")
+		quit(1)
+		return
 	if red.current_health <= red.max_health:
 		push_error("Rendered bite must heal beyond reference HP.")
 		quit(1)
@@ -49,6 +54,16 @@ func capture() -> void:
 	if not effects.drains.is_empty() or not effects.orbs.is_empty():
 		push_error("Drain visuals survived beyond the completed bite.")
 		quit(1)
+	elif not (fangs.get("_mist") as Polygon2D).visible:
+		push_error("Rendered fang mist must return during cooldown.")
+		quit(1)
 	else:
+		var args := OS.get_cmdline_user_args()
+		if args.size() > 1:
+			await RenderingServer.frame_post_draw
+			if root.get_texture().get_image().save_png(args[1]) != OK:
+				push_error("Cooldown screenshot save failed.")
+				quit(1)
+				return
 		print("PASS: rendered HP, real heal/damage numbers, electrical drain, green spheres and glossy spray; drain clears at bite end")
 		quit(0)

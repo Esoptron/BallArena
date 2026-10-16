@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://by6ldy0xao5vm"]
+
+[ext_resource type="Script" uid="uid://dv7ftwhib1xuh" path="res://scripts/combat/ability_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://d2emgmesmaxo" path="res://scripts/swordsman.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"sword"
+node_name = &"Sword"
+implementation = ExtResource("2")
+tags = PackedStringArray("weapon")
+impact_strength = 240.0
+parameters = {
+"base_damage": 10,
+"berserk_chance": 0.05,
+"berserk_duration": 5.0,
+"berserk_hit_cooldown": 0.5,
+"berserk_spin_multiplier": 3.0,
+"blade_length": 80.0,
+"damage_gain": 3,
+"hit_cooldown": 1.0,
+"max_damage": 50,
+"max_speed": 400.0,
+"post_hit_slow_duration": 3.0,
+"post_hit_speed_ratio": 0.3333333333333333,
+"speed_gain": 8.0,
+"spin_speed": 8.0,
+"starting_speed_ratio": 1.0
+}

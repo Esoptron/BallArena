@@ -8,11 +8,23 @@ extends Node2D
 		arena_size = value
 		queue_redraw()
 @export_range(4.0, 256.0, 1.0) var ball_diameter: float = 70.0
-@export_range(1.0, 2000.0, 1.0) var ball_speed: float = 320.0
+@export_range(0.0, 2000.0, 1.0) var ball_speed: float = 0.0
 @export_range(2.0, 64.0, 1.0) var wall_thickness: float = 12.0
 @export var experimental_blood_runoff: bool = true
-@export_enum("Ordinary", "Vampire", "Swordsman") var blue_character: int = 2
-@export_enum("Ordinary", "Vampire", "Swordsman") var red_character: int = 1
+@export_enum("Ordinary", "Vampire", "Swordsman", "Knifeman", "Katana", "Club") var blue_character: int = 2
+@export_enum("Ordinary", "Vampire", "Swordsman", "Knifeman", "Katana", "Club") var red_character: int = 1
+## Empty IDs use the three legacy editor choices above.
+@export var blue_character_id: StringName = &""
+@export var red_character_id: StringName = &""
+var character_overrides: Dictionary = {}
+var battle_roster: Array[Dictionary] = []
+var battle_format: StringName = &"teams"
+var fighters: Array[ArenaBall] = []
+static var _physics_requests: Dictionary = {}
+const BALL_SCENE := preload("res://scenes/ball.tscn")
+var death_fragments: ArenaDeathFragments
+var director: CombatDirector
+var resolved_seed: int = 1
 @export var randomize_spawns: bool = true
 ## Zero selects a fresh seed; a nonzero seed reproduces a match start.
 @export var spawn_seed: int = 0
@@ -27,18 +39,36 @@ func _ready() -> void:
 		and arena_size.y >= ball_diameter * 4.0,
 		"Each arena dimension must be at least four ball diameters.")
 	_create_walls()
+	if not battle_roster.is_empty():
+		_ready_roster()
+		_configure_physics_rate()
+		return
 	var blue := $Balls/BlueBall as ArenaBall
 	var red := $Balls/RedBall as ArenaBall
 	blue.position = arena_size * Vector2(0.28, 0.38)
 	red.position = arena_size * Vector2(0.72, 0.62)
 	blue.experimental_blood_runoff = experimental_blood_runoff
 	red.experimental_blood_runoff = experimental_blood_runoff
-	blue.configure(ball_diameter, ball_speed)
-	red.configure(ball_diameter, ball_speed)
-	_set_character(blue, blue_character)
-	_set_character(red, red_character)
+	blue.actor_id = "blue"
+	blue.battle_role = "left"
+	blue.team_id = &"blue"
+	red.team_id = &"red"
+	fighters = [blue,red]
+	red.actor_id = "red"
+	red.battle_role = "right"
+	var legacy := ["ordinary","vampire","swordsman","knifeman","katana","club"]
+	_set_character(blue,blue_character_id if not blue_character_id.is_empty() else legacy[blue_character])
+	_set_character(red,red_character_id if not red_character_id.is_empty() else legacy[red_character])
+	director = CombatDirector.new()
+	director.name = "CombatDirector"
+	add_child(director)
+	director.register(blue)
+	director.register(red)
 	if randomize_spawns:
 		_randomize_start(blue, red)
+	else:
+		resolved_seed = spawn_seed if spawn_seed != 0 else 1
+	director.set_match_seed(resolved_seed)
 	blue.opponent = red
 	red.opponent = blue
 	blue.blood_effects = $BloodEffects
@@ -49,13 +79,17 @@ func _ready() -> void:
 	red.combat_effects = $CombatEffects
 	blue.health_delta.connect(_show_combat_number.bind(blue))
 	red.health_delta.connect(_show_combat_number.bind(red))
+	death_fragments = ArenaDeathFragments.new()
+	death_fragments.name = "DeathFragments"
+	add_child(death_fragments)
+	death_fragments.watch(blue)
+	death_fragments.watch(red)
+	_configure_physics_rate()
 
 
-func _set_character(fighter: ArenaBall, character: int) -> void:
-	fighter.is_vampire = character == 1
-	fighter.is_swordsman = character == 2
-	if fighter.is_swordsman:
-		(fighter.get_node("Sword") as SwordAbility).reset_progression(ball_speed)
+func _set_character(fighter: ArenaBall, id: StringName) -> void:
+	CharacterCatalog.apply(fighter,CharacterCatalog.character(id,character_overrides.get(String(id),{})),
+		ball_diameter,ball_speed)
 
 
 func _randomize_start(blue: ArenaBall, red: ArenaBall) -> void:
@@ -64,7 +98,8 @@ func _randomize_start(blue: ArenaBall, red: ArenaBall) -> void:
 		rng.randomize()
 	else:
 		rng.seed = spawn_seed
-	var margin := ball_diameter * 0.5 + 2.0
+	resolved_seed = rng.seed
+	var margin := maxf(blue.diameter, red.diameter) * 0.5 + 2.0
 	blue.position = Vector2(rng.randf_range(margin, arena_size.x - margin),
 		rng.randf_range(margin, arena_size.y - margin))
 	# A distant fallback keeps characters separate even if all samples fail.
@@ -73,7 +108,7 @@ func _randomize_start(blue: ArenaBall, red: ArenaBall) -> void:
 	for attempt in 64:
 		var candidate := Vector2(rng.randf_range(margin, arena_size.x - margin),
 			rng.randf_range(margin, arena_size.y - margin))
-		if candidate.distance_to(blue.position) >= ball_diameter * 2.2:
+		if candidate.distance_to(blue.position) >= maxf(blue.diameter, red.diameter) * 2.2:
 			red.position = candidate
 			break
 	for fighter in [blue, red]:
@@ -118,4 +153,89 @@ func _draw() -> void:
 
 
 func _show_combat_number(amount: int, healing: bool, fighter: ArenaBall) -> void:
-	$CombatEffects.spawn_number(fighter.global_position, amount, healing)
+	var effects := fighter.combat_effects as ArenaCombatEffects
+	if is_instance_valid(effects):
+		effects.spawn_number(fighter.global_position,amount,healing)
+
+
+func _ready_roster() -> void:
+	assert(battle_roster.size() >= 2 and battle_roster.size() <= 20,"Battle requires two to twenty fighters.")
+	director = CombatDirector.new()
+	director.name = "CombatDirector"
+	director.group_battle = true
+	add_child(director)
+	death_fragments = ArenaDeathFragments.new()
+	death_fragments.name = "DeathFragments"
+	add_child(death_fragments)
+	var lineup := battle_roster.duplicate(true)
+	# Keep the first two legacy nodes as representatives of opposing teams.
+	if battle_format == &"teams":
+		for index in range(1,lineup.size()):
+			if lineup[index].get("team",&"red") != lineup[0].get("team",&"blue"):
+				var other: Dictionary = lineup[index]
+				lineup.remove_at(index)
+				lineup.insert(1,other)
+				break
+	for index in lineup.size():
+		var entry: Dictionary = lineup[index]
+		var fighter: ArenaBall
+		if index < 2:
+			fighter = $Balls/BlueBall if index == 0 else $Balls/RedBall
+		else:
+			fighter = BALL_SCENE.instantiate() as ArenaBall
+			fighter.name = "Fighter%d" % (index+1)
+			$Balls.add_child(fighter)
+		fighter.actor_id = "blue" if index == 0 else ("red" if index == 1 else "fighter_%d" % index)
+		fighter.team_id = StringName(entry.get("team","blue")) if battle_format == &"teams" else StringName(fighter.actor_id)
+		fighter.battle_role = String(fighter.team_id)
+		fighter.ball_color = Color(0.16,0.48,1.0) if entry.get("team","blue") == "blue" else Color(1.0,0.16,0.20)
+		if battle_format == &"ffa": fighter.ball_color = Color.from_hsv(float(index)/lineup.size(),0.78,1.0)
+		fighter.experimental_blood_runoff = experimental_blood_runoff
+		_set_character(fighter,StringName(entry.get("character","ordinary")))
+		fighter.blood_effects = $BloodEffects
+		fighter.combat_effects = $CombatEffects
+		fighter.health_delta.connect(_show_combat_number.bind(fighter))
+		fighters.append(fighter)
+		director.register(fighter)
+		death_fragments.watch(fighter)
+	$BloodEffects.floor_y = arena_size.y
+	$BloodEffects.arena_width = arena_size.x
+	var random := RandomNumberGenerator.new()
+	if spawn_seed == 0: random.randomize()
+	else: random.seed = spawn_seed
+	resolved_seed = random.seed
+	var columns := ceili(sqrt(fighters.size()*arena_size.x/arena_size.y))
+	var rows := ceili(float(fighters.size())/columns)
+	var cells: Array[Vector2] = []
+	for y in rows:
+		for x in columns: cells.append(Vector2((x+0.5)*arena_size.x/columns,(y+0.5)*arena_size.y/rows))
+	for index in range(cells.size()-1,0,-1):
+		var swap := random.randi_range(0,index)
+		var point := cells[index]
+		cells[index] = cells[swap]
+		cells[swap] = point
+	for index in fighters.size():
+		var fighter := fighters[index]
+		fighter.position = cells[index]+Vector2(random.randf_range(-10,10),random.randf_range(-10,10))
+		fighter.initial_direction = Vector2.from_angle(random.randf_range(-PI,PI))
+		fighter.start_motion()
+	director.set_match_seed(resolved_seed)
+	director.refresh_targets()
+
+func _configure_physics_rate() -> void:
+	var rate := int(ProjectSettings.get_setting("physics/common/physics_ticks_per_second",120))
+	for fighter in fighters:
+		# Tiny fast custom balls need a smaller step than ordinary playable heroes.
+		var required := 240 if fighter.adjusted_movement_speed()/rate > fighter.diameter*.5 else rate
+		rate=maxi(rate,required)
+	_physics_requests[get_instance_id()]=rate
+	_update_global_physics_rate()
+
+static func _update_global_physics_rate() -> void:
+	var rate := int(ProjectSettings.get_setting("physics/common/physics_ticks_per_second",120))
+	for requested in _physics_requests.values():rate=maxi(rate,int(requested))
+	Engine.physics_ticks_per_second=rate
+
+func _exit_tree() -> void:
+	_physics_requests.erase(get_instance_id())
+	_update_global_physics_rate()

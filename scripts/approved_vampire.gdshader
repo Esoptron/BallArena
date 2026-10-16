@@ -6,6 +6,7 @@ uniform bool blue_variant = false;
 uniform float status_brightness = 1.0;
 
 void fragment() {
+	float canvas_alpha = COLOR.a;
 	vec4 original = texture(TEXTURE, UV);
 	// The original background is blue-black; every character color is warmer.
 	// Preserve source RGB. Only transparency is evaluated by the renderer.
@@ -31,5 +32,5 @@ void fragment() {
 	if (blue_variant && body_layer && red) {
 		rgb = vec3(original.g * 0.65, original.r * 0.38, original.r);
 	}
-	COLOR = vec4(rgb * status_brightness, alpha * original.a);
+	COLOR = vec4(rgb * status_brightness, alpha * original.a * canvas_alpha);
 }

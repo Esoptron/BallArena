@@ -41,6 +41,7 @@ func _new_arena(size: Vector2 = Vector2(960, 600),
 	arena.arena_size = size
 	arena.ball_diameter = diameter
 	arena.ball_speed = speed
+	arena.red_character = 0
 	arena.blue_character = 0
 	arena.randomize_spawns = false
 	root.add_child(arena)
@@ -74,10 +75,10 @@ func _simulate(arena: BallArena, ticks: int) -> void:
 				continue
 			var radius := ball.diameter * 0.5
 			# Godot's contact solver allows penetration within one simulation step.
-			var step_distance := ball.movement_speed / Engine.physics_ticks_per_second
-			var speed_error := absf(ball.linear_velocity.length() - ball.movement_speed)
+			var step_distance := ball.effective_movement_speed() / Engine.physics_ticks_per_second
+			var speed_error := absf(ball.linear_velocity.length() - ball.effective_movement_speed())
 			_max_speed_error = maxf(_max_speed_error, speed_error)
-			_check(speed_error < 0.05, "Speed must stay at its configured value.")
+			_check(speed_error < 0.05, "Speed must follow the base speed plus the current wall bonus.")
 			var p := ball.position
 			var penetration := maxf(maxf(radius - p.x, radius - p.y),
 				maxf(p.x + radius - arena.arena_size.x,
@@ -211,20 +212,18 @@ func _test_layouts() -> void:
 		viewport.size = size
 		await process_frame
 		camera.force_update_scroll()
-		var padding: Vector2 = main.get("screen_padding")
-		var required := arena.arena_size + padding * 2.0
-		var expected_zoom := minf(1.0, minf(size.x / required.x, size.y / required.y))
-		_check(camera.zoom.is_equal_approx(Vector2.ONE * expected_zoom),
-			"Viewport did not fit the arena uniformly with UI padding.")
+		var bounds: Rect2 = main.get("arena_screen_rect")
+		_check(camera.zoom.x <= 1.0 and is_equal_approx(camera.zoom.x,camera.zoom.y),
+			"Viewport must fit uniformly without enlarging the arena.")
 		_check(arena.scale == Vector2.ONE and arena.arena_size == Vector2(960, 600),
 			"Resizing the screen changed the physical arena.")
 		var transform := viewport.get_canvas_transform() * arena.global_transform
 		var top_left := transform * Vector2.ZERO
 		var bottom_right := transform * arena.arena_size
-		var minimum := padding * expected_zoom
-		_check(top_left.x >= minimum.x - 1.0 and top_left.y >= minimum.y - 1.0
-			and bottom_right.x <= size.x - minimum.x + 1.0
-			and bottom_right.y <= size.y - minimum.y + 1.0,
+		_check(top_left.is_equal_approx(bounds.position) and bottom_right.is_equal_approx(bounds.end),
+			"Projected arena must agree with the reserved HUD layout.")
+		_check(top_left.x >= 0 and top_left.y >= (63.0 if preload("res://scripts/screen_layout.gd").landscape(Vector2(size)) else 71.0) and bottom_right.x <= size.x
+			and bottom_right.y < size.y,
 			"Arena or reserved UI padding was cropped.")
 	viewport.queue_free()
 	await process_frame

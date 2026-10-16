@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" format=3 uid="uid://djnl0ugls3ixb"]
+
+[ext_resource type="Script" uid="uid://dv7ftwhib1xuh" path="res://scripts/combat/ability_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://dqddpjapl3y1e" path="res://scripts/knifeman.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+ability_id = &"daggers"
+node_name = &"Knives"
+implementation = ExtResource("2")
+tags = PackedStringArray("weapon", "dual")
+weapon_weight_class = 0
+impact_strength = 170.0
+parameters = {
+"base_damage": 6,
+"blade_length": 43.0,
+"capture_counter_chance": 0.04,
+"capture_counter_gap": 8.0,
+"capture_counter_hp_fraction": 0.2,
+"damage_gain": 1,
+"hit_cooldown": 1.0,
+"max_damage": 16,
+"max_speed": 400.0,
+"max_spin_speed": 32.0,
+"post_hit_slow_duration": 0.0,
+"post_hit_speed_ratio": 1.0,
+"speed_gain": 0.0,
+"spin_gain": 3.0,
+"spin_speed": 8.0,
+"starting_speed_ratio": 1.0
+}

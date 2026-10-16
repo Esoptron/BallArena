@@ -1,36 +1,32 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://b357e1wse8se8"]
 
-[ext_resource type="Script" path="res://scripts/arena.gd" id="1_arena"]
+[ext_resource type="Script" uid="uid://c5q2x62wwyqll" path="res://scripts/arena.gd" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/ball.tscn" id="2_ball"]
+[ext_resource type="Script" uid="uid://c143pv5qaw10q" path="res://scripts/blood_effects.gd" id="3_blood"]
+[ext_resource type="Script" uid="uid://ddlv014mki4q6" path="res://scripts/combat_effects.gd" id="4_combat"]
 
-[ext_resource type="Script" path="res://scripts/blood_effects.gd" id="3_blood"]
-
-[ext_resource type="Script" path="res://scripts/combat_effects.gd" id="4_combat"]
-
-[node name="Arena" type="Node2D"]
+[node name="Arena" type="Node2D" unique_id=1562918364]
 script = ExtResource("1_arena")
+ball_speed = 0.0
 
-[node name="Walls" type="Node2D" parent="."]
+[node name="Walls" type="Node2D" parent="." unique_id=1738901549]
 
-[node name="BloodEffects" type="Node2D" parent="."]
+[node name="BloodEffects" type="Node2D" parent="." unique_id=68537721]
 z_index = 5
 script = ExtResource("3_blood")
 
-[node name="CombatEffects" type="Node2D" parent="."]
+[node name="CombatEffects" type="Node2D" parent="." unique_id=1952324067]
 z_index = 6
 script = ExtResource("4_combat")
 
-[node name="Balls" type="Node2D" parent="."]
+[node name="Balls" type="Node2D" parent="." unique_id=219348995]
 
-[node name="BlueBall" parent="Balls" instance=ExtResource("2_ball")]
+[node name="BlueBall" parent="Balls" unique_id=1250306083 instance=ExtResource("2_ball")]
 position = Vector2(268.8, 228)
-ball_color = Color(0.16, 0.48, 1, 1)
-initial_direction = Vector2(1, 0.29)
 is_vampire = false
 is_swordsman = true
 
-[node name="RedBall" parent="Balls" instance=ExtResource("2_ball")]
+[node name="RedBall" parent="Balls" unique_id=1155387454 instance=ExtResource("2_ball")]
 position = Vector2(691.2, 372)
 ball_color = Color(1, 0.22, 0.26, 1)
 initial_direction = Vector2(-1, -0.29)
-is_vampire = true

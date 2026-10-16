@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BattleLevel" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle_level.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+title = "Три цели"
+description = "Мечник против трёх обычных шаров.
+Победи всех противников, чтобы пройти испытание."
+player_character = &"swordsman"
+opponent_character = &"ordinary"
+opponent_count = 3

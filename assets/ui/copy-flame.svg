@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="124" viewBox="0 0 108 124">
+ <defs>
+  <linearGradient id="heat" x1="0.36" y1="0" x2="0.65" y2="1">
+   <stop offset="0" stop-color="#fff2ac"/>
+   <stop offset=".24" stop-color="#ffd03c"/>
+   <stop offset=".48" stop-color="#ff9710"/>
+   <stop offset=".76" stop-color="#e75a06"/>
+   <stop offset="1" stop-color="#ae3005"/>
+  </linearGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2=".6" y2="1">
+   <stop stop-color="#fff8c5"/>
+   <stop offset=".46" stop-color="#ffd761"/>
+   <stop offset="1" stop-color="#ffca49"/>
+  </linearGradient>
+  <radialGradient id="light" cx=".38" cy=".42" r=".6">
+   <stop stop-color="#fff2a0" stop-opacity=".57"/>
+   <stop offset=".5" stop-color="#ffb918" stop-opacity=".12"/>
+   <stop offset="1" stop-color="#ff6a00" stop-opacity="0"/>
+  </radialGradient>
+  <path id="flame" d="M54 115 C43 105 19 93 19 72 C18 53 35 43 47 32 C58 22 60 14 55 7 C74 17 75 32 66 46 C75 43 80 37 81 29 C82 45 94 53 91 73 C88 93 68 105 54 115 Z"/>
+ </defs>
+ <use href="#flame" fill="none" stroke="#ff7b0a" stroke-width="12" opacity=".045"/>
+ <use href="#flame" fill="none" stroke="#ff9c13" stroke-width="7" opacity=".12"/>
+ <use href="#flame" fill="url(#heat)" stroke="#d34900" stroke-width="3.8"/>
+ <use href="#flame" fill="url(#light)" stroke="url(#rim)" stroke-width="1.9"/>
+ <path d="M53 110 C43 100 24 90 23 73 C23 56 40 45 50 34 C62 22 62 15 59 12" fill="none" stroke="#fff5b3" stroke-width="1.25" opacity=".75"/>
+ <path d="M70 49 C78 55 86 63 86 74 C86 87 73 98 60 107" fill="none" stroke="#ffb21d" stroke-width="2.4" opacity=".45"/>
+</svg>
