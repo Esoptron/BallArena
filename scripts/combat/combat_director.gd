@@ -16,6 +16,8 @@ var _slots: Array[String] = []
 var _sweep_data: Dictionary = {}
 var _scanning_clashes := false
 var _contact_gap := INF
+var _match_seed: int = 0
+var _has_match_seed: bool = false
 
 
 func _ready() -> void:
@@ -23,26 +25,108 @@ func _ready() -> void:
 
 
 func set_match_seed(value: int) -> void:
+	_match_seed = value
+	_has_match_seed = true
 	rng.seed = value
 	for ability in abilities:
-		ability.rng.seed = value ^ (String(ability.fighter.character_id)+ability.fighter.battle_role+(ability.fighter.actor_id if group_battle else "")+String(ability.ability_id)).hash()
-		ability.on_match_seed()
+		if is_instance_valid(ability) and is_instance_valid(ability.fighter):
+			_seed_ability(ability)
 
 
+func _seed_ability(ability: CombatAbility) -> void:
+	var fighter := ability.fighter
+	var identity := String(fighter.character_id) + fighter.battle_role
+	if group_battle:
+		identity += fighter.actor_id
+	ability.rng.seed = _match_seed ^ (identity + String(ability.ability_id)).hash()
+	ability.on_match_seed()
+
+
+## Idempotent registration also discovers components added by a new profile.
 func register(fighter: ArenaBall) -> void:
-	fighters.append(fighter)
+	if not is_instance_valid(fighter):
+		return
+	if is_instance_valid(fighter.combat_director) and fighter.combat_director != self:
+		fighter.combat_director.unregister(fighter)
+	if not fighters.has(fighter):
+		fighters.append(fighter)
 	if not _slots.has(fighter.actor_id):
 		_slots.append(fighter.actor_id)
 		_slots.sort()
-	fighter.died.connect(_on_match_death)
+	if not fighter.died.is_connected(_on_match_death):
+		fighter.died.connect(_on_match_death)
+	var exiting := _on_fighter_exiting.bind(fighter)
+	if not fighter.tree_exiting.is_connected(exiting):
+		fighter.tree_exiting.connect(exiting)
 	fighter.combat_director = self
 	for child in fighter.get_children():
 		if child is CombatAbility:
 			child.director = self
-			abilities.append(child)
+			if not abilities.has(child):
+				abilities.append(child)
+				child.tree_exiting.connect(_on_ability_exiting.bind(child))
+				if _has_match_seed:
+					_seed_ability(child)
+
+
+func unregister(fighter: ArenaBall) -> void:
+	fighters.erase(fighter)
+	for ability in abilities.duplicate():
+		if not is_instance_valid(ability):
+			abilities.erase(ability)
+		elif ability.fighter == fighter:
+			_unregister_ability(ability)
+	if not is_instance_valid(fighter):
+		return
+	if fighter.died.is_connected(_on_match_death):
+		fighter.died.disconnect(_on_match_death)
+	var exiting := _on_fighter_exiting.bind(fighter)
+	if fighter.tree_exiting.is_connected(exiting):
+		fighter.tree_exiting.disconnect(exiting)
+	if fighter.combat_director == self:
+		fighter.combat_director = null
+	if not fighters.any(func(other: ArenaBall) -> bool:
+		return is_instance_valid(other) and other.actor_id == fighter.actor_id):
+		_slots.erase(fighter.actor_id)
+	priorities.erase(fighter.actor_id)
+
+
+func _unregister_ability(ability: CombatAbility) -> void:
+	abilities.erase(ability)
+	var id := ability.get_instance_id()
+	if ability.director == self:
+		ability.director = null
+	var exiting := _on_ability_exiting.bind(ability)
+	if ability.tree_exiting.is_connected(exiting):
+		ability.tree_exiting.disconnect(exiting)
+	for index in range(pending.size() - 1, -1, -1):
+		var queued = pending[index]["ability"]
+		if not is_instance_valid(queued) or queued == ability:
+			pending.remove_at(index)
+	for key in _clash_pairs.keys():
+		var pair := String(key).split(":")
+		if int(pair[0]) == id or int(pair[1]) == id:
+			_clash_pairs.erase(key)
+	_sweep_data.erase(id)
+
+
+func _on_ability_exiting(ability: CombatAbility) -> void:
+	_unregister_ability(ability)
+
+
+func _on_fighter_exiting(fighter: ArenaBall) -> void:
+	unregister(fighter)
+
+
+func _exit_tree() -> void:
+	for fighter in fighters.duplicate():
+		unregister(fighter)
 
 
 func submit(ability: CombatAbility, callback: Callable, fraction: float) -> void:
+	if not is_instance_valid(ability) or not is_instance_valid(ability.fighter) \
+			or not callback.is_valid() or not is_finite(fraction):
+		return
 	pending.append({"ability":ability,"callback":callback,
 		"fraction":clampf(fraction,0.0,1.0),"tie":priorities.get(ability.fighter.actor_id,0.5)})
 
@@ -65,11 +149,14 @@ func _physics_process(delta: float) -> void:
 	var batch := pending
 	pending = []
 	for action in batch:
-		if is_instance_valid(action["ability"]):
+		if is_instance_valid(action["ability"]) and action["ability"].director == self \
+				and action["ability"].is_enabled() and action["callback"].is_valid():
 			action["callback"].call()
 
 
 func record(kind: StringName, source: ArenaBall, target: ArenaBall, ability: StringName, extra: Dictionary) -> void:
+	if not is_instance_valid(source):
+		return
 	var event := {"time":time_seconds,"kind":String(kind),"actor_id":source.actor_id,
 		"character_id":String(source.character_id),"target_id":target.actor_id if is_instance_valid(target) else "",
 		"ability_id":String(ability)}
@@ -83,24 +170,27 @@ func _queue_weapon_clashes() -> void:
 		if is_instance_valid(ability) and ability.is_physics_processing() and ability.can_clash():
 			candidates.append(ability)
 	_sweep_data.clear()
+	if candidates.size() < 2:
+		_clash_pairs.clear()
+		return
 	_scanning_clashes = true
 	var bounds: Dictionary = {}
 	for ability in candidates:
 		var first := ability.weapon_segments_at(0.0)
 		var last := ability.weapon_segments_at(1.0)
 		var center := ability.fighter.global_position
-		var start_center := center
-		if ability is SwordAbility: start_center = ability._weapon_start_position
+		var motion := ability.weapon_sweep_motion()
+		var start_center: Vector2 = motion.get("start_position", center)
 		var reach := 0.0
 		for segment in last:
 			for point in segment: reach = maxf(reach,point.distance_to(center))
 		var travel := start_center.distance_to(center)
-		if ability is SwordAbility:
-			travel += absf(ability._weapon_end_rotation-ability._weapon_start_rotation)*reach
+		if not motion.is_empty():
+			travel += float(motion["angle"]) * reach
 		else:
 			for index in mini(first.size(),last.size()):
 				travel += maxf(first[index][0].distance_to(last[index][0]),first[index][1].distance_to(last[index][1]))
-		_sweep_data[ability.get_instance_id()] = {"first":first,"last":last,"travel":travel,"radius":ability.weapon_radius()}
+		_sweep_data[ability.get_instance_id()] = {"first":first,"last":last,"travel":travel}
 		bounds[ability.get_instance_id()] = _weapon_sweep_bounds(ability)
 	var live_pairs := {}
 	for first in candidates.size():
@@ -140,13 +230,14 @@ func _weapon_sweep_bounds(ability: CombatAbility) -> Rect2:
 			for point in segment:
 				result=result.expand(point)
 				if fraction == 1.0:reach=maxf(reach,point.distance_to(position))
-	if ability is SwordAbility:
-		var angle := absf(ability._weapon_end_rotation-ability._weapon_start_rotation)
+	var motion := ability.weapon_sweep_motion()
+	if not motion.is_empty():
+		var angle: float = motion["angle"]
 		if angle <= PI:
 			# Linear interpolation error is bounded by max(|p''|)/8.
 			# Translation is linear; rotation contributes radius * angle^2 / 8.
 			return result.grow(reach*angle*angle/8.0+ability.weapon_radius()+0.025)
-		return Rect2(ability._weapon_start_position,Vector2.ZERO).expand(position).grow(reach+ability.weapon_radius()+0.025)
+		return Rect2(motion["start_position"],Vector2.ZERO).expand(position).grow(reach+ability.weapon_radius()+0.025)
 	return result.grow(reach+ability.weapon_radius()+0.025)
 
 func _sweep_segments(ability: CombatAbility,fraction: float) -> Array[PackedVector2Array]:
@@ -196,7 +287,7 @@ func _resolve_weapon_clash(a: CombatAbility, b: CombatAbility, fraction: float, 
 
 
 func are_enemies(a: ArenaBall,b: ArenaBall) -> bool:
-	return a != b and (not group_battle or a.team_id != b.team_id)
+	return is_instance_valid(a) and is_instance_valid(b) and a != b and (not group_battle or a.team_id != b.team_id)
 
 func opponents_of(fighter: ArenaBall) -> Array[ArenaBall]:
 	var targets: Array[ArenaBall] = []

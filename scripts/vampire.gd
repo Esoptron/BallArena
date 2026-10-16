@@ -44,6 +44,7 @@ var _carry_velocity: Vector2 = Vector2.ZERO
 var _drain_id: int = -1
 var _pair_offset: Vector2 = Vector2.ZERO
 var _victim_freeze_mode: int = RigidBody2D.FREEZE_MODE_STATIC
+var _draw_hunting: bool = false
 
 
 func _ready() -> void:
@@ -67,7 +68,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if fighter == null:
+	if not is_instance_valid(fighter):
 		return
 	_clock += delta
 	visible = is_enabled()
@@ -75,7 +76,9 @@ func _process(delta: float) -> void:
 		return
 	aim_at_opponent()
 	_update_mist()
-	queue_redraw()
+	if hunting or _draw_hunting:
+		queue_redraw()
+	_draw_hunting = hunting
 
 
 func aim_at_opponent() -> void:
@@ -87,7 +90,7 @@ func aim_at_opponent() -> void:
 
 
 func is_enabled() -> bool:
-	return enabled and fighter != null and fighter.is_vampire
+	return enabled and is_instance_valid(fighter) and fighter.is_vampire
 
 
 func preferred_movement_direction() -> Vector2:
@@ -126,7 +129,24 @@ func movement_speed_multiplier() -> float:
 		health_speed_min_ratio, health_speed_max_ratio)
 	return health_ratio * (1.0+hunt_speed_bonus if hunting else 1.0)
 
+func deactivate() -> void:
+	if ticks_remaining > 0 or is_instance_valid(bite_target):
+		_finish_bite(true)
+	hunting = false
+	hunt_pending = false
+	super.deactivate()
+	_update_mist()
+	queue_redraw()
+
+
 func reset_runtime() -> void:
+	if ticks_remaining > 0 or is_instance_valid(bite_target):
+		_finish_bite(true)
+	ticks_remaining = 0
+	_tick_elapsed = 0.0
+	_bite_elapsed = 0.0
+	_damage_this_bite = 0
+	_healed_this_bite = 0
 	hunt_used = false
 	hunt_pending = false
 	hunt_delay_remaining = 0.0
@@ -140,7 +160,7 @@ func combat_step(delta: float) -> void:
 	aim_at_opponent()
 	_update_hunt(delta)
 	cooldown_remaining = maxf(0.0,cooldown_remaining-delta)
-	if bite_target != null:
+	if ticks_remaining > 0 or is_instance_valid(bite_target):
 		if not is_instance_valid(bite_target) or bite_target.current_health <= 0 or fighter.current_health <= 0:
 			_finish_bite()
 		else:
@@ -252,12 +272,12 @@ func interrupt_bite(victim: ArenaBall) -> bool:
 	return true
 
 func _finish_bite(interrupted: bool = false) -> void:
-	if bite_target == null:
+	if bite_target == null and ticks_remaining <= 0:
 		return
 	if is_instance_valid(fighter.combat_effects) and _drain_id >= 0:
 		fighter.combat_effects.call("stop_drain", _drain_id)
 	_drain_id = -1
-	var victim := bite_target
+	var victim := bite_target if is_instance_valid(bite_target) else null
 	fighter.transport_velocity = Vector2.ZERO
 	if is_instance_valid(victim):
 		victim.transport_velocity = Vector2.ZERO
@@ -289,8 +309,8 @@ func _finish_bite(interrupted: bool = false) -> void:
 
 
 func _exit_tree() -> void:
-	if is_instance_valid(fighter) and bite_target != null:
-		_finish_bite()
+	if is_instance_valid(fighter) and (ticks_remaining > 0 or is_instance_valid(bite_target)):
+		_finish_bite(true)
 
 
 func cooldown_time_left() -> float:

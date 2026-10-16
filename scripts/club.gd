@@ -23,7 +23,7 @@ func _ready() -> void:
 	current_damage = base_damage
 
 func is_enabled() -> bool:
-	return enabled and fighter != null and fighter.character_definition != null and fighter.character_definition.tags.has("club")
+	return enabled and is_instance_valid(fighter) and fighter.character_definition != null and fighter.character_definition.tags.has("club")
 
 func deactivate() -> void:
 	shield_remaining = 0.0

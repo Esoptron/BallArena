@@ -8,6 +8,7 @@ signal health_changed(value: int, maximum: int)
 signal health_delta(amount: int, healing: bool)
 
 const WEIGHTS := preload("res://scripts/combat/weight_classes.gd")
+const STATUS_SOURCES := preload("res://scripts/actor/status_sources.gd")
 static var _resolved_collision_frame: int = -1
 static var _resolved_collision_pairs: Dictionary = {}
 
@@ -66,6 +67,7 @@ var _last_direction: Vector2 = Vector2.RIGHT
 var _visual_time: float = 0.0
 var attack_recovery_remaining: float = 0.0
 var _motion_holds: Dictionary = {}
+var _status_sources := STATUS_SOURCES.new()
 var _relocation_guard_remaining: float = 0.0
 var _paralysis_sources: Dictionary = {}
 var _protection_sources: Dictionary = {}
@@ -78,6 +80,18 @@ var katana_wound_stage: int = 0
 var is_feeding: bool = false
 var bite_body_base: float = 70.0
 var bite_pulse_elapsed: float = 0.0
+
+
+func _init() -> void:
+	_status_sources.expired.connect(_on_status_source_expired)
+
+
+func _enter_tree() -> void:
+	_status_sources.resume()
+
+
+func _exit_tree() -> void:
+	_status_sources.suspend()
 
 
 func _ready() -> void:
@@ -155,6 +169,7 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if not Engine.is_editor_hint():
+		_status_sources.prune()
 		_advance_bleeding(delta)
 		_collision_incoming_velocity = linear_velocity
 		advance_wall_boost(delta)
@@ -176,6 +191,7 @@ func _physics_process(delta: float) -> void:
 		_paralysis_sources[source] = maxf(0.0,float(_paralysis_sources[source])-delta)
 		if _paralysis_sources[source] <= 0.0:
 			_paralysis_sources.erase(source)
+			_forget_unused_status_source(source)
 	paralysis_remaining = _remaining_paralysis() if not _paralysis_sources.is_empty() else maxf(0.0,paralysis_remaining-delta)
 	if paralysis_remaining <= 0.000001:
 		paralysis_remaining = 0.0
@@ -190,7 +206,8 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	# including after the short relocation grace period has expired.
 	var relocation_guard := _relocation_guard_remaining > 0.0
 	_relocation_guard_remaining = maxf(0.0,_relocation_guard_remaining-state.step)
-	var arena := get_parent().get_parent() as BallArena
+	var parent := get_parent()
+	var arena := parent.get_parent() as BallArena if parent != null else null
 	if arena != null and current_health > 0 and (collision_mask & 1) != 0:
 		var radius := diameter*0.5 + (1.0 if relocation_guard else 0.0)
 		var point := arena.to_local(state.transform.origin)
@@ -331,8 +348,7 @@ func _sync_dynamic_speed() -> void:
 func receive_weapon_impact(direction: Vector2, weapon_class: int, strength: float) -> float:
 	if current_health <= 0 or is_immobilized() or is_invulnerable() or direction.is_zero_approx() or strength <= 0.0:
 		return 0.0
-	var weights = preload("res://scripts/combat/weight_classes.gd")
-	var effective_impulse := strength * weights.factor(weapon_class) / weights.factor(weight_class)
+	var effective_impulse := strength * WEIGHTS.factor(weapon_class) / WEIGHTS.factor(weight_class)
 	var incoming := linear_velocity if not linear_velocity.is_zero_approx() else _last_direction * effective_movement_speed()
 	var redirected := incoming + direction.normalized() * effective_impulse
 	if redirected.is_zero_approx():
@@ -398,11 +414,12 @@ func prevent_attacks(duration: float) -> void:
 
 
 func paralyze(duration: float, source: Node = null) -> void:
-	if current_health <= 0:
+	if current_health <= 0 or duration <= 0.0:
 		return
 	if not linear_velocity.is_zero_approx():
 		_last_direction = linear_velocity.normalized()
 	var source_id := source.get_instance_id() if is_instance_valid(source) else 0
+	_status_sources.track(source)
 	_paralysis_sources[source_id] = maxf(float(_paralysis_sources.get(source_id,0.0)),duration)
 	paralysis_remaining = maxf(paralysis_remaining, duration)
 	freeze = true
@@ -417,7 +434,11 @@ func _remaining_paralysis() -> float:
 
 
 func cancel_paralysis(source: Node) -> void:
-	_paralysis_sources.erase(source.get_instance_id())
+	if not is_instance_valid(source):
+		return
+	var source_id := source.get_instance_id()
+	_paralysis_sources.erase(source_id)
+	_forget_unused_status_source(source_id)
 	paralysis_remaining = _remaining_paralysis()
 	_refresh_motion()
 
@@ -433,6 +454,8 @@ func grant_capture_immunity(duration: float) -> void:
 
 
 func take_damage(amount: int, source: ArenaBall = null, ability: StringName = &"external", direct_hit: bool = true) -> int:
+	if current_health <= 0:
+		return 0
 	var actor := source if is_instance_valid(source) else self
 	if is_invulnerable():
 		actor.combat_event(&"blocked",self,ability,{"reason":"invulnerable","requested":amount})
@@ -468,24 +491,53 @@ func is_invulnerable() -> bool:
 
 
 func hold_motion(source: Node) -> void:
+	if not is_instance_valid(source):
+		return
+	_status_sources.track(source)
 	_motion_holds[source.get_instance_id()] = true
 	freeze = true
 	linear_velocity = Vector2.ZERO
 
 
 func release_motion(source: Node, departure: Vector2) -> void:
-	_motion_holds.erase(source.get_instance_id())
+	if not is_instance_valid(source):
+		return
+	var source_id := source.get_instance_id()
+	_motion_holds.erase(source_id)
+	_forget_unused_status_source(source_id)
 	if not departure.is_zero_approx():
 		_last_direction = departure.normalized()
 	_refresh_motion()
 
 
 func set_invulnerable(source: Node, enabled: bool) -> void:
+	if not is_instance_valid(source):
+		return
+	var source_id := source.get_instance_id()
 	if enabled:
-		_protection_sources[source.get_instance_id()] = true
+		_status_sources.track(source)
+		_protection_sources[source_id] = true
 	else:
-		_protection_sources.erase(source.get_instance_id())
+		_protection_sources.erase(source_id)
+		_forget_unused_status_source(source_id)
 	queue_redraw()
+
+
+func _forget_unused_status_source(source_id: int) -> void:
+	if not _motion_holds.has(source_id) and not _protection_sources.has(source_id) and not _paralysis_sources.has(source_id):
+		_status_sources.forget(source_id)
+
+
+func _on_status_source_expired(source_id: int) -> void:
+	var released_motion := _motion_holds.erase(source_id)
+	var released_paralysis := _paralysis_sources.erase(source_id)
+	var released_protection := _protection_sources.erase(source_id)
+	if released_paralysis:
+		paralysis_remaining = _remaining_paralysis()
+	if is_inside_tree() and (released_motion or released_paralysis):
+		_refresh_motion()
+	if released_protection:
+		queue_redraw()
 
 
 func _refresh_motion() -> void:
@@ -597,7 +649,6 @@ func _update_shape() -> void:
 
 func _draw() -> void:
 	var radius := visual_diameter() * 0.5
-	var color := body_color()
 
 	for point in bite_marks:
 		_draw_puncture(point, maxf(2.5, diameter * 0.073))
@@ -658,7 +709,7 @@ func deepen_katana_wound() -> void:
 
 # Shared lasting status. Each critical adds an independent one-second clock.
 func add_bleeding(source: ArenaBall, tick_damage: int = 1, interval: float = 1.0, source_ability: StringName = &"bleed") -> void:
-	if current_health <= 0 or (is_instance_valid(combat_director) and combat_director.match_over):
+	if current_health <= 0 or not is_instance_valid(source) or (is_instance_valid(combat_director) and combat_director.match_over):
 		return
 	bleeding_stacks.append({"source":weakref(source),"damage":tick_damage,"interval":maxf(0.01,interval),
 		"elapsed":0.0,"ability":source_ability})
@@ -670,6 +721,8 @@ func clear_bleeding() -> void:
 	queue_redraw()
 
 func _advance_bleeding(delta: float) -> void:
+	if bleeding_stacks.is_empty():
+		return
 	if current_health <= 0:
 		clear_bleeding()
 		return

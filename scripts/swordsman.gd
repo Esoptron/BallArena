@@ -50,7 +50,7 @@ func _ready() -> void:
 
 
 func is_enabled() -> bool:
-	return enabled and fighter != null and fighter.is_swordsman and not fighter.is_vampire
+	return enabled and is_instance_valid(fighter) and fighter.is_swordsman and not fighter.is_vampire
 
 
 func on_match_seed() -> void:
@@ -217,10 +217,8 @@ func try_hit(victim: ArenaBall) -> bool:
 		fighter.linear_velocity = fighter.linear_velocity.normalized()*fighter.effective_movement_speed()
 	cooldown_remaining = effective_hit_cooldown()
 	if is_instance_valid(fighter.combat_effects):
-		var segment := hit_segment_for(victim)
-		var impact := Geometry2D.get_closest_point_to_segment(victim.global_position, segment[0], segment[1])
-		var slash_direction := (segment[1] - segment[0]).normalized().orthogonal() * spin_direction
-		fighter.combat_effects.call("spawn_slash", impact, slash_direction, fighter.diameter / 70.0)
+		var slash_direction := blade_direction.orthogonal() * spin_direction
+		fighter.combat_effects.call("spawn_slash", wound, slash_direction, fighter.diameter / 70.0)
 	slow_remaining = post_hit_slow_duration
 	_contact_victim = victim
 	flash_remaining = 0.22
@@ -264,6 +262,10 @@ func _draw() -> void:
 		var alpha := flash_remaining / 0.22
 		draw_arc(Vector2.ZERO, base+(13+blade_length)*s, -0.35, 0.04, 16,
 			Color(0.75,0.90,1.0,alpha*0.4), 2.0*s, true)
+
+
+func weapon_sweep_motion() -> Dictionary:
+	return {"start_position": _weapon_start_position, "angle": absf(_weapon_end_rotation - _weapon_start_rotation)}
 
 
 func weapon_segments_at(fraction: float) -> Array[PackedVector2Array]:

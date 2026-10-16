@@ -5,15 +5,29 @@ var participants: Dictionary = {}
 var events: int = 0
 var active_success: Dictionary = {}
 var previous_capture: Dictionary = {}
+var _director: CombatDirector
 
 
 func attach(actors: Array[ArenaBall], director: CombatDirector) -> void:
+	detach()
+	participants.clear()
+	events = 0
+	active_success.clear()
+	previous_capture.clear()
+	_director = director
 	for actor in actors:
 		participants[actor.actor_id] = {"character_id":String(actor.character_id),"role":actor.battle_role,
 			"damage_dealt":0,"damage_received":0,"healing":0,"hits":0,
 			"capture_seconds":0.0,"protection_seconds":0.0,"attack_lock_seconds":0.0,"recaptures_without_reply":0,
 			"blocked":{},"abilities":{},"hit_times":[]}
-	director.event_recorded.connect(observe)
+	if is_instance_valid(director):
+		director.event_recorded.connect(observe)
+
+
+func detach() -> void:
+	if is_instance_valid(_director) and _director.event_recorded.is_connected(observe):
+		_director.event_recorded.disconnect(observe)
+	_director = null
 
 
 func observe(event: Dictionary) -> void:
@@ -72,6 +86,8 @@ func observe(event: Dictionary) -> void:
 
 func sample(actors: Array[ArenaBall], delta: float) -> void:
 	for actor in actors:
+		if not is_instance_valid(actor) or not participants.has(actor.actor_id):
+			continue
 		var row: Dictionary = participants[actor.actor_id]
 		if actor.is_paralyzed():
 			row["capture_seconds"] += delta
@@ -86,10 +102,12 @@ func finish(actors: Array[ArenaBall], duration: float, timeout: bool) -> Diction
 	var winner_role := ""
 	var winner_slot := ""
 	for actor in actors:
+		if not is_instance_valid(actor) or not participants.has(actor.actor_id):
+			continue
 		participants[actor.actor_id]["final_hp"] = actor.current_health
 		if actor.current_health > 0:
 			winner = String(actor.character_id)
 			winner_role = actor.battle_role
 			winner_slot = actor.actor_id
 	return {"duration":duration,"winner":"" if timeout else winner,"timeout":timeout,
-		"participants":participants,"event_count":events,"winner_actor_id":"" if timeout else winner_slot,"winner_role":"" if timeout else winner_role}
+		"participants":participants.duplicate(true),"event_count":events,"winner_actor_id":"" if timeout else winner_slot,"winner_role":"" if timeout else winner_role}
