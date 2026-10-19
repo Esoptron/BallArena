@@ -17,6 +17,8 @@ var fighters: Array[ArenaBall] = []
 var rng := RandomNumberGenerator.new()
 var body_contacts: int = 0
 var weapon_contacts: int = 0
+## Optional scene adapter; defaults retain the free-battle portrait exactly.
+var portrait_factory: Callable
 
 func _ready() -> void:
 	z_index = 4
@@ -64,7 +66,7 @@ func _capture(fighter: ArenaBall, portrait_size: float, departure: Vector2) -> v
 	viewport.world_2d = World2D.new()
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(viewport)
-	var portrait := BALL.instantiate() as ArenaBall
+	var portrait := (portrait_factory.call(fighter) if portrait_factory.is_valid() else BALL.instantiate()) as ArenaBall
 	portrait.is_vampire = fighter.is_vampire
 	portrait.is_swordsman = fighter.is_swordsman
 	portrait.ball_color = fighter.ball_color.darkened(0.55) if fighter.is_paralyzed() else fighter.ball_color

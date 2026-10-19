@@ -49,10 +49,7 @@ static func hero(id: String, account: Dictionary, bonuses: Dictionary = {}) -> D
 	return {"definition": profile, "stats": values, "bonuses": bonuses.duplicate(true)}
 
 static func create_actor(compiled: Dictionary, parent: Node, health: int = -1, peak: int = -1) -> CampaignBall:
-	var actor := preload("res://scenes/ball.tscn").instantiate() as ArenaBall
-	actor.set_script(preload("res://scripts/campaign/combat/ball.gd"))
-	actor.get_node("Vampire").set_script(ADAPTERS["vampire"])
-	actor.get_node("Sword").set_script(ADAPTERS["swordsman"])
+	var actor := empty_actor()
 	parent.add_child(actor)
 	var profile: CharacterDefinition = compiled["definition"]
 	CharacterCatalog.apply(actor, profile, 70.0)
@@ -61,4 +58,11 @@ static func create_actor(compiled: Dictionary, parent: Node, health: int = -1, p
 	actor.set("campaign_bonuses", compiled.get("bonuses", {}).duplicate(true))
 	if health >= 0:
 		actor.current_health = health if actor.is_vampire else mini(health, profile.reference_health)
+	return actor as CampaignBall
+
+static func empty_actor(_source: ArenaBall = null) -> CampaignBall:
+	var actor := preload("res://scenes/ball.tscn").instantiate() as ArenaBall
+	actor.set_script(preload("res://scripts/campaign/combat/ball.gd"))
+	actor.get_node("Vampire").set_script(ADAPTERS["vampire"])
+	actor.get_node("Sword").set_script(ADAPTERS["swordsman"])
 	return actor as CampaignBall
