@@ -94,6 +94,11 @@ func _exit_tree() -> void:
 	_status_sources.suspend()
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_status_sources.clear()
+
+
 func _ready() -> void:
 	for child in get_children():
 		if child is CombatAbility:combat_components.append(child)

@@ -270,4 +270,27 @@ func validation_errors() -> PackedStringArray:
 		if (blue_character_id.is_empty() and (blue_character < 0 or blue_character > 5)) \
 				or (red_character_id.is_empty() and (red_character < 0 or red_character > 5)):
 			errors.append("Legacy arena character index is invalid.")
+	if not errors.is_empty():
+		return errors
+	# A rejected apply() must never leave a running match using scene defaults.
+	# Validate each used final profile once, before _ready creates walls/director.
+	var used: Dictionary = {}
+	if battle_roster.is_empty():
+		var legacy := ["ordinary", "vampire", "swordsman", "knifeman", "katana", "club"]
+		used[String(blue_character_id) if not blue_character_id.is_empty() else legacy[blue_character]] = true
+		used[String(red_character_id) if not red_character_id.is_empty() else legacy[red_character]] = true
+	else:
+		for entry in battle_roster:
+			used[String(entry.get("character", "ordinary"))] = true
+	for id in used:
+		var template := CharacterCatalog.character(StringName(id))
+		var overrides: Dictionary = character_overrides.get(id, {})
+		var override_errors := CharacterCatalog.override_validation_errors(template, overrides)
+		if not override_errors.is_empty():
+			for issue in override_errors:
+				errors.append("%s: %s" % [id, issue])
+			continue
+		var profile := CharacterCatalog.character(StringName(id), overrides)
+		for issue in CharacterCatalog.validation_errors(profile, $Balls/BlueBall as ArenaBall):
+			errors.append("%s: %s" % [id, issue])
 	return errors

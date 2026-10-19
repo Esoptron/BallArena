@@ -48,6 +48,28 @@ func run() -> void:
 	expires_while_detached.free()
 	root.add_child(ball)
 	check(not ball.is_invulnerable(), "Reentering must release effects whose source expired while detached.")
+	for reattach_source in [false, true]:
+		var leaves_while_detached := Node.new()
+		root.add_child(leaves_while_detached)
+		ball.hold_motion(leaves_while_detached)
+		ball.set_invulnerable(leaves_while_detached, true)
+		root.remove_child(ball)
+		root.remove_child(leaves_while_detached)
+		if reattach_source:
+			root.add_child(leaves_while_detached)
+		root.add_child(ball)
+		check(not ball.is_invulnerable() and not ball.is_immobilized() and not ball.freeze,
+			"A source exit while the actor is detached ends its effects, even if the source returns.")
+		leaves_while_detached.free()
+	var surviving_source := Node.new()
+	root.add_child(surviving_source)
+	var temporary_ball := load("res://scenes/ball.tscn").instantiate() as ArenaBall
+	root.add_child(temporary_ball)
+	temporary_ball.hold_motion(surviving_source)
+	temporary_ball.free()
+	check(surviving_source.tree_exiting.get_connections().is_empty(),
+		"Freeing the actor must disconnect surviving sources without retaining its tracker.")
+	surviving_source.free()
 	ball.paralyze(0.0)
 	check(not ball.freeze, "A zero-duration paralysis must not freeze a live actor indefinitely.")
 	ball.current_health = 0

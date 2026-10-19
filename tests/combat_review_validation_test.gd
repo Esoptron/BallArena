@@ -50,20 +50,34 @@ func run() -> void:
 	arena.blue_character = 99
 	check(not arena.validation_errors().is_empty(), "Invalid legacy indices must not crash an array lookup in exported builds.")
 	arena.free()
-	var invalid_arena := load("res://scenes/arena.tscn").instantiate() as BallArena
-	invalid_arena.character_overrides = {"swordsman": 42}
-	check(not invalid_arena.validation_errors().is_empty(), "Malformed per-character JSON must fail before typed profile application.")
-	# This test deliberately exercises the logged rejection of an invalid scene.
-	var previous_errors := Engine.print_error_messages
-	Engine.print_error_messages = false
-	root.add_child(invalid_arena)
-	Engine.print_error_messages = previous_errors
-	check(invalid_arena.process_mode == Node.PROCESS_MODE_DISABLED and invalid_arena.director == null,
-		"Invalid arena must stop without creating a partial match.")
-	for child in invalid_arena.get_node("Balls").get_children():
-		check(child.freeze, "Invalid arena must freeze child bodies which initialized before its parent.")
-	check(invalid_arena.get_node("Walls").get_child_count() == 0, "Invalid overrides must be rejected before creating walls.")
-	invalid_arena.queue_free()
+	var invalid_settings: Array[Dictionary] = [
+		{"swordsman": 42},
+		{"swordsman": {"movement_speed": 0.0}},
+		{"swordsman": {"abilities": {"sword": {"base_damage": {"invalid": 1}}}}},
+		{"swordsman": {"abilities": {"sword": {"misspelled_damage": 1}}}},
+	]
+	for overrides in invalid_settings:
+		for use_roster in [false, true]:
+			var invalid_arena := load("res://scenes/arena.tscn").instantiate() as BallArena
+			invalid_arena.character_overrides = overrides
+			if use_roster:
+				invalid_arena.battle_roster = [
+					{"character": "swordsman", "team": "blue"},
+					{"character": "vampire", "team": "red"},
+				]
+			check(not invalid_arena.validation_errors().is_empty(), "Invalid final profiles must fail preflight in duels and rosters.")
+			# This deliberately exercises logged rejection, not a runtime exception.
+			var previous_errors := Engine.print_error_messages
+			Engine.print_error_messages = false
+			root.add_child(invalid_arena)
+			Engine.print_error_messages = previous_errors
+			check(invalid_arena.process_mode == Node.PROCESS_MODE_DISABLED and invalid_arena.director == null,
+				"Invalid final profiles must stop without creating a partial match.")
+			for child in invalid_arena.get_node("Balls").get_children():
+				check(child.freeze, "Rejected arenas must freeze bodies initialized before their parent.")
+			check(invalid_arena.get_node("Walls").get_child_count() == 0,
+				"Invalid final profiles must be rejected before creating walls.")
+			invalid_arena.queue_free()
 	await process_frame
 	print("PASS: profile, runtime component and roster boundary validation" if failures.is_empty() else "FAIL: combat validation")
 	quit(0 if failures.is_empty() else 1)
