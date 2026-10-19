@@ -12,13 +12,14 @@ static func enemy(id: String, overrides: Dictionary = {}) -> Dictionary:
 	assert(data().has(id), "Unknown campaign enemy: " + id)
 	var p: Dictionary = data()[id].duplicate(true)
 	p.merge(overrides, true)
+	p["hp"] = float(p["hp"]) * float(CampaignProgression.data().get("enemy_health_factor",1.0))
 	var profile := CharacterDefinition.new()
 	profile.character_id = StringName(id)
 	profile.display_name = p["name"]
 	profile.tags = PackedStringArray(["campaign_enemy"])
 	profile.reference_health = CampaignUnits.pack(p["hp"])
 	profile.starting_health = profile.reference_health
-	profile.movement_speed = p["speed"]
+	profile.movement_speed = float(p["speed"]) * float(CampaignProgression.data().get("movement_factor",1.0))
 	profile.weight_class = int(p.get("weight", 2))
 	profile.diameter_multiplier = float(p.get("size", 1.0))
 	var ability := AbilityDefinition.new()
@@ -35,12 +36,13 @@ static func enemy(id: String, overrides: Dictionary = {}) -> Dictionary:
 static func modified(id: String, modifier: String) -> Dictionary:
 	# A QA/future-content helper. Authored encounters never get replaced by this.
 	var p: Dictionary = data()[id].duplicate(true)
-	match modifier:
-		"fast": p["speed"] *= 1.15
-		"heavy": p["weight"] = mini(4, int(p.get("weight", 2)) + 1)
-		"range": p["length"] = float(p.get("length", 40)) * 1.15
-		"berserk": p["spin"] = float(p.get("spin", 3.5)) * 1.2
-		"armored": p["hp"] *= 1.2
-		"empowered": p["damage"] *= 1.2
-		"bleed", "fire", "ice": p["modifier"] = modifier
+	var modifiers: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://scripts/campaign/data/modifiers.json"))
+	assert(modifiers.has(modifier),"Unknown future modifier")
+	var settings: Dictionary=modifiers[modifier]
+	for key in ["hp","speed","length","spin","damage","cooldown"]:
+		if settings.has(key+"_factor"): p[key]=float(p.get(key,0))*float(settings[key+"_factor"])
+	p["weight"]=clampi(int(p.get("weight",2))+int(settings.get("weight_step",0)),0,4)
+	# Future proc/armour/conditional fields are descriptors, not extra abilities
+	# silently injected into the fifty authored fights.
+	p["future_modifier"]=settings.duplicate(true)
 	return enemy(id, p)

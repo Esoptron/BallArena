@@ -1,0 +1,11 @@
+{
+  "fast": {"speed_factor":1.15},
+  "heavy": {"hp_factor":1.2,"speed_factor":0.9,"weight_step":1},
+  "range": {"length_factor":1.15},
+  "berserk": {"spin_factor":1.2,"future_health_threshold":0.3},
+  "armored": {"hp_factor":1.1,"future_direct_reduction":0.15},
+  "bleed": {"future_status":{"kind":"cut","chance":0.15,"dps":0.2,"duration":3,"max_stacks":1}},
+  "fire": {"future_status":{"kind":"burn","chance":0.15,"dps":0.2,"duration":3,"max_stacks":1}},
+  "ice": {"future_status":{"kind":"ice","chance":0.15,"potency":0.1,"duration":1.5,"max_stacks":1}},
+  "empowered": {"damage_factor":1.2,"cooldown_factor":1.1}
+}

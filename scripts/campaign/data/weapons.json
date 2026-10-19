@@ -1,0 +1,18 @@
+{
+  "rapier": {"category":"blade","damage_geometry":"thin_blade","visual_key":"rapier","weight_class":0,"damage_type":"physical","tags":["melee","lunge"]},
+  "spear": {"category":"polearm","damage_geometry":"tip_only","visual_key":"spear","weight_class":2,"damage_type":"physical","tags":["melee","shaft_deflection"]},
+  "axe": {"category":"heavy","damage_geometry":"wide_head","visual_key":"axe","weight_class":4,"damage_type":"physical","tags":["melee","impulse","post_hit_slow"]},
+  "shield": {"category":"defensive","damage_geometry":"short_blade","visual_key":"shield","weight_class":2,"damage_type":"physical","tags":["melee","frontal_sector"]},
+  "crossbow": {"category":"projectile","damage_geometry":"swept_bolt","visual_key":"crossbow","weight_class":2,"damage_type":"physical","tags":["ranged","telegraph","finite_flight"]},
+  "hammer": {"category":"heavy","damage_geometry":"hammer_head","visual_key":"hammer","weight_class":4,"damage_type":"physical","tags":["melee","brief_slow","shockwave"]},
+  "flail": {"category":"flexible","damage_geometry":"end_ball_only","visual_key":"flail","weight_class":4,"damage_type":"physical","tags":["melee","damped_chain"]},
+  "boomerang": {"category":"returning","damage_geometry":"swept_returning_blade","visual_key":"boomerang","weight_class":0,"damage_type":"physical","tags":["ranged","return","one_hit_per_target"]},
+  "chakram": {"category":"orbiting","damage_geometry":"broad_disc","visual_key":"chakram","weight_class":0,"damage_type":"physical","tags":["melee","constant_spin"]},
+  "harpoon": {"category":"polearm","damage_geometry":"hook_tip","visual_key":"harpoon","weight_class":2,"damage_type":"physical","tags":["melee","finite_pull"]},
+  "sickle": {"category":"blade","damage_geometry":"curved_blade","visual_key":"sickle","weight_class":0,"damage_type":"physical","tags":["melee","bounded_cut"]},
+  "trident": {"category":"polearm","damage_geometry":"three_tips_shared_hit","visual_key":"trident","weight_class":2,"damage_type":"physical","tags":["melee","wide_contact"]},
+  "flask": {"category":"hazard","damage_geometry":"finite_flask_and_circle","visual_key":"flask","weight_class":0,"damage_type":"chemical","tags":["ranged","bounded_zone"]},
+  "fireball": {"category":"elemental","damage_geometry":"swept_sphere","visual_key":"fireball","weight_class":2,"damage_type":"fire","tags":["ranged","refresh_burn"]},
+  "iceball": {"category":"elemental","damage_geometry":"swept_sphere","visual_key":"iceball","weight_class":2,"damage_type":"ice","tags":["ranged","nonstacking_slow"]},
+  "magnet": {"category":"field","damage_geometry":"proximity_only","visual_key":"magnet","weight_class":4,"damage_type":"magnetic","tags":["telegraph","finite_pull","no_immobilization"]}
+}
