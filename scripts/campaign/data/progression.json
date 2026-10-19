@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "health_unit": 1000,
+  "rarity_factors": [0.5, 0.65, 0.8, 1.0],
+  "rarity_names": ["Обычное", "Редкое", "Эпическое", "Легендарное"],
+  "prices": {"swordsman": 0, "knifeman": 180, "katana": 320, "vampire": 480, "club": 1500},
+  "xp_costs": {"hp": 20, "speed": 20, "spin": 30, "damage": 30, "hit_growth": 60, "healing": 30, "heal_growth": 60, "chance_growth": 60, "recovery": 80},
+  "xp_cost_growth": 1.32,
+  "coin_cost_base": 40,
+  "coin_cost_growth": 1.18,
+  "recovery_start": 0.05,
+  "recovery_step": 0.02,
+  "recovery_max": 0.25,
+  "spin_rank_fraction": 0.05,
+  "spin_max_fraction": 2.5,
+  "ally_slot_price": 2200,
+  "players": {
+    "swordsman": {"name": "Мечник", "hp": 20, "spin_fraction": 0.5, "damage": 3, "damage_rank_gain": 0.5, "hit_growth": 0.5, "hit_growth_rank_gain": 0.1, "chance": 0.01, "chance_step": 0.002, "chance_cap": 0.07, "xp_skills": ["hp", "spin", "damage", "hit_growth", "speed", "recovery"]},
+    "knifeman": {"name": "Ножевик", "hp": 15, "spin_fraction": 0.4, "damage": 2, "damage_rank_gain": 0.3, "hit_growth": 0.2, "hit_growth_rank_gain": 0.05, "chance": 0.003, "chance_step": 0.0005, "chance_cap": 0.05, "xp_skills": ["hp", "spin", "damage", "hit_growth", "speed", "recovery"]},
+    "katana": {"name": "Катанщик", "hp": 20, "spin_fraction": 0.5, "damage": 1, "damage_rank_gain": 0.4, "hit_growth": 0.2, "hit_growth_rank_gain": 0.05, "chance": 0.1, "chance_step": 0.005, "chance_cap": 0.6, "chance_growth": 0.01, "chance_growth_rank_gain": 0.005, "bleed_damage": 0.2, "xp_skills": ["hp", "spin", "damage", "hit_growth", "chance_growth", "speed", "recovery"]},
+    "vampire": {"name": "Вампир", "hp": 20, "damage": 3, "damage_rank_gain": 0.5, "hit_growth": 0.5, "hit_growth_rank_gain": 0.1, "healing": 2, "healing_rank_gain": 0.3, "heal_growth": 0.3, "heal_growth_rank_gain": 0.05, "chance": 0.05, "chance_step": 0.01, "chance_cap": 0.3, "xp_skills": ["hp", "damage", "healing", "hit_growth", "heal_growth", "speed", "recovery"]},
+    "club": {"name": "Дубина", "hp": 30, "spin_fraction": 0.5, "damage": 5, "damage_rank_gain": 0.8, "hit_growth": 1, "hit_growth_rank_gain": 0.2, "chance": 0.01, "chance_step": 0.0025, "chance_cap": 0.08, "wall_damage_fraction": 0.2, "wall_window": 0.85, "xp_skills": ["hp", "spin", "damage", "hit_growth", "speed", "recovery"]}
+  }
+}

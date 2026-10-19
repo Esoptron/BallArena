@@ -8,7 +8,7 @@
 - User explicitly authorizes publishing this task's commits to the experimental branch. Never push main or checkpoint tags.
 - Free battle remains a parallel mode with the original six profiles, balance, collision framework, visuals and roster selection. Campaign enemies stay in a separate catalog and never appear in the free battle picker.
 - Latest user clarification overrides the attachment: vampire bite distance/teeth geometry **stay unchanged**. Weapon rarity does not shorten or lengthen vampire fangs.
-- Attachment says five levels × ten battles = fifty. User's message also contains “50 waves in each level” but then says fifty total; an async clarification is pending. Data/model work is independent of this discrepancy; do not silently implement 250 battles.
+- Confirmed by the user: five levels × ten battles = fifty, with a boss in battle ten of each level.
 - No APK. No real payments, ads, playable allies, evolutions or procedural replacement of the fifty authored encounters.
 - Original user specification is preserved in `SPECIFICATION.md`; latest direct user clarification takes precedence.
 - Existing `PROJECT_MEMORY.md` maintenance rule remains: update existing facts; do not add new campaign topics there without an explicit request.
@@ -47,4 +47,4 @@ Existing code uses integer HP/damage; abilities and combat signals are typed int
 
 ## Current status
 
-The source from reviewed main has been applied using a checked Git patch inside this worktree. No campaign feature implemented yet. Preparation tests/commit are next. The main checkout is untouched.
+Preparation is committed as `189d1a2`; inherited tests passed 40/40. Stage A implements campaign-only fixed-point health, five player profiles, shared XP/individual ranks, ability training and weapon merging formulas. Campaign vampire retains the original geometry and three-second capture; fractional bite budgets and growth apply once per completed bite. Stage A tests passed 41/41, including the new progression/invariance test. The main checkout is untouched.
