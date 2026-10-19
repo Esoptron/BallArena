@@ -39,6 +39,11 @@ func take_damage(amount: int, source: ArenaBall = null, ability: StringName = &"
 func adjusted_movement_speed() -> float:
 	return super.adjusted_movement_speed() * movement_multiplier
 
+func receive_weapon_impact(direction: Vector2, weapon_class: int, strength: float) -> float:
+	# A second impulse breaks causal ownership of a pending wall collision.
+	wall_burst.clear()
+	return super.receive_weapon_impact(direction,weapon_class,strength)
+
 func _physics_process(delta: float) -> void:
 	_advance_campaign_effects(delta)
 	if not wall_burst.is_empty():
@@ -53,6 +58,7 @@ func add_campaign_effect(kind: String, source: ArenaBall, potency: float, durati
 	if is_instance_valid(combat_director) and not combat_director.are_enemies(source, self):
 		return false
 	var same: Array[Dictionary] = []
+	var added := false
 	for effect in campaign_effects:
 		if effect["kind"] == kind:
 			same.append(effect)
@@ -63,7 +69,8 @@ func add_campaign_effect(kind: String, source: ArenaBall, potency: float, durati
 		effect["source"] = weakref(source)
 	else:
 		campaign_effects.append({"kind": kind, "source": weakref(source), "potency": potency, "remaining": duration, "elapsed": 0.0})
-	combat_event(&"status_applied", source, StringName(kind), {"duration": duration, "potency": potency})
+		added=true
+	if added: combat_event(&"status_applied", source, StringName(kind), {"duration": duration, "potency": potency})
 	return true
 
 func _advance_campaign_effects(delta: float) -> void:

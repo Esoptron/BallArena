@@ -23,7 +23,7 @@ func _physics_process(delta: float) -> void:
 		var next: Vector2 = previous + p["velocity"]*delta
 		if p["kind"] == "boomerang":
 			var progress: float = p["age"]
-			if progress > 0.65: p["velocity"] = (source.global_position-previous).normalized()*530
+			if progress > 0.65: p["velocity"] = (source.global_position-previous).normalized()*530*float(CampaignProgression.data().get("movement_factor",1.0))
 			else: p["velocity"] = (p["velocity"] as Vector2).rotated(delta*0.8)
 			next = previous + p["velocity"]*delta
 			if progress > 0.75 and next.distance_to(source.global_position) < source.diameter*0.5+12:
@@ -49,7 +49,8 @@ func _physics_process(delta: float) -> void:
 			p["position"] = previous+travel*wall_t
 			dead = true
 		else: p["position"] = next
-		if float(p["age"]) >= (2.3 if p["kind"] == "boomerang" else 2.0): dead=true
+		var lifetime := 2.3 if p["kind"]=="boomerang" else (0.75/float(CampaignProgression.data().get("movement_factor",1.0)) if p["kind"] in ["flask","acid","fire_flask"] else 2.0)
+		if float(p["age"]) >= lifetime: dead=true
 		if dead:
 			if p["kind"] in ["flask","acid","fire_flask"]: _zone(source,p)
 			shots.remove_at(i)

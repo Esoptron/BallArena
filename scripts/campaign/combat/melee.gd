@@ -8,6 +8,7 @@ var _spring_velocity := 0.0
 var _hook_cd := 0.0
 var _pull_left := 0.0
 var _hook_target: WeakRef
+var _shaft_contacts: Dictionary = {}
 
 func _ready() -> void:
 	# SwordAbility's free-profile configure must not replace campaign parameters.
@@ -32,6 +33,7 @@ func effective_spin_speed() -> float:
 	var phase := 1.0
 	if not boss_kind.is_empty() and fighter.current_health < fighter.max_health * (0.4 if boss_kind == "chain" else 0.5):
 		phase = 1.2 if boss_kind == "chain" else 1.15
+	if boss_kind=="guard" and fmod(_clock,5.0)>4.3: phase*=0.72
 	return super.effective_spin_speed() * (fighter as CampaignBall).rotation_multiplier * phase
 
 func combat_step(delta: float) -> void:
@@ -52,6 +54,15 @@ func combat_step(delta: float) -> void:
 			fighter.receive_weapon_impact((fighter.opponent.global_position-fighter.global_position).normalized(), 0, 70)
 			_hook_cd = 4.0
 	super.combat_step(delta)
+	if weapon_kind in ["spear","harpoon"] and fighter.can_attack():
+		var current := {}
+		var shaft := _shaft(rotation)
+		for target in hostile_targets():
+			var closest := Geometry2D.get_closest_point_to_segment(target.global_position,shaft[0],shaft[1])
+			if closest.distance_to(target.global_position)<=target.diameter*0.5+3 and not intersects_target(target,rotation):
+				current[target.actor_id]=true
+				if not _shaft_contacts.has(target.actor_id): target.receive_weapon_impact((target.global_position-closest).normalized(),1,25)
+		_shaft_contacts=current
 	if weapon_kind in ["flail", "harpoon"] or not boss_kind.is_empty(): queue_redraw()
 
 func _reach() -> float:
@@ -119,6 +130,8 @@ func try_hit(victim: ArenaBall) -> bool:
 		"hammer":
 			target.add_campaign_effect("slow",fighter,0.1,0.8)
 			if is_instance_valid(fighter.combat_effects): fighter.combat_effects.call("spawn_shockwave",victim.global_position,Vector2.RIGHT,0.6)
+			var audio := fighter.get_parent().get_parent().get_node_or_null("CampaignAudio")
+			if audio!=null: audio.call("thud")
 		"sickle":
 			if rng.randf() < 0.15: target.add_campaign_effect("cut",fighter,0.2,4.0,2)
 		"harpoon":
@@ -127,6 +140,13 @@ func try_hit(victim: ArenaBall) -> bool:
 				_pull_left = 0.6
 				_hook_cd = 7.0
 	return true
+
+func resolve_hit_damage(victim: ArenaBall) -> int:
+	var strength := 1.4 if boss_kind=="guard" and fmod(_clock,5.0)>4.3 else 1.0
+	return victim.take_damage(roundi(current_damage*strength),fighter,ability_id)
+
+func current_weapon_segments() -> Array[PackedVector2Array]:
+	return weapon_segments_at(1.0)
 
 func _draw() -> void:
 	if not is_enabled(): return

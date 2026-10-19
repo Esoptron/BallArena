@@ -56,13 +56,31 @@ func combat_step(delta: float) -> void:
 			cooldown_remaining = hit_cooldown
 			if not boss_kind.is_empty() and fighter.current_health < fighter.max_health*0.4: cooldown_remaining *= 0.85
 	elif cooldown_remaining <= 0 and is_instance_valid(fighter.opponent):
-		aim = (fighter.opponent.global_position-fighter.global_position).normalized()
+		aim = _lead_direction(fighter.opponent)
 		windup = 0.8 if weapon_kind == "magnet" else 0.28
 		emit_event(&"telegraph",fighter.opponent,{"duration":windup})
 	if windup <= 0 and is_instance_valid(fighter.opponent):
 		rotation = (fighter.opponent.global_position-fighter.global_position).angle()
 	else: rotation = aim.angle()
 	queue_redraw()
+
+func _lead_direction(target: ArenaBall) -> Vector2:
+	var offset := target.global_position-fighter.global_position
+	if weapon_kind=="magnet": return offset.normalized()
+	var velocity := target.linear_velocity
+	var speed := (720.0 if boss_kind=="storm" else 510.0) * float(CampaignProgression.data().get("movement_factor",1.0))
+	var future := offset+velocity*0.28
+	var a := velocity.length_squared()-speed*speed
+	var b := 2*future.dot(velocity)
+	var c := future.length_squared()
+	var discriminant := b*b-4*a*c
+	var time := 0.0
+	if discriminant>=0 and absf(a)>0.001:
+		var t1 := (-b-sqrt(discriminant))/(2*a)
+		var t2 := (-b+sqrt(discriminant))/(2*a)
+		time=minf(t1 if t1>0 else INF,t2 if t2>0 else INF)
+	if not is_finite(time): time=0
+	return (future+velocity*minf(time,1.2)).normalized()
 
 func _field() -> Node2D:
 	var arena := fighter.get_parent().get_parent()
@@ -80,9 +98,11 @@ func _fire(field: Node2D) -> void:
 	var kind := weapon_kind
 	if boss_kind == "nox": kind = ["flask","acid","fire_flask"][shots%3]
 	if boss_kind == "storm" and shots%2 == 1:
-		for angle in [-0.13,0.13]: field.call("launch",fighter,aim.rotated(angle),base_damage,kind,650.0,2)
-	else: field.call("launch",fighter,aim,base_damage,kind,720.0 if boss_kind == "storm" else 510.0,2 if boss_kind == "nox" else 1)
+		for angle in [-0.13,0.13]: field.call("launch",fighter,aim.rotated(angle),base_damage,kind,650.0*_tempo(),2)
+	else: field.call("launch",fighter,aim,base_damage,kind,(720.0 if boss_kind == "storm" else 510.0)*_tempo(),2 if boss_kind == "nox" else 1)
 	emit_event(&"projectile_fired",null,{"kind":kind})
+
+func _tempo() -> float: return float(CampaignProgression.data().get("movement_factor",1.0))
 
 func _draw() -> void:
 	if not is_enabled(): return
