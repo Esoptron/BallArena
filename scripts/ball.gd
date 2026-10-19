@@ -219,7 +219,9 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 		var safe := point.clamp(Vector2.ONE*radius,arena.arena_size-Vector2.ONE*radius)
 		# The solver permits penetration within a single simulation step. Correcting
 		# those ordinary contacts would change reflections and tiny/fast body collisions.
-		var tolerance := 0.0 if relocation_guard else maxf(2.0,state.linear_velocity.length()*state.step+0.1)
+		# Crowded solver impulses can exceed the speed that is normalized below.
+		# They must not expand the tolerated penetration beyond one actual step.
+		var tolerance := 0.0 if relocation_guard else maxf(2.0,effective_movement_speed()*state.step+0.1)
 		var penetration := (point-safe).abs()
 		if maxf(penetration.x,penetration.y) > tolerance:
 			var velocity := state.linear_velocity.rotated(-arena.global_rotation)
