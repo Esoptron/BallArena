@@ -1,5 +1,6 @@
 extends SceneTree
 ## Generic catalog-driven battles. No character-specific simulation branches.
+const INPUT := preload("res://tests/support/balance_cli_input.gd")
 const ARENA := preload("res://scenes/arena.tscn")
 var config: Dictionary
 var jobs: Array[Dictionary] = []
@@ -24,7 +25,18 @@ func cosmetics_off(node: Node) -> void:
 
 func run() -> void:
 	var args := OS.get_cmdline_user_args()
-	config = JSON.parse_string(FileAccess.get_file_as_string(args[0]))
+	if args.size() != 2 or args[1].strip_edges().is_empty():
+		fail("Usage: combat_balance.gd -- CONFIG.json OUTPUT.json")
+		return
+	var loaded := INPUT.read_object(args[0])
+	if loaded.has("error"):
+		fail(loaded["error"])
+		return
+	config = loaded["data"]
+	var input_error := INPUT.config_error(config)
+	if not input_error.is_empty():
+		fail(input_error)
+		return
 	output = args[1]
 	source_hashes = BalanceSnapshot.source_hashes()
 	for candidate in config["candidates"]:
@@ -50,7 +62,7 @@ func run() -> void:
 			var timeout: bool = elapsed >= float(config.get("time_limit",120.0))
 			if dead or timeout:
 				var metrics: CombatMetrics = match_data["metrics"]
-				arena.director.event_recorded.disconnect(metrics.observe)
+				metrics.detach()
 				var row := metrics.finish(actors,elapsed,timeout)
 				row["candidate"] = match_data["job"]["candidate"]["id"]
 				row["scenario"] = match_data["job"]["scenario"]
@@ -64,15 +76,23 @@ func run() -> void:
 		if results.size()-last_progress >= 32:
 			last_progress = results.size()
 			print("BALANCE v2 progress: %d/%d" % [results.size(),jobs.size()])
-	var file := FileAccess.open(output,FileAccess.WRITE)
-	if file == null:
-		push_error("Could not save v2 balance results")
-		quit(1)
+	if results.is_empty() or results.size() != jobs.size():
+		fail("Simulation did not complete every requested match.")
 		return
-	file.store_string(JSON.stringify({"engine_version":Engine.get_version_info()["string"],"arguments":OS.get_cmdline_args(),"config":config,"physics_hz":Engine.physics_ticks_per_second,
-		"trials":results,"effective_profiles":effective_profiles,"source_hashes":source_hashes,"summary":CombatStatistics.by_candidate(results,config["candidates"])},"  "))
+	var report := {"engine_version":Engine.get_version_info()["string"],"arguments":OS.get_cmdline_args(),"config":config,"physics_hz":Engine.physics_ticks_per_second,
+		"trials":results,"effective_profiles":effective_profiles,"source_hashes":source_hashes,"summary":CombatStatistics.by_candidate(results,config["candidates"])}
+	var write_error := INPUT.write_object(output, report)
+	if not write_error.is_empty():
+		fail(write_error)
+		return
 	print("PASS: %d actual catalog-driven matches recorded" % results.size())
 	quit(0)
+
+
+func fail(message: String) -> void:
+	push_error("Balance input/output: " + message)
+	quit(1)
+
 
 
 func fill_slots() -> void:

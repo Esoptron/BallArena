@@ -2,6 +2,7 @@ extends SceneTree
 
 const MAIN := preload("res://scenes/main.tscn")
 var destination: String
+var capture_viewport: SubViewport
 
 
 func _initialize() -> void:
@@ -16,18 +17,23 @@ func frames(count: int) -> void:
 
 func save_frame(name: String) -> void:
 	await RenderingServer.frame_post_draw
-	var result := root.get_texture().get_image().save_png(destination.path_join(name))
+	var result := capture_viewport.get_texture().get_image().save_png(destination.path_join(name))
 	if result != OK:
 		push_error("Could not save rendered frame: %s" % result)
 		quit(1)
 
 
 func capture() -> void:
-	root.size = Vector2i(1280, 900)
+	# Always render offscreen: a hidden/occluded test window must not suspend
+	# frame_post_draw while the longer sequence waits between captures.
+	capture_viewport = SubViewport.new()
+	capture_viewport.size = Vector2i(1280, 900)
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(capture_viewport)
 	var main := MAIN.instantiate() as Node2D
 	(main.get_node("Arena") as BallArena).blue_character = 0
 	(main.get_node("Arena") as BallArena).randomize_spawns = false
-	root.add_child(main)
+	capture_viewport.add_child(main)
 	var blue := main.get_node("Arena/Balls/BlueBall") as ArenaBall
 	var red := main.get_node("Arena/Balls/RedBall") as ArenaBall
 	await frames(6)

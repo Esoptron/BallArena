@@ -8,10 +8,15 @@ func _ready() -> void:
 	z_index = 8
 	visible = false
 func _process(delta: float) -> void:
+	if not is_instance_valid(fighter):
+		visible = false
+		return
 	_phase += delta
 	var remaining := 0.0
 	var duration := 1.0
 	for ability in fighter.combat_components:
+		if not is_instance_valid(ability):
+			continue
 		var time := ability.cooldown_time_left() if ability.is_enabled() else 0.0
 		var item := ability.cooldown_visual()
 		if item != null:

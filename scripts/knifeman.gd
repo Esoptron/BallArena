@@ -21,7 +21,7 @@ func configure(settings: AbilityDefinition) -> void:
 	_initial_spin_speed = spin_speed
 
 func is_enabled() -> bool:
-	return enabled and fighter != null and fighter.character_definition != null and fighter.character_definition.tags.has("knifeman")
+	return enabled and is_instance_valid(fighter) and fighter.character_definition != null and fighter.character_definition.tags.has("knifeman")
 
 func reset_progression(base_speed: float = -1.0) -> void:
 	super.reset_progression(base_speed)

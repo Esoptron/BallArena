@@ -47,11 +47,16 @@ func _draw() -> void:
 		color.a = alpha
 		var text: String = number["text"]
 		var size: int = number.get("size",font_size)
-		var bounds := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size)
-		var baseline: Vector2 = number["position"] + Vector2(-bounds.x * 0.5, 0.0)
+		# Text and font size stay constant for a number's lifetime. Cache its layout
+		# instead of measuring up to max_numbers strings again on every redraw.
+		if number.get("measured_size", -1) != size:
+			number["measured_size"] = size
+			number["text_width"] = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var width: float = number["text_width"]
+		var baseline: Vector2 = number["position"] + Vector2(-width * 0.5, 0.0)
 		if number.get("grizzly",false):
 			baseline.x += 16.0
-			GRIZZLY.draw_icon(self,number["position"] + Vector2(-bounds.x*0.5-4.0,-8.0),12.0,alpha)
+			GRIZZLY.draw_icon(self,number["position"] + Vector2(-width*0.5-4.0,-8.0),12.0,alpha)
 		draw_string_outline(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 3,
 			Color(0.025, 0.035, 0.055, alpha * 0.9))
 		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)

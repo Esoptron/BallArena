@@ -12,7 +12,12 @@ func inside(body: ArenaBall, arena: BallArena, tolerance: float = 1.0) -> bool:
 	tolerance = maxf(tolerance,body.effective_movement_speed()/Engine.physics_ticks_per_second+0.2)
 	var p := arena.to_local(body.global_position)
 	var r := body.diameter * 0.5
-	return p.x >= r-tolerance and p.y >= r-tolerance and p.x <= arena.arena_size.x-r+tolerance and p.y <= arena.arena_size.y-r+tolerance
+	var contained := p.x >= r-tolerance and p.y >= r-tolerance and p.x <= arena.arena_size.x-r+tolerance and p.y <= arena.arena_size.y-r+tolerance
+	if not contained and failures.is_empty():
+		print("Containment failure: ", {"actor": body.actor_id, "position": p, "radius": r,
+			"tolerance": tolerance, "velocity": body.linear_velocity, "speed": body.effective_movement_speed(),
+			"held": body.is_immobilized(), "mask": body.collision_mask, "tick": Engine.get_physics_frames()})
+	return contained
 func run() -> void:
 	var arena: BallArena = load("res://scenes/arena.tscn").instantiate()
 	arena.spawn_seed = 91243

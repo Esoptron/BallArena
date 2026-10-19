@@ -18,7 +18,7 @@ func _ready() -> void:
 	critical_chance = critical_start_chance
 
 func is_enabled() -> bool:
-	return enabled and fighter != null and fighter.character_definition != null and fighter.character_definition.tags.has("katana")
+	return enabled and is_instance_valid(fighter) and fighter.character_definition != null and fighter.character_definition.tags.has("katana")
 
 func reset_progression(base_speed: float = -1.0) -> void:
 	super.reset_progression(base_speed)

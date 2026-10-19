@@ -13,7 +13,7 @@ extends Node2D
 @export var experimental_blood_runoff: bool = true
 @export_enum("Ordinary", "Vampire", "Swordsman", "Knifeman", "Katana", "Club") var blue_character: int = 2
 @export_enum("Ordinary", "Vampire", "Swordsman", "Knifeman", "Katana", "Club") var red_character: int = 1
-## Empty IDs use the three legacy editor choices above.
+## Empty IDs use the legacy editor choices above.
 @export var blue_character_id: StringName = &""
 @export var red_character_id: StringName = &""
 var character_overrides: Dictionary = {}
@@ -35,9 +35,14 @@ var resolved_seed: int = 1
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
-	assert(arena_size.x >= ball_diameter * 4.0
-		and arena_size.y >= ball_diameter * 4.0,
-		"Each arena dimension must be at least four ball diameters.")
+	var errors := validation_errors()
+	if not errors.is_empty():
+		for child in $Balls.get_children():
+			if child is ArenaBall:
+				child.freeze = true
+		process_mode = Node.PROCESS_MODE_DISABLED
+		push_error("Cannot start arena: " + "; ".join(errors))
+		return
 	_create_walls()
 	if not battle_roster.is_empty():
 		_ready_roster()
@@ -237,5 +242,55 @@ static func _update_global_physics_rate() -> void:
 	Engine.physics_ticks_per_second=rate
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
 	_physics_requests.erase(get_instance_id())
 	_update_global_physics_rate()
+
+
+func validation_errors() -> PackedStringArray:
+	var errors := PackedStringArray()
+	for id in character_overrides:
+		if not character_overrides[id] is Dictionary:
+			errors.append("Character overrides must be dictionaries: %s" % id)
+	if not arena_size.is_finite() or not is_finite(ball_diameter) or ball_diameter <= 0.0 \
+			or arena_size.x < ball_diameter * 4.0 or arena_size.y < ball_diameter * 4.0:
+		errors.append("Each arena dimension must be at least four positive ball diameters.")
+	if not is_finite(ball_speed) or ball_speed < 0.0:
+		errors.append("Arena speed override must be finite and nonnegative.")
+	if not is_finite(wall_thickness) or wall_thickness <= 0.0:
+		errors.append("Arena wall thickness must be finite and positive.")
+	if not battle_roster.is_empty():
+		errors.append_array(BattleRoster.validation_errors(battle_roster, battle_format))
+	else:
+		var available := CharacterCatalog.ids()
+		for id in [blue_character_id, red_character_id]:
+			if not id.is_empty() and not available.has(String(id)):
+				errors.append("Unknown arena character: %s" % id)
+		if (blue_character_id.is_empty() and (blue_character < 0 or blue_character > 5)) \
+				or (red_character_id.is_empty() and (red_character < 0 or red_character > 5)):
+			errors.append("Legacy arena character index is invalid.")
+	if not errors.is_empty():
+		return errors
+	# A rejected apply() must never leave a running match using scene defaults.
+	# Validate each used final profile once, before _ready creates walls/director.
+	var used: Dictionary = {}
+	if battle_roster.is_empty():
+		var legacy := ["ordinary", "vampire", "swordsman", "knifeman", "katana", "club"]
+		used[String(blue_character_id) if not blue_character_id.is_empty() else legacy[blue_character]] = true
+		used[String(red_character_id) if not red_character_id.is_empty() else legacy[red_character]] = true
+	else:
+		for entry in battle_roster:
+			used[String(entry.get("character", "ordinary"))] = true
+	for id in used:
+		var template := CharacterCatalog.character(StringName(id))
+		var overrides: Dictionary = character_overrides.get(id, {})
+		var override_errors := CharacterCatalog.override_validation_errors(template, overrides)
+		if not override_errors.is_empty():
+			for issue in override_errors:
+				errors.append("%s: %s" % [id, issue])
+			continue
+		var profile := CharacterCatalog.character(StringName(id), overrides)
+		for issue in CharacterCatalog.validation_errors(profile, $Balls/BlueBall as ArenaBall):
+			errors.append("%s: %s" % [id, issue])
+	return errors
