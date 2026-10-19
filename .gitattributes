@@ -2,3 +2,11 @@
 *.gd text
 *.tscn text
 *.godot text
+
+# Preserve binary assets without text conversion.
+*.png binary
+*.jpg binary
+*.ogg binary
+*.wav binary
+*.apk binary
+*.zip binary

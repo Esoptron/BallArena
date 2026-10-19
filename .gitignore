@@ -3,3 +3,12 @@
 # Exported builds and captured test images.
 /builds/
 /test-captures/
+
+# Python tooling caches and local signing credentials.
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
