@@ -1,7 +1,8 @@
 {
   "schema": 1,
   "health_unit": 1000,
-  "movement_factor": 2.5,
+  "movement_factor": 1.0,
+  "weapon_spin_factor": 1.5,
   "enemy_health_factor": 0.5,
   "rarity_factors": [0.5, 0.65, 0.8, 1.0],
   "rarity_names": ["Обычное", "Редкое", "Эпическое", "Легендарное"],

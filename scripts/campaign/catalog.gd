@@ -29,7 +29,7 @@ static func enemy(id: String, overrides: Dictionary = {}) -> Dictionary:
 	ability.weapon_weight_class = int(p.get("weapon_weight", 2))
 	ability.impact_strength = float(p.get("impact", 90.0))
 	ability.parameters = {"weapon_kind": p["weapon"], "boss_kind": p.get("boss", ""), "base_damage": CampaignUnits.pack(p["damage"]),
-		"hit_cooldown": p["cooldown"], "blade_length": p.get("length", 40.0), "spin_speed": p.get("spin", 3.5)}
+		"hit_cooldown": p["cooldown"], "blade_length": p.get("length", 40.0), "spin_speed": float(p.get("spin",3.5))*float(CampaignProgression.data().get("weapon_spin_factor",1.0))}
 	profile.abilities = [ability]
 	return {"definition": profile, "stats": {"base_hp": p["hp"]}, "bonuses": {}, "enemy": p}
 

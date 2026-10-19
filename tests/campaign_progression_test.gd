@@ -13,7 +13,12 @@ func run() -> void:
 	var account := CampaignProgression.new_account()
 	var original := BalanceSnapshot.describe(&"swordsman", {})
 	var sword := CampaignProgression.stats("swordsman", account)
-	check(sword["max_hp"] == 20.0 and sword["damage"] == 3.0 and sword["spin"] == 4.0 and sword["weapon_length"] == 40.0, "Campaign sword initial values must match specification.")
+	check(sword["max_hp"] == 20.0 and sword["damage"] == 3.0 and sword["spin"] == 6.0 and sword["weapon_length"] == 40.0, "Campaign sword retains its profile with the revised weapon tempo.")
+	check(sword["speed"]==320.0,"Campaign movement returns to the original readable speed.")
+	var spear := CampaignCatalog.enemy("spearman")["definition"] as CharacterDefinition
+	check(spear.movement_speed==290.0 and is_equal_approx(spear.abilities[0].parameters["spin_speed"],4.95),"Enemy movement and weapon rotation use independent tempo controls.")
+	var knives := CampaignProfiles.hero("knifeman",account)["definition"] as CharacterDefinition
+	check(is_equal_approx(knives.abilities[0].parameters["spin_speed"],4.8) and knives.abilities[0].parameters["spin_gain"]==4.5 and knives.abilities[0].parameters["max_spin_speed"]==48.0,"Knife starting rotation, hit growth and cap scale together.")
 	check(not CampaignProgression.buy_hero(account, "ordinary"), "Unarmed training ball must not be sold.")
 	account["xp"] = 1000
 	account["coins"] = 1000

@@ -70,7 +70,7 @@ static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> 
 	return {"id": id, "name": settings["name"], "base_hp": base_hp,
 		"max_hp": base_hp * (1.0 + float(bonuses.get("hp", 0.0))),
 		"speed": original.movement_speed * float(data().get("movement_factor",1.0)) * (1.0 + rank(account, id, "speed") * 0.03 + float(bonuses.get("speed", 0.0))),
-		"spin": float(parameters.get("spin_speed", 0.0)) * spin_fraction * (1.0 + float(bonuses.get("spin", 0.0))),
+		"spin": float(parameters.get("spin_speed", 0.0)) * spin_fraction * float(data().get("weapon_spin_factor",1.0)) * (1.0 + float(bonuses.get("spin", 0.0))),
 		"damage": (float(settings["damage"]) + rank(account, id, "damage") * float(settings["damage_rank_gain"])) * (1.0 + float(bonuses.get("damage", 0.0))),
 		"damage_cap": (damage_cap+damage_rank_gain)*(1.0+float(bonuses.get("damage",0))) if damage_cap>0 else 0.0,
 		"hit_growth": (float(settings["hit_growth"]) + rank(account, id, "hit_growth") * float(settings["hit_growth_rank_gain"])) * (1.0 + float(bonuses.get("damage", 0.0))),

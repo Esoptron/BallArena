@@ -47,6 +47,8 @@ Existing code uses integer HP/damage; abilities and combat signals are typed int
 
 ## Current status
 
+Player feedback after the initial release: movement multiplier reduced from 2.5 to 1.0; a separate 1.5 weapon-spin multiplier applies to heroes/enemies, including knife spin growth/cap. Damage, cooldowns, fang range and free profiles remain unchanged. Published 1,398-bout balance tables describe the earlier tempo and are now explicitly historical, not validation of this tuning.
+
 | Commit | Completed stage |
 |---|---|
 | `189d1a2` | Isolated reviewed baseline; 40 inherited tests |
