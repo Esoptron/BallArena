@@ -1,0 +1,35 @@
+extends SceneTree
+func _initialize() -> void: call_deferred("run")
+func run() -> void:
+	var a := CampaignProgression.new_account()
+	assert(CampaignRun.start(a,1,"swordsman",42))
+	assert(not CampaignRun.start(a,1,"swordsman",43))
+	assert(CampaignRun.begin(a))
+	assert(CampaignRun.settle(a,true,10000,20000,{"coins":10,"xp":5}))
+	assert(a["coins"]==10 and a["xp"]==5 and a["active_run"]["hp"]==11000)
+	assert(not CampaignRun.settle(a,true,10000,20000,{"coins":10,"xp":5}))
+	assert(a["active_run"]["offer"].size()==3)
+	assert(CampaignRun.choose(a,0))
+	assert(not CampaignRun.choose(a,0))
+	assert(a["active_run"]["battle"]==2)
+	a["active_run"]["battle"]=10
+	assert(CampaignRun.begin(a))
+	assert(CampaignRun.settle(a,true,10000,20000,{"coins":30,"xp":20}))
+	assert(not a["active_run"]["offer"].has("heal"))
+	assert(CampaignRun.choose(a,0))
+	assert(a["active_run"].is_empty() and a["next_bonus"].has("2") and a["unlocked_level"]==2)
+	assert(CampaignRun.start(a,2,"swordsman",44))
+	assert(not a["next_bonus"].has("2"))
+	assert(CampaignRun.begin(a))
+	assert(CampaignRun.settle(a,false,0,20000,{}))
+	assert(a["coins"]==40 and a["active_run"].is_empty())
+	var rng := RandomNumberGenerator.new(); rng.seed=88
+	var account := CampaignProgression.new_account()
+	assert(CampaignRun.start(account,1,"swordsman",12))
+	var state: Dictionary = account["active_run"]
+	var stats := CampaignProgression.stats("swordsman",account)
+	for i in 1000:
+		var offer := CampaignCards.offer(state,stats,rng)
+		assert(offer.size()==3 and offer[0]!=offer[1] and offer[1]!=offer[2] and offer[0]!=offer[2])
+		assert(not offer.has("heal"))
+	print("campaign_run_test: PASS"); quit(0)

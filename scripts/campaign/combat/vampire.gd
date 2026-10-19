@@ -26,6 +26,7 @@ func _bite_tick() -> void:
 	_healed_this_bite += healing
 	ticks_remaining -= 1
 	bite_tick.emit(victim, applied, healing)
+	emit_event(&"bite_tick", victim, {"amount": applied, "healing": healing})
 	if bite_target != victim:
 		return
 	if victim.respond_to_capture_damage(self, applied):

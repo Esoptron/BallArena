@@ -48,3 +48,9 @@ Existing code uses integer HP/damage; abilities and combat signals are typed int
 ## Current status
 
 Preparation is committed as `189d1a2`; inherited tests passed 40/40. Stage A implements campaign-only fixed-point health, five player profiles, shared XP/individual ranks, ability training and weapon merging formulas. Campaign vampire retains the original geometry and three-second capture; fractional bite budgets and growth apply once per completed bite. Stage A tests passed 41/41, including the new progression/invariance test. The main checkout is untouched.
+
+Stage A: `a395640`. Stage B: `23a690b` (16 archetypes, swept projectiles, sector shield, distinct damage shapes), 42/42 tests. Both are published only on `campaign-experiment`.
+
+The next integrated stages implement the explicit run transaction, card eligibility/additive bonuses, 50 authored encounters, five bosses, bounded one-time drone summon, campaign arena/layout, barracks/shop and versioned saves. The full headless suite passed 47/47 after updating the two old menu tests for the deliberately changed campaign entry; their free-roster/physics coverage remains. Save tests cover checksums, migration, interrupted battles, reward deduplication, corrupt-file backup recovery and refusing newer save versions. State/content/save/UI changes are split into separate logical commits.
+
+The first physics pilot is still running; no balance conclusions or unexecuted sample counts are claimed. It instantiates actual actors in isolated World2D spaces with seeded positions/directions and ±12% initial speeds. New scenarios will be reserved for final validation.
