@@ -37,6 +37,10 @@ static func load_account(path: String = "") -> Dictionary:
 		var envelope: Variant=_parse(FileAccess.get_file_as_string(absolute))
 		if envelope is Dictionary and int(envelope.get("format",envelope.get("schema",1)))>VERSION:
 			return {"account":{},"warning":"Сохранение создано более новой версией. Автоматическое понижение версии отключено."}
+		if envelope is Dictionary and envelope.get("payload") is String:
+			var payload: Variant=_parse(envelope["payload"])
+			if payload is Dictionary and int(payload.get("schema",1))>VERSION:
+				return {"account":{},"warning":"Данные созданы более новой версией. Автоматическое понижение версии отключено."}
 	var main := _read(absolute)
 	if not main.is_empty(): return {"account":main,"warning":""}
 	var backup := _read(absolute+".bak")
@@ -70,8 +74,7 @@ static func _parse(text: String) -> Variant:
 
 static func migrate(source: Dictionary) -> Dictionary:
 	if int(source.get("schema",1))>VERSION: return {}
-	var result := CampaignProgression.new_account()
-	result.merge(source.duplicate(true),true)
+	var result := _with_defaults(CampaignProgression.new_account(),source)
 	if not result["heroes"] is Dictionary: return {}
 	for id in CampaignProgression.PLAYABLE:
 		var hero: Dictionary=CampaignProgression.new_account()["heroes"][id]
@@ -81,12 +84,21 @@ static func migrate(source: Dictionary) -> Dictionary:
 		result["heroes"][id]=hero
 	result["schema"]=VERSION
 	if not validate(result).is_empty(): return {}
+	for receipt in result["receipts"]:
+		var serial: String=receipt.get_slice(":",0)
+		if serial.is_valid_int(): result["run_serial"]=maxi(int(result.get("run_serial",0)),int(serial))
 	if not result["active_run"].is_empty():
 		var run: Dictionary=result["active_run"]
 		# In-flight simulation restarts from the saved pre-battle HP/seed. Settled
 		# rewards remain in 'reward' and cannot be earned a second time.
 		if run["status"]=="fighting": run["status"]="ready"
 		result["run_serial"]=maxi(int(result.get("run_serial",0)),int(run["serial"]))
+	return result
+
+static func _with_defaults(defaults: Dictionary, source: Dictionary) -> Dictionary:
+	var result := defaults.duplicate(true)
+	for key in source:
+		result[key]=_with_defaults(result[key],source[key]) if result.get(key) is Dictionary and source[key] is Dictionary else source[key]
 	return result
 
 static func _integer(value: Variant, lower: int, upper: int = 9000000000000) -> bool:

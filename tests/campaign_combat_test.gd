@@ -16,7 +16,11 @@ func run() -> void:
 	for arena in arenas:
 		assert(arena.director.time_seconds>0)
 		for actor in arena.fighters:
-			if actor.current_health>0: assert(actor.position.x>=actor.diameter*0.5-1 and actor.position.x<=960-actor.diameter*0.5+1)
+			if actor.current_health>0:
+				var tolerance := maxf(2,actor.effective_movement_speed()/Engine.physics_ticks_per_second+0.5)
+				var radius := actor.diameter*0.5
+				assert(actor.position.x>=radius-tolerance and actor.position.x<=960-radius+tolerance)
+				assert(actor.position.y>=radius-tolerance and actor.position.y<=600-radius+tolerance)
 		assert(arena.get_node("ProjectileField").get("shots").size()<=96)
 	var archon := arenas.back().fighters[1] as ArenaBall
 	archon.take_damage(roundi(archon.max_health*0.6),arenas.back().fighters[0],&"test")

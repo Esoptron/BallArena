@@ -34,6 +34,7 @@ func _ready() -> void:
 		$BloodEffects.set_process(false); $CombatEffects.set_process(false)
 		for actor in fighters:
 			actor.blood_effects=null; actor.combat_effects=null
+			actor.set_process(false)
 			for child in actor.get_children(): child.set_process(false)
 
 func _setup(actor: CampaignBall, index: int) -> void:

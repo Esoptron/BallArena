@@ -22,7 +22,7 @@ func run() -> void:
 	b.position=Vector2(500,300)
 	for i in 20: field._zone(a,{"position":Vector2(500,300),"zones":1,"kind":"flask"})
 	assert(field.zones.size()==1)
-	assert(not b.add_campaign_effect("ice",ally,0.1,1)==false) # hostile to red
+	assert(b.add_campaign_effect("ice",ally,0.1,1))
 	assert(not ally.add_campaign_effect("ice",a,0.1,1))
 	b.campaign_effects.clear()
 	for i in 20: b.add_campaign_effect("cut",a,0.2,4,2)
@@ -35,5 +35,12 @@ func run() -> void:
 	assert(b.wall_burst.is_empty())
 	b.arm_wall_burst(a,0.2,0.85); b.receive_weapon_impact(Vector2.LEFT,2,100)
 	assert(b.wall_burst.is_empty())
+	# A lethal wall hit must resolve after query flushing (freezing a body inside
+	# _integrate_forces is rejected by Godot).
+	a.position=Vector2(100,100)
+	b.current_health=100; b.position=Vector2(850,300); b.initial_direction=Vector2.RIGHT; b.start_motion()
+	b.arm_wall_burst(a,0.2,0.85)
+	for i in 90: await physics_frame
+	assert(b.current_health==0)
 	arena.free(); await process_frame; await process_frame
 	print("campaign_services_test: PASS"); quit(0)

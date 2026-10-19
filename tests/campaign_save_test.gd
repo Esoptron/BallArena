@@ -18,6 +18,10 @@ func run() -> void:
 	assert(not recovered["warning"].is_empty() and recovered["account"]["coins"]==80)
 	var old := CampaignProgression.new_account(); old["coins"]=333; old.erase("features")
 	assert(CampaignSave.migrate(old)["coins"]==333)
+	old["features"]={"ally_slot_available":true}
+	old["receipts"]=["17:2:8"]
+	assert(CampaignSave.migrate(old)["run_serial"]==17)
+	assert(CampaignSave.migrate(old)["features"]["ally_slot_owned"]==false)
 	file=FileAccess.open(path,FileAccess.WRITE); file.store_string('{"format":99}'); file.close()
 	assert(CampaignSave.load_account(path)["account"].is_empty())
 	a["heroes"]["swordsman"]["ranks"]["hp"]="bad"

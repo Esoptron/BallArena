@@ -34,7 +34,10 @@ func take_damage(amount: int, source: ArenaBall = null, ability: StringName = &"
 		if incoming.dot(facing) >= float(shield_sector.get("cos_angle", 0.55)):
 			adjusted = roundi(adjusted * (1.0 - float(shield_sector.get("reduction", 0.35))))
 			combat_event(&"sector_block", source, &"shield", {"prevented": amount - adjusted})
-	return super.take_damage(adjusted, source, ability, direct_hit)
+	var applied := super.take_damage(adjusted, source, ability, direct_hit)
+	if applied>0 and not direct_hit and ability in [&"katana",&"burn",&"cut",&"acid"] and is_instance_valid(source):
+		source.combat_event(&"campaign_dot",self,ability,{"amount":applied})
+	return applied
 
 func adjusted_movement_speed() -> float:
 	return super.adjusted_movement_speed() * movement_multiplier
@@ -123,7 +126,12 @@ func _update_speed_contacts(state: PhysicsDirectBodyState2D) -> void:
 				if _collision_incoming_velocity.normalized().dot(burst["direction"]) > 0.65:
 					var source := burst["source"].get_ref() as ArenaBall
 					if is_instance_valid(source):
-						take_damage(burst["amount"], source, &"wall_burst", false)
-						source.combat_event(&"wall_burst", self, &"club", {"amount": burst["amount"]})
+						_resolve_wall_burst.call_deferred(weakref(source),int(burst["amount"]))
 				break
 	super._update_speed_contacts(state)
+
+func _resolve_wall_burst(source_ref: WeakRef, amount: int) -> void:
+	var source := source_ref.get_ref() as ArenaBall
+	if not is_instance_valid(source) or current_health<=0: return
+	var applied := take_damage(amount,source,&"wall_burst",false)
+	source.combat_event(&"wall_burst",self,&"club",{"amount":applied})
