@@ -106,7 +106,7 @@ func run() -> void:
 	check(builder.counts["swordsman"][0] == 1 and builder.counts["vampire"][1] == 1,"Returning from battle must preserve composition.")
 	menu.show_page("modes")
 	menu.buttons["campaign"].pressed.emit()
-	check(launcher.battle.get_node("Arena").fighters.size() == 4,"Landscape campaign must still start level one.")
+	check(launcher.campaign.visible and launcher.campaign.page=="levels","Landscape campaign button must open the five-level campaign map.")
 	launcher.queue_free()
 	await process_frame
 	print("Landscape menu, orientation, larger arena and roster persistence: ","PASS" if failures.is_empty() else "FAIL")

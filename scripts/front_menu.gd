@@ -2,6 +2,7 @@ extends Control
 signal battle_requested(roster: Array[Dictionary], format: StringName, title: String)
 signal duel_requested
 signal quit_requested
+signal campaign_requested
 const LEVEL := preload("res://levels/level_01.tres")
 const NAMES := preload("res://scripts/ui/character_text.gd").NAMES
 const STYLES := preload("res://scripts/ui/menu_styles.gd")
@@ -178,10 +179,15 @@ func _home() -> void:
 
 func _modes() -> void:
 	_heading("Выбор режима","")
-	var play := button("Основная кампания",func() -> void: battle_requested.emit(LEVEL.roster(),&"teams","Кампания · 01"),GOLD,true)
+	var play := button("Основная кампания",_request_campaign,GOLD,true)
 	content.add_child(play)
 	buttons["campaign"] = play
 	buttons["level_01"] = play
+
+func _request_campaign() -> void:
+	if campaign_requested.get_connections().is_empty():
+		battle_requested.emit(LEVEL.roster(),&"teams","Кампания · 01")
+	else: campaign_requested.emit()
 
 func _settings() -> void:
 	_heading("Настройки","Этот раздел готов для будущих параметров игры.")

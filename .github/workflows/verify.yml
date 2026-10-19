@@ -2,7 +2,7 @@ name: Verify Godot project
 
 on:
   push:
-    branches: [main]
+    branches: [main, campaign-experiment]
   pull_request:
   workflow_dispatch:
 

@@ -28,6 +28,10 @@ func run() -> void:
 	check(launcher.front_menu.buttons.has("level_01"),"Trials must expose its first playable level.")
 	await capture("menu-modes")
 	launcher.front_menu.buttons["level_01"].pressed.emit()
+	check(launcher.campaign.visible and launcher.campaign.page=="levels","Campaign button must open the isolated campaign map.")
+	launcher._close_campaign()
+	# Preserve coverage for the original 1-v-3 roster/launcher API independently.
+	launcher.start_roster_battle(load("res://levels/level_01.tres").roster(),&"teams","Кампания · 01")
 	var arena := launcher.battle.get_node("Arena") as BallArena
 	check(arena.fighters.size() == 4 and arena.director.group_battle,"Level must contain four registered fighters.")
 	var hero := arena.get_node("Balls/BlueBall") as ArenaBall
