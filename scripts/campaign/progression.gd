@@ -2,7 +2,10 @@ class_name CampaignProgression
 extends RefCounted
 ## Pure account/profile calculations. Never mutate CharacterCatalog templates.
 static var _data: Dictionary = {}
-const PLAYABLE: Array[String] = ["swordsman", "knifeman", "katana", "vampire", "club"]
+static func playable_ids() -> Array[String]:
+	var ids: Array[String]=[]
+	for id in data()["players"]: ids.append(id)
+	return ids
 
 static func data() -> Dictionary:
 	if _data.is_empty():
@@ -11,7 +14,7 @@ static func data() -> Dictionary:
 
 static func new_account() -> Dictionary:
 	var heroes: Dictionary = {}
-	for id in PLAYABLE:
+	for id in playable_ids():
 		heroes[id] = {"owned": id == "swordsman", "ranks": {}, "ability_rank": 0,
 			"weapon_cards": [1, 0, 0, 0], "equipped_rarity": 0,
 			"evolution": {"stage": 0, "personal_trial_won": false, "character_cards": 0}}
@@ -23,7 +26,7 @@ static func rank(account: Dictionary, id: String, skill: String) -> int:
 	return int(account.get("heroes", {}).get(id, {}).get("ranks", {}).get(skill, 0))
 
 static func xp_cost(account: Dictionary, id: String, skill: String) -> int:
-	if not PLAYABLE.has(id) or not data()["players"][id]["xp_skills"].has(skill):
+	if not playable_ids().has(id) or not data()["players"][id]["xp_skills"].has(skill):
 		return -1
 	var current := rank(account, id, skill)
 	if skill == "recovery" and current >= 10:
@@ -33,7 +36,7 @@ static func xp_cost(account: Dictionary, id: String, skill: String) -> int:
 	return ceili(float(data()["xp_costs"][skill]) * pow(float(data()["xp_cost_growth"]), mini(current, 80)) * (1.0 + current * 0.05))
 
 static func coin_cost(account: Dictionary, id: String) -> int:
-	if not PLAYABLE.has(id):
+	if not playable_ids().has(id):
 		return -1
 	var settings: Dictionary = data()["players"][id]
 	var current := int(account["heroes"][id]["ability_rank"])
@@ -42,7 +45,7 @@ static func coin_cost(account: Dictionary, id: String) -> int:
 	return ceili(float(data()["coin_cost_base"]) * pow(float(data()["coin_cost_growth"]), current))
 
 static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> Dictionary:
-	assert(PLAYABLE.has(id), "Unknown playable campaign hero.")
+	assert(playable_ids().has(id), "Unknown playable campaign hero.")
 	var settings: Dictionary = data()["players"][id]
 	var original := CharacterCatalog.character(StringName(id))
 	var weapon: AbilityDefinition = original.abilities[0]
@@ -62,11 +65,14 @@ static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> 
 	var runtime_cap := 0.5 if id == "vampire" else 1.0
 	var chance := minf(runtime_cap, trained_chance + float(bonuses.get("chance", 0.0)))
 	var spin_fraction := minf(float(data()["spin_max_fraction"]), float(settings.get("spin_fraction", 0.0)) + rank(account, id, "spin") * float(data()["spin_rank_fraction"]))
+	var damage_rank_gain := rank(account,id,"damage") * float(settings["damage_rank_gain"])
+	var damage_cap := float(settings.get("battle_damage_cap",parameters.get("max_damage",0)))
 	return {"id": id, "name": settings["name"], "base_hp": base_hp,
 		"max_hp": base_hp * (1.0 + float(bonuses.get("hp", 0.0))),
-		"speed": original.movement_speed * (1.0 + rank(account, id, "speed") * 0.03 + float(bonuses.get("speed", 0.0))),
+		"speed": original.movement_speed * float(data().get("movement_factor",1.0)) * (1.0 + rank(account, id, "speed") * 0.03 + float(bonuses.get("speed", 0.0))),
 		"spin": float(parameters.get("spin_speed", 0.0)) * spin_fraction * (1.0 + float(bonuses.get("spin", 0.0))),
 		"damage": (float(settings["damage"]) + rank(account, id, "damage") * float(settings["damage_rank_gain"])) * (1.0 + float(bonuses.get("damage", 0.0))),
+		"damage_cap": (damage_cap+damage_rank_gain)*(1.0+float(bonuses.get("damage",0))) if damage_cap>0 else 0.0,
 		"hit_growth": (float(settings["hit_growth"]) + rank(account, id, "hit_growth") * float(settings["hit_growth_rank_gain"])) * (1.0 + float(bonuses.get("damage", 0.0))),
 		"healing": float(settings.get("healing", 0.0)) + rank(account, id, "healing") * float(settings.get("healing_rank_gain", 0.0)),
 		"heal_growth": float(settings.get("heal_growth", 0.0)) + rank(account, id, "heal_growth") * float(settings.get("heal_growth_rank_gain", 0.0)),
@@ -83,7 +89,7 @@ static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> 
 		"bleed_damage": float(settings.get("bleed_damage", 0.0))}
 
 static func buy_hero(account: Dictionary, id: String) -> bool:
-	if not PLAYABLE.has(id) or bool(account["heroes"][id]["owned"]):
+	if not playable_ids().has(id) or bool(account["heroes"][id]["owned"]):
 		return false
 	var price := int(data()["prices"][id])
 	if int(account["coins"]) < price:
@@ -93,7 +99,7 @@ static func buy_hero(account: Dictionary, id: String) -> bool:
 	return true
 
 static func upgrade(account: Dictionary, id: String, skill: String) -> bool:
-	if not PLAYABLE.has(id) or not bool(account["heroes"][id]["owned"]):
+	if not playable_ids().has(id) or not bool(account["heroes"][id]["owned"]):
 		return false
 	var price := coin_cost(account, id) if skill == "ability" else xp_cost(account, id, skill)
 	var wallet := "coins" if skill == "ability" else "xp"
@@ -107,7 +113,7 @@ static func upgrade(account: Dictionary, id: String, skill: String) -> bool:
 	return true
 
 static func merge(account: Dictionary, id: String, tier: int) -> bool:
-	if not PLAYABLE.has(id) or id == "vampire" or tier < 0 or tier >= 3 or not bool(account["heroes"][id]["owned"]):
+	if not playable_ids().has(id) or tier < 0 or tier >= 3 or not bool(account["heroes"][id]["owned"]):
 		return false
 	var hero: Dictionary = account["heroes"][id]
 	var cards: Array = hero["weapon_cards"]

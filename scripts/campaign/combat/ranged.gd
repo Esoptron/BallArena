@@ -36,7 +36,11 @@ func on_hit_received(_source: ArenaBall, _ability: StringName, _amount: int) -> 
 		if arena.has_method("summon_drone"): arena.call("summon_drone",fighter)
 
 func combat_step(delta: float) -> void:
-	if not fighter.can_attack(): return
+	cooldown_remaining=maxf(0,cooldown_remaining-delta)
+	if not fighter.can_attack():
+		_pulse_left=maxf(0,_pulse_left-delta)
+		windup=0
+		return
 	var field := _field()
 	if field == null: return
 	if _pulse_left > 0:
@@ -47,7 +51,6 @@ func combat_step(delta: float) -> void:
 				target.receive_weapon_impact((fighter.global_position-target.global_position).normalized(),4,190*delta)
 		if _pulse_left == 0 and boss_kind == "archon":
 			for target in hostile_targets(): target.receive_weapon_impact((target.global_position-fighter.global_position).normalized(),4,170)
-	cooldown_remaining = maxf(0,cooldown_remaining-delta)
 	if windup > 0:
 		windup -= delta
 		if windup <= 0:

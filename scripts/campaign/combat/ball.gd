@@ -12,6 +12,7 @@ var resistances: Dictionary = {}
 var shield_sector: Dictionary = {}
 var wall_burst: Dictionary = {}
 var _last_campaign_effects := false
+const EFFECT_KINDS := ["ice","slow","burn","cut","acid"]
 
 func _ready() -> void:
 	super._ready()
@@ -56,7 +57,7 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 
 func add_campaign_effect(kind: String, source: ArenaBall, potency: float, duration: float, maximum: int = 1) -> bool:
-	if current_health <= 0 or not is_instance_valid(source) or duration <= 0.0 or potency < 0.0:
+	if current_health <= 0 or not is_instance_valid(source) or not EFFECT_KINDS.has(kind) or not is_finite(duration) or not is_finite(potency) or duration <= 0.0 or potency < 0.0 or maximum<1 or maximum>8:
 		return false
 	if is_instance_valid(combat_director) and not combat_director.are_enemies(source, self):
 		return false
@@ -86,6 +87,9 @@ func _advance_campaign_effects(delta: float) -> void:
 		var active_delta := minf(delta, maxf(0.0, effect["remaining"]))
 		effect["remaining"] -= delta
 		var source := effect["source"].get_ref() as ArenaBall
+		if not is_instance_valid(source):
+			campaign_effects.remove_at(index)
+			continue
 		match effect["kind"]:
 			"ice":
 				if is_vampire:
@@ -133,5 +137,6 @@ func _update_speed_contacts(state: PhysicsDirectBodyState2D) -> void:
 func _resolve_wall_burst(source_ref: WeakRef, amount: int) -> void:
 	var source := source_ref.get_ref() as ArenaBall
 	if not is_instance_valid(source) or current_health<=0: return
+	if is_instance_valid(combat_director) and combat_director.match_over: return
 	var applied := take_damage(amount,source,&"wall_burst",false)
 	source.combat_event(&"wall_burst",self,&"club",{"amount":applied})

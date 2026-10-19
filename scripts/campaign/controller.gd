@@ -156,6 +156,7 @@ func _start_battle() -> void:
 	var pause_button := _button(bar,"← Пауза",_pause)
 	pause_button.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
 	battle_title=_label("%s · %d/10%s"%[CampaignLevels.all()[int(run["level"])-1]["name"],run["battle"]," · БОСС" if encounter["boss"] else ""],18,GOLD)
+	if encounter["boss"]: battle_title.text+=" · "+CampaignCatalog.data()[encounter["enemies"][0]["id"]]["name"]
 	battle_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL; battle_title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; bar.add_child(battle_title)
 	battle_stats=_label("",15,BLUE); battle_stats.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	battle_stats.offset_left=20; battle_stats.offset_right=-20; battle_stats.offset_top=-55; page_root.add_child(battle_stats)
@@ -232,7 +233,7 @@ func _choose(index: int) -> void:
 func _barracks() -> void:
 	content.add_child(_label("Казарма · постоянные улучшения",28,GOLD))
 	var choices := HBoxContainer.new(); content.add_child(choices)
-	for id in CampaignProgression.PLAYABLE:
+	for id in CampaignProgression.playable_ids():
 		_button(choices,CampaignProgression.data()["players"][id]["name"]+(" 🔒" if not account["heroes"][id]["owned"] else ""),_select.bind(id))
 	var id: String = viewed_hero if not viewed_hero.is_empty() else account["selected_hero"]
 	var stats := CampaignProgression.stats(id,account)
@@ -248,6 +249,7 @@ func _barracks() -> void:
 	summary+="\nНачальное HP без рангов: %.2f · длительность способности %.1f с"%[CampaignProgression.data()["players"][id]["hp"],stats["duration"]]
 	if id=="knifeman": summary+="\nКонтратака %.2f%% за тик захвата · прирост вращения %.2f рад/с за попадание"%[stats["chance"]*100,params["spin_gain"]]
 	if id=="club": summary+="\nШанс удара о стену %.2f%% · урон %.0f%% макс. HP · щит %.1f%% / %.1f с"%[stats["chance"]*100,params["wall_burst_fraction"]*100,params["shield_chance"]*100,params["shield_duration"]]
+	if stats["damage_cap"]>0: summary+="\nПотолок роста урона в одном бою: %.2f; растёт с постоянным уроном."%stats["damage_cap"]
 	box.add_child(_label(summary))
 	var locked: bool = not account["active_run"].is_empty() or not account["heroes"][id]["owned"]
 	if locked: box.add_child(_label("Откройте героя в магазине; постоянная прокачка доступна вне похода.",16,GOLD))
@@ -288,11 +290,11 @@ func _upgrade(id: String, skill: String) -> void:
 	if CampaignProgression.upgrade(candidate,id,skill): _commit_account(candidate); show_page("barracks")
 
 func _weapons(box: VBoxContainer, id: String, locked: bool) -> void:
-	if id=="vampire": box.add_child(_label("Клыки: исходная дальность, без мерджа.",16,GOLD)); return
+	if id=="vampire": box.add_child(_label("Редкость клыков сохраняется для будущей эволюции. Дальность остаётся исходной на каждой ступени.",16,GOLD))
 	var hero: Dictionary = account["heroes"][id]
 	box.add_child(_label("Оружие · "+CampaignProgression.data()["rarity_names"][int(hero["equipped_rarity"])]))
 	for tier in 4:
-		var text := "%s ×%d · длина %.0f%%"%[CampaignProgression.data()["rarity_names"][tier],hero["weapon_cards"][tier],float(CampaignProgression.data()["rarity_factors"][tier])*100]
+		var text := "%s ×%d · длина %.0f%%"%[CampaignProgression.data()["rarity_names"][tier],hero["weapon_cards"][tier],100.0 if id=="vampire" else float(CampaignProgression.data()["rarity_factors"][tier])*100]
 		if tier<3: _button(box,text+" · слить 3 → 1",_merge.bind(id,tier),locked or int(hero["weapon_cards"][tier])<3)
 		else: box.add_child(_label(text,16,BLUE))
 	if OS.is_debug_build(): _button(box,"Отладка: +1 обычная карта оружия",_debug_weapon.bind(id),locked)
@@ -306,7 +308,7 @@ func _debug_weapon(id: String) -> void:
 
 func _shop() -> void:
 	content.add_child(_label("Магазин · только игровые монеты",28,GOLD))
-	for id in CampaignProgression.PLAYABLE:
+	for id in CampaignProgression.playable_ids():
 		var owned: bool = account["heroes"][id]["owned"]
 		var price := int(CampaignProgression.data()["prices"][id])
 		_button(content,"%s · %s"%[CampaignProgression.data()["players"][id]["name"],"открыт" if owned else "%d монет"%price],_buy.bind(id),owned or account["coins"]<price)

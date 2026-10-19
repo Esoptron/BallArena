@@ -12,7 +12,7 @@ func launch(owner: ArenaBall, direction: Vector2, damage: int, kind: String, spe
 		"origin":owner.global_position,"kind":kind,"damage":damage,"age":0.0,"hit":{},"zones":zone_limit})
 
 func _physics_process(delta: float) -> void:
-	if director == null or director.match_over: return
+	if not is_instance_valid(director) or director.match_over: return
 	var had_visuals := not shots.is_empty() or not zones.is_empty()
 	for i in range(shots.size()-1,-1,-1):
 		var p := shots[i]

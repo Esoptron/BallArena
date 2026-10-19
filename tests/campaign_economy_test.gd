@@ -3,7 +3,7 @@ func _initialize() -> void: call_deferred("run")
 func run() -> void:
 	var account := CampaignProgression.new_account()
 	account["coins"]=5000; account["xp"]=100000
-	for id in CampaignProgression.PLAYABLE:
+	for id in CampaignProgression.playable_ids():
 		if id!="swordsman": assert(CampaignProgression.buy_hero(account,id))
 		assert(not CampaignProgression.buy_hero(account,id))
 		for skill in CampaignProgression.data()["players"][id]["xp_skills"]:
@@ -26,4 +26,9 @@ func run() -> void:
 	assert(CampaignProgression.merge(account,"club",2))
 	assert(is_equal_approx(CampaignProgression.stats("club",account)["weapon_length"],120))
 	assert(CampaignSave.validate(account).is_empty())
+	var reach: float=CampaignProgression.stats("vampire",account)["weapon_length"]
+	account["heroes"]["vampire"]["weapon_cards"]=[3,0,0,0]
+	assert(CampaignProgression.merge(account,"vampire",0))
+	assert(CampaignProgression.stats("vampire",account)["rarity"]==1)
+	assert(CampaignProgression.stats("vampire",account)["weapon_length"]==reach)
 	print("campaign_economy_test: PASS"); quit(0)

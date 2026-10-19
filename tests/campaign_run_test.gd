@@ -28,6 +28,11 @@ func run() -> void:
 	assert(CampaignRun.start(account,1,"swordsman",12))
 	var state: Dictionary = account["active_run"]
 	var stats := CampaignProgression.stats("swordsman",account)
+	state["bonuses"]={"legend":1.0,"chance":0.1,"ice":1.0}
+	assert(not CampaignCards.eligible("legend",state,stats,false))
+	assert(CampaignCards.eligible("legend",state,stats,true))
+	assert(CampaignCards.eligible("ice",state,stats,true))
+	state["bonuses"]={}
 	for i in 1000:
 		var offer := CampaignCards.offer(state,stats,rng)
 		assert(offer.size()==3 and offer[0]!=offer[1] and offer[1]!=offer[2] and offer[0]!=offer[2])

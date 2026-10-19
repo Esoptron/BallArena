@@ -76,7 +76,7 @@ static func migrate(source: Dictionary) -> Dictionary:
 	if int(source.get("schema",1))>VERSION: return {}
 	var result := _with_defaults(CampaignProgression.new_account(),source)
 	if not result["heroes"] is Dictionary: return {}
-	for id in CampaignProgression.PLAYABLE:
+	for id in CampaignProgression.playable_ids():
 		var hero: Dictionary=CampaignProgression.new_account()["heroes"][id]
 		if result["heroes"].has(id):
 			if not result["heroes"][id] is Dictionary: return {}
@@ -110,7 +110,7 @@ static func validate(a: Dictionary) -> String:
 	if not _integer(a.get("run_serial",0),0): return "Invalid run serial"
 	if int(a["unlocked_level"])<1 or int(a["unlocked_level"])>5: return "Invalid level"
 	if not a.get("heroes") is Dictionary: return "Invalid heroes"
-	for id in CampaignProgression.PLAYABLE:
+	for id in CampaignProgression.playable_ids():
 		if not a["heroes"].get(id) is Dictionary: return "Missing hero"
 		var h: Dictionary=a["heroes"][id]
 		if not h.get("owned") is bool or not h.get("ranks") is Dictionary or not _integer(h.get("ability_rank"),0,1000): return "Invalid hero ranks"
@@ -122,7 +122,7 @@ static func validate(a: Dictionary) -> String:
 		if not h.get("evolution") is Dictionary: return "Invalid evolution"
 		var evolution: Dictionary=h["evolution"]
 		if not _integer(evolution.get("stage"),0,100) or not _integer(evolution.get("character_cards"),0,1000000) or not evolution.get("personal_trial_won") is bool: return "Invalid evolution metadata"
-	if not CampaignProgression.PLAYABLE.has(a.get("selected_hero","")): return "Invalid selected hero"
+	if not CampaignProgression.playable_ids().has(a.get("selected_hero","")): return "Invalid selected hero"
 	if not a["heroes"][a["selected_hero"]]["owned"]: return "Selected hero is locked"
 	for key in ["features","active_run","next_bonus"]:
 		if not a.get(key) is Dictionary: return "Invalid "+key
@@ -141,7 +141,7 @@ static func validate(a: Dictionary) -> String:
 	if not run.is_empty():
 		if not _integer(run.get("serial"),1) or not _integer(run.get("level"),1,5) or not _integer(run.get("battle"),1,10): return "Invalid run identity"
 		if not _integer(run.get("seed"),0,9223372036854775807) or not _integer(run.get("hp"),1) or not _integer(run.get("peak"),int(run["hp"])): return "Invalid run health/seed"
-		if not CampaignProgression.PLAYABLE.has(run.get("hero","")) or not a["heroes"][run["hero"]]["owned"]: return "Invalid run hero"
+		if not CampaignProgression.playable_ids().has(run.get("hero","")) or not a["heroes"][run["hero"]]["owned"]: return "Invalid run hero"
 		if not run.get("status","") in ["ready","fighting","reward"] or not _bonus_valid(run.get("bonuses")): return "Invalid run status"
 		if not run.get("profile") is Dictionary or not run.get("offer") is Array: return "Invalid run profile/offer"
 		var shadow := a.duplicate(true); shadow["active_run"]={}; shadow["heroes"]=run["profile"]; shadow["selected_hero"]=run["hero"]

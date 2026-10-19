@@ -20,7 +20,7 @@ func run() -> void:
 	for page in ["barracks","shop","levels"]:
 		controller.show_page(page)
 		await process_frame
-	for hero in CampaignProgression.PLAYABLE: controller._select(hero)
+	for hero in CampaignProgression.playable_ids(): controller._select(hero)
 	controller.account["selected_hero"]="swordsman"
 	controller._start(1)
 	await physics_frame; await physics_frame

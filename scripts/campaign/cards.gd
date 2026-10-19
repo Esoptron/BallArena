@@ -16,9 +16,9 @@ const DEFINITIONS := {
 static func eligible(id: String, run: Dictionary, stats: Dictionary, after_boss: bool) -> bool:
 	if id == "spin" and run["hero"] == "vampire": return false
 	if id == "shatter" and run["hero"] == "vampire": return false
-	if id in ["ice","fire","shatter"] and float(run["bonuses"].get(id,0)) > 0: return false
+	if not after_boss and id in ["ice","fire","shatter"] and float(run["bonuses"].get(id,0)) > 0: return false
 	if id == "heal" and (after_boss or int(run["hp"]) >= int(run["peak"])): return false
-	if id == "legend" and float(run["bonuses"].get("legend",0)) > 0: return false
+	if not after_boss and id == "legend" and float(run["bonuses"].get("legend",0)) > 0: return false
 	if id in ["chance","legend"] and float(stats["chance"]) >= float(stats["chance_cap"])-0.000001: return false
 	return true
 

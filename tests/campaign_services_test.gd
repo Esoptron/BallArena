@@ -25,6 +25,9 @@ func run() -> void:
 	assert(b.add_campaign_effect("ice",ally,0.1,1))
 	assert(not ally.add_campaign_effect("ice",a,0.1,1))
 	b.campaign_effects.clear()
+	assert(not b.add_campaign_effect("cut",a,0.2,NAN))
+	assert(not b.add_campaign_effect("cut",a,INF,2))
+	assert(not b.add_campaign_effect("cut",a,0.2,2,0))
 	for i in 20: b.add_campaign_effect("cut",a,0.2,4,2)
 	assert(b.campaign_effects.size()==2)
 	b.campaign_effects.clear(); field.zones.clear()
@@ -42,5 +45,15 @@ func run() -> void:
 	b.arm_wall_burst(a,0.2,0.85)
 	for i in 90: await physics_frame
 	assert(b.current_health==0)
+	ally.current_health=1000
+	arena.director.match_over=true
+	ally._resolve_wall_burst(weakref(b),999)
+	assert(ally.current_health==1000)
+	var ranged := CampaignProfiles.create_actor(CampaignCatalog.enemy("magnet"),arena.get_node("Balls"))
+	var ability := ranged.get_node("CampaignWeapon") as CombatAbility
+	ability.set("cooldown_remaining",2.0); ability.set("windup",0.2); ability.set("_pulse_left",0.5)
+	ranged.hold_motion(a)
+	ability.combat_step(1.0)
+	assert(is_equal_approx(ability.get("cooldown_remaining"),1.0) and ability.get("_pulse_left")==0 and ability.get("windup")==0)
 	arena.free(); await process_frame; await process_frame
 	print("campaign_services_test: PASS"); quit(0)

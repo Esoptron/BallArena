@@ -7,7 +7,7 @@ func _ready() -> void:
 	director.event_recorded.connect(_event)
 func _physics_process(delta: float) -> void: clash_cd=maxf(0,clash_cd-delta)
 func _event(event: Dictionary) -> void:
-	if actor.current_health <= 0: return
+	if not is_instance_valid(actor) or actor.current_health <= 0: return
 	var kind: String = event["kind"]
 	var involved: bool = event["actor_id"]==actor.actor_id
 	if kind == "weapon_clash": involved = involved or event["target_id"]==actor.actor_id

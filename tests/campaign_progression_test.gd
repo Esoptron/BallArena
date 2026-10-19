@@ -35,7 +35,7 @@ func run() -> void:
 		account["heroes"]["vampire"]["equipped_rarity"] = tier
 		check(is_equal_approx(CampaignProgression.stats("vampire", account)["weapon_length"], fang_range), "Latest user exception: vampire range stays unchanged at every rarity.")
 	check(CampaignProgression.stats("swordsman", account, {"chance": 0.1})["chance"] > 0.1, "Legendary temporary chance must not be clipped by the permanent training cap.")
-	for id in CampaignProgression.PLAYABLE:
+	for id in CampaignProgression.playable_ids():
 		var compiled := CampaignProfiles.hero(id, account)
 		check(CharacterCatalog.validation_errors(compiled["definition"]).is_empty(), "Every compiled campaign profile must satisfy the existing combat contract: " + id)
 	check(BalanceSnapshot.describe(&"swordsman", {}) == original, "Campaign calculations must never mutate free-battle templates.")
@@ -54,8 +54,8 @@ func run() -> void:
 	check(bite.try_bite(victim), "Campaign bite fixture must start.")
 	for tick in 15:
 		bite._bite_tick()
-	check(victim.current_health == 17000 and vampire.current_health == 22000, "Fifteen equal ticks must total 3 damage and 2 healing.")
-	check(bite.get("campaign_damage") == 3500 and bite.get("campaign_healing") == 2300, "Growth must apply once per completed bite, not fifteen times.")
+	check(victim.current_health == 16000 and vampire.current_health == 22000, "Fifteen distributed ticks must total 4 damage and 2 healing after the balance pilot.")
+	check(bite.get("campaign_damage") == 4750 and bite.get("campaign_healing") == 2300, "Growth must apply once per completed bite, not fifteen times.")
 	vampire.heal(5000)
 	vampire.take_damage(12000, victim)
 	check(vampire.current_health == 15000 and vampire.campaign_effective_max == 27000, "Vampire peak max persists after receiving damage.")
@@ -71,6 +71,13 @@ func run() -> void:
 	victim._advance_campaign_effects(0.2)
 	victim._advance_campaign_effects(0.01)
 	check(victim.rotation_multiplier == 1.0, "Expired slows must restore the multiplier without a permanent residual.")
+	var veteran_account := account.duplicate(true)
+	veteran_account["heroes"]["katana"]["ranks"]["damage"]=250
+	var veteran := CampaignProfiles.create_actor(CampaignProfiles.hero("katana",veteran_account),pair)
+	victim.current_health=1000000
+	var blade := veteran.get_node("Katana") as SwordAbility
+	var before := blade.current_damage
+	check(blade.try_hit(victim) and blade.current_damage>before,"Permanent damage beyond old free-battle caps must never decrease after the first hit.")
 	pair.queue_free()
 	await process_frame
 	print("PASS: isolated campaign progression, fixed-point HP, merge, bite totals, hunt and status expiry" if failures.is_empty() else "FAIL: campaign progression")

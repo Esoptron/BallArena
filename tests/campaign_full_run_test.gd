@@ -19,6 +19,7 @@ func run() -> void:
 	assert(a["boss_wins"].size()==5 and a["unlocked_level"]==5)
 	assert(a["features"]["ally_slot_available"] and a["next_bonus"].has("6"))
 	assert(a["receipts"].size()==50)
+	assert(a["heroes"]["swordsman"]["weapon_cards"][0]==6)
 	assert(not CampaignRun.start(a,6,"swordsman",5))
 	assert(CampaignProgression.rank(a,"swordsman","hp")==0)
 	print("campaign_full_run_test: PASS"); quit(0)
