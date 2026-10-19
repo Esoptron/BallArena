@@ -14,6 +14,14 @@ var wall_burst: Dictionary = {}
 var _last_campaign_effects := false
 const EFFECT_KINDS := ["ice","slow","burn","cut","acid"]
 
+func prepare_death_portrait(source: ArenaBall) -> void:
+	for child in source.get_children():
+		if child is CombatAbility:
+			var copy := get_node_or_null(NodePath(child.name)) as CombatAbility
+			if copy!=null:
+				copy.rotation=child.rotation
+				copy.queue_redraw()
+
 func _ready() -> void:
 	super._ready()
 	get_node("HealthDisplay").set_script(preload("res://scripts/campaign/combat/health_display.gd"))

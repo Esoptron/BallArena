@@ -41,7 +41,8 @@ func _setup(actor: CampaignBall, index: int) -> void:
 	actor.actor_id="player" if index==0 else "enemy_%d"%index
 	actor.team_id=&"blue" if index==0 else &"red"
 	actor.battle_role=String(actor.team_id)
-	actor.ball_color=Color("2c81ff") if index==0 else Color("ff293b")
+	actor.ball_color=preload("res://scripts/campaign/combat/boss_art.gd").colour(actor.character_id,Color("2c81ff") if index==0 else Color("ff293b"))
+	if presentation: preload("res://scripts/campaign/combat/boss_art.gd").attach(actor,actor.character_id)
 	actor.blood_effects=$BloodEffects if presentation else null
 	actor.combat_effects=$CombatEffects if presentation else null
 	actor.health_delta.connect(_show_combat_number.bind(actor))

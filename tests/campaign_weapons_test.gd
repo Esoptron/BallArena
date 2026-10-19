@@ -22,6 +22,10 @@ func run() -> void:
 			weapon.try_hit(player)
 			check(player.current_health < old,"melee damage "+id)
 			check(not weapon.try_hit(player),"contact dedup "+id)
+		else:
+			weapon.set("cooldown_remaining",0.0)
+			check(not weapon.current_weapon_segments().is_empty(),"ranged debris "+id)
+			check(not weapon.can_clash(),"ranged debris does not add melee collision "+id)
 		player.current_health=20000
 		director.unregister(enemy); enemy.free()
 	var spear := CampaignProfiles.create_actor(CampaignCatalog.enemy("spearman"),fighters)
@@ -37,6 +41,16 @@ func run() -> void:
 	check(shield.take_damage(1000,player)==650,"front shield")
 	player.position=shield.position-Vector2(100,0)
 	check(shield.take_damage(1000,player)==1000,"rear exposed")
+	var guard := CampaignProfiles.create_actor(CampaignCatalog.enemy("bridge_guard"),fighters)
+	var guard_weapon := guard.get_node("CampaignWeapon") as SwordAbility
+	guard_weapon.rotation=0; guard_weapon.combat_step(0)
+	player.position=guard.position-Vector2(100,0)
+	check(guard.take_damage(1000,player)==650,"guard shield opposite spear")
+	player.position=guard.position+Vector2(100,0)
+	check(guard.take_damage(1000,player)==1000,"guard spear side exposed")
+	guard_weapon.set("_clock",4.5); guard_weapon.combat_step(0)
+	player.position=guard.position-Vector2(100,0)
+	check(guard.take_damage(1000,player)==450,"guard stance improves defence")
 	var field := preload("res://scripts/campaign/combat/projectiles.gd").new(); world.add_child(field); field.director=director
 	check(is_equal_approx(field._entry(Vector2.ZERO,Vector2(100,0),Vector2(50,0),10),0.4),"swept projectile entry")
 	check(is_equal_approx(field._wall_fraction(Vector2(950,300),Vector2(980,300)),1.0/3),"wall before target")

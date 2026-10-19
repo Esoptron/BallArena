@@ -107,6 +107,20 @@ func _fire(field: Node2D) -> void:
 
 func _tempo() -> float: return float(CampaignProgression.data().get("movement_factor",1.0))
 
+func current_weapon_segments() -> Array[PackedVector2Array]:
+	# Debris geometry only. The melee clash API weapon_segments_at remains empty.
+	var x := fighter.diameter*0.5+10
+	if weapon_kind=="boomerang" and cooldown_remaining>=hit_cooldown-1.4: return []
+	var segments: Array[PackedVector2Array] = [PackedVector2Array([Vector2(x-7,-10),Vector2(x+8,10)])]
+	if weapon_kind=="crossbow":
+		segments=[PackedVector2Array([Vector2(x-6,-17),Vector2(x-6,17)]),PackedVector2Array([Vector2(x-10,0),Vector2(x+18,0)])]
+	elif weapon_kind=="magnet":
+		segments=[PackedVector2Array([Vector2(x-4,-17),Vector2(x+5,0)]),PackedVector2Array([Vector2(x+5,0),Vector2(x-4,17)])]
+	for index in segments.size(): segments[index]=PackedVector2Array([to_global(segments[index][0]),to_global(segments[index][1])])
+	return segments
+
+func weapon_radius() -> float: return 5.0
+
 func _draw() -> void:
 	if not is_enabled(): return
 	var x := fighter.diameter*0.5+10
@@ -120,6 +134,10 @@ func _draw() -> void:
 			draw_line(Vector2(x+4,0),Vector2(x-6,17),Color("8c6440"),6,true)
 			draw_line(Vector2(x-6,-17),Vector2(x-6,17),pale,1,true)
 			draw_line(Vector2(x-10,0),Vector2(x+18,0),pale,3,true)
+			if boss_kind=="storm":
+				for side in [-1,1]:
+					draw_line(Vector2(x-5,side*10),Vector2(x+18,side*5),Color("7897b0"),4,true)
+					draw_circle(Vector2(x+15,side*6),2,Color("65d7ff"))
 		"boomerang":
 			if cooldown_remaining < hit_cooldown-1.4:
 				draw_polyline(PackedVector2Array([Vector2(x,-14),Vector2(x+10,0),Vector2(x,14)]),Color("c5a76c"),7,true)

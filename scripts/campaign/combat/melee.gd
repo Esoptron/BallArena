@@ -43,7 +43,8 @@ func combat_step(delta: float) -> void:
 		_spring_velocity += (-_spring * 34.0 - _spring_velocity * 7.0) * delta
 		_spring = clampf(_spring + _spring_velocity * delta, -0.42, 0.42)
 	if weapon_kind == "shield" or boss_kind == "guard":
-		(fighter as CampaignBall).shield_sector = {"facing": Vector2.from_angle(rotation), "reduction": 0.35}
+		var direction := Vector2.from_angle(rotation+fighter.global_rotation)*(-1 if boss_kind=="guard" else 1)
+		(fighter as CampaignBall).shield_sector = {"facing": direction, "reduction": 0.55 if boss_kind=="guard" and fmod(_clock,5.0)>4.3 else 0.35}
 	if _pull_left > 0 and _hook_target != null:
 		_pull_left -= delta
 		var target := _hook_target.get_ref() as ArenaBall
@@ -104,7 +105,7 @@ func weapon_segments_at(fraction: float) -> Array[PackedVector2Array]:
 	var segments: Array[PackedVector2Array] = [shaft]
 	if weapon_kind in ["axe","hammer","chakram","trident"]: segments.append_array(body_segments(angle))
 	if weapon_kind == "shield" or boss_kind == "guard":
-		var direction := Vector2.from_angle(angle)
+		var direction := Vector2.from_angle(angle+fighter.global_rotation)*(-1 if boss_kind=="guard" else 1)
 		var center := fighter.global_position + direction * (fighter.diameter*0.5+5)
 		segments.append(PackedVector2Array([center-direction.orthogonal()*17,center+direction.orthogonal()*17]))
 	for i in segments.size(): segments[i] = PackedVector2Array([segments[i][0]+offset,segments[i][1]+offset])
@@ -142,8 +143,7 @@ func try_hit(victim: ArenaBall) -> bool:
 	return true
 
 func resolve_hit_damage(victim: ArenaBall) -> int:
-	var strength := 1.4 if boss_kind=="guard" and fmod(_clock,5.0)>4.3 else 1.0
-	return victim.take_damage(roundi(current_damage*strength),fighter,ability_id)
+	return victim.take_damage(current_damage,fighter,ability_id)
 
 func current_weapon_segments() -> Array[PackedVector2Array]:
 	return weapon_segments_at(1.0)
@@ -190,4 +190,6 @@ func _draw() -> void:
 		var target := _hook_target.get_ref() as ArenaBall
 		if is_instance_valid(target): draw_line(Vector2.ZERO,to_local(target.global_position),Color(0.6,0.75,0.8,0.5),1,true)
 	if boss_kind == "guard":
-		draw_arc(Vector2.ZERO,fighter.diameter*0.5+6,-0.9,0.9,24,Color(0.7,0.85,1,0.65 if fmod(_clock,5)>4.3 else 0.3),4,true)
+		var phase := fmod(_clock,5)
+		var alpha := 0.8 if phase>4.3 else (0.35+0.25*sin(_clock*24) if phase>3.9 else 0.35)
+		draw_arc(Vector2.ZERO,fighter.diameter*0.5+6,PI-0.9,PI+0.9,24,Color(0.7,0.85,1,alpha),5,true)

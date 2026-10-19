@@ -29,5 +29,25 @@ func run() -> void:
 	await capture("-death")
 	await create_timer(1.3).timeout
 	assert(controller.page=="reward"); await capture("-reward")
+	controller.hide()
+	var gallery := Node2D.new(); viewport.add_child(gallery)
+	var ids := ["bridge_guard","chain_maestro","storm_crossbow","nox","magnetic_archon"]
+	for index in ids.size():
+		var actor := CampaignProfiles.create_actor(CampaignCatalog.enemy(ids[index]),gallery)
+		actor.position=Vector2(180+index*230,350); actor.freeze=true; actor.set_physics_process(false)
+		actor.ball_color=preload("res://scripts/campaign/combat/boss_art.gd").colour(actor.character_id,Color.RED)
+		preload("res://scripts/campaign/combat/boss_art.gd").attach(actor,actor.character_id)
+	await capture("-bosses")
+	gallery.free()
+	var arena := preload("res://scenes/arena.tscn").instantiate() as BallArena
+	arena.set_script(preload("res://scripts/campaign/arena.gd"))
+	var lineup: Array[Dictionary]=[CampaignProfiles.hero("swordsman",CampaignProgression.new_account()),CampaignCatalog.enemy("storm_crossbow")]
+	arena.set("lineup",lineup); viewport.add_child(arena); arena.director.set_physics_process(false)
+	for actor in arena.fighters: actor.freeze=true
+	var boss := arena.fighters[1] as ArenaBall
+	boss.take_damage(boss.current_health,arena.fighters[0],&"test")
+	for frame in 12: await process_frame
+	assert(arena.death_fragments.groups.size()>0)
+	await capture("-boss-death")
 	viewport.free(); await process_frame; await process_frame
 	print("render_campaign_test: PASS"); quit(0)

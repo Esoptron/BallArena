@@ -60,9 +60,10 @@ static func create_actor(compiled: Dictionary, parent: Node, health: int = -1, p
 		actor.current_health = health if actor.is_vampire else mini(health, profile.reference_health)
 	return actor as CampaignBall
 
-static func empty_actor(_source: ArenaBall = null) -> CampaignBall:
+static func empty_actor(source: ArenaBall = null) -> CampaignBall:
 	var actor := preload("res://scenes/ball.tscn").instantiate() as ArenaBall
 	actor.set_script(preload("res://scripts/campaign/combat/ball.gd"))
 	actor.get_node("Vampire").set_script(ADAPTERS["vampire"])
 	actor.get_node("Sword").set_script(ADAPTERS["swordsman"])
+	if is_instance_valid(source): preload("res://scripts/campaign/combat/boss_art.gd").attach(actor,source.character_id)
 	return actor as CampaignBall

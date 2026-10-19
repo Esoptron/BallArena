@@ -78,6 +78,8 @@ func _capture(fighter: ArenaBall, portrait_size: float, departure: Vector2) -> v
 	viewport.add_child(portrait)
 	if fighter.character_definition != null:
 		CharacterCatalog.apply(portrait,fighter.character_definition,portrait_size / fighter.character_definition.diameter_multiplier)
+	if portrait.has_method("prepare_death_portrait"):
+		portrait.call("prepare_death_portrait",fighter)
 	portrait.freeze = true
 	portrait.collision_layer = 0
 	portrait.collision_mask = 0
