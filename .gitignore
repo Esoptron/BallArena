@@ -4,6 +4,10 @@
 /builds/
 /test-captures/
 
+# Local imports left by older editor scans of campaign evidence (preserve files).
+/docs/campaign/**/*.import
+/docs/campaign/**/*.translation
+
 # Python tooling caches and local signing credentials.
 __pycache__/
 *.py[cod]
