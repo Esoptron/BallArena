@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "file": "validation-1.json.gz",
+      "stage": "heldout-A",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 699,
+      "sha256": "ff233b45674ca3247ed62c78f6de83c3e8a57042d61bdb1d9395e3df52246bec",
+      "process_seconds": 1931.594,
+      "base_seed": 1800000
+    },
+    {
+      "file": "validation-2.json.gz",
+      "stage": "heldout-A",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 699,
+      "sha256": "f8ea802198172d3a02442ff28ad93866ce9b0b1c30f8bdb54e0ed8a0700021b5",
+      "process_seconds": 1900.532,
+      "base_seed": 11800000
+    },
+    {
+      "file": "validation-3.json.gz",
+      "stage": "heldout-A",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 699,
+      "sha256": "87e53c9b9dc42981841997478dd69d5108e4d1caa5e264f01d04eb46891d57f2",
+      "process_seconds": 1886.938,
+      "base_seed": 21800000
+    },
+    {
+      "file": "validation-4.json.gz",
+      "stage": "heldout-A",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 699,
+      "sha256": "4af55a119cc0e05c3eb12c61285b8bc9c25a14779c7293a3b7864b6bd03099f0",
+      "process_seconds": 1922.016,
+      "base_seed": 31800000
+    },
+    {
+      "file": "final-vampire-1.json.gz",
+      "stage": "heldout-B",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 237,
+      "sha256": "dbf688e8a8182120aa59a957be82f7927e473b2fae6503e4070b2f1e3e9203e9",
+      "process_seconds": 590.125,
+      "base_seed": 60000000
+    },
+    {
+      "file": "final-vampire-2.json.gz",
+      "stage": "heldout-B",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 237,
+      "sha256": "69f0d7e960641273c48bdc244ecdfb7c75dc3fa6502b437fd0a331d7772d55b3",
+      "process_seconds": 593.875,
+      "base_seed": 70000000
+    },
+    {
+      "file": "final-katana-all-1.json.gz",
+      "stage": "heldout-C",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 225,
+      "sha256": "20063d61b911981631df7d52e67fbefbb1d2594ce91d513a66ca46c2c9af8c1a",
+      "process_seconds": 480.172,
+      "base_seed": 140000000
+    },
+    {
+      "file": "final-katana-all-2.json.gz",
+      "stage": "heldout-C",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 225,
+      "sha256": "274aacd7f7ed58397918430129019f303afdbb7804b5b1c3b266a46d5022eab2",
+      "process_seconds": 477.672,
+      "base_seed": 150000000
+    },
+    {
+      "file": "final-katana-1.json.gz",
+      "stage": "regression-katana",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 30,
+      "sha256": "df269718aec92cd2d42273456e142e4b5e4b1e77b5f21bedfbd548e968947717",
+      "process_seconds": 69.719,
+      "base_seed": 100000000
+    },
+    {
+      "file": "final-katana-2.json.gz",
+      "stage": "regression-katana",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 30,
+      "sha256": "54a206525b08adb15096700fcd976e14f85538bfb876e2211bdce7816675af26",
+      "process_seconds": 67.86,
+      "base_seed": 110000000
+    },
+    {
+      "file": "tempo-final-pilot-1.json.gz",
+      "stage": "tempo-calibration",
+      "primary": false,
+      "execution_ok": true,
+      "trials": 399,
+      "sha256": "c009959f44f0801e6aece9dda102b57766117fb6154c73082849d2b94e4877e7",
+      "process_seconds": 673.734,
+      "base_seed": 200000000
+    },
+    {
+      "file": "release-1.json.gz",
+      "stage": "release",
+      "primary": true,
+      "execution_ok": true,
+      "trials": 699,
+      "sha256": "f99c2bb3e9c1220a521e622874dc2fecc62756ae513f6d64a4387a340220f110",
+      "process_seconds": 1272.578,
+      "base_seed": 300000000,
+      "exclude_enemy_ids": [
+        "bridge_guard"
+      ]
+    },
+    {
+      "file": "release-2.json.gz",
+      "stage": "release",
+      "primary": true,
+      "execution_ok": true,
+      "trials": 699,
+      "sha256": "e0bdd47c07213a2ff6532b05804747698b5868caf4baf3e37ccb8e8ac37efe92",
+      "process_seconds": 1304.328,
+      "base_seed": 310000000,
+      "exclude_enemy_ids": [
+        "bridge_guard"
+      ]
+    },
+    {
+      "file": "release-guard-1.json.gz",
+      "stage": "release-guard-correction",
+      "primary": true,
+      "execution_ok": true,
+      "trials": 75,
+      "sha256": "48907577ec15f8365b6cdfda4322f7a7952ac2f64c5134405b1f3f8ee8b2fb43",
+      "process_seconds": 170.843,
+      "base_seed": 400000000
+    },
+    {
+      "file": "release-guard-2.json.gz",
+      "stage": "release-guard-correction",
+      "primary": true,
+      "execution_ok": true,
+      "trials": 75,
+      "sha256": "b5354eb9f2f73c391aa8a6df06ba51180116b1591540b0a89692153e9f93d5af",
+      "process_seconds": 178.578,
+      "base_seed": 410000000
+    }
+  ]
+}

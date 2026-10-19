@@ -14,7 +14,6 @@ var config_snapshot := {}
 var source_hashes := {}
 var hero_filter := ""
 var boss_filter := ""
-const BOSSES := ["bridge_guard","chain_maestro","storm_crossbow","nox","magnetic_archon"]
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -23,8 +22,11 @@ func run() -> void:
 	if args.size()>2: base_seed=int(args[2])
 	if args.size()>3: hero_filter=args[3]
 	if args.size()>4: boss_filter=args[4]
+	var bosses: Array[String]=[]
+	for id in CampaignCatalog.data():
+		if not String(CampaignCatalog.data()[id].get("boss","")).is_empty(): bosses.append(id)
 	for hero in CampaignProgression.playable_ids():
-		for boss in BOSSES:
+		for boss in bosses:
 			for sample in per_pair:
 				jobs.append({"hero":hero,"enemies":[{"id":boss}],"seed":base_seed+sample*104729+hero.hash()%1009+boss.hash()%1013,"tier":sample%3,"type":"boss"})
 	for hero in CampaignProgression.playable_ids():
@@ -43,6 +45,7 @@ func run() -> void:
 	print("CAMPAIGN SIM START ",jobs.size())
 	_fill()
 	source_hashes=BalanceSnapshot.source_hashes()
+	source_hashes["res://tools/campaign_simulation.gd"]=FileAccess.get_sha256("res://tools/campaign_simulation.gd")
 	for name in ["progression","enemies","levels"]:
 		var path := "res://scripts/campaign/data/%s.json"%name
 		config_hashes[name]=FileAccess.get_sha256(path)
@@ -90,6 +93,7 @@ func _fill() -> void:
 		var ranks: Dictionary=account["heroes"][hero]["ranks"]
 		for skill in CampaignProgression.data()["players"][hero]["xp_skills"]: ranks[skill]=0 if tier==0 else (2 if tier==1 else 5)
 		account["heroes"][hero]["ability_rank"]=tier*2
+		job["ability_rank"]=account["heroes"][hero]["ability_rank"]
 		account["heroes"][hero]["equipped_rarity"]=job.get("rarity",tier)
 		var bonuses := {} if tier==0 else {"damage":0.1*tier,"hp":0.05*tier,"spin":0.05*tier}
 		bonuses.merge(job.get("extra_bonuses",{}),true)

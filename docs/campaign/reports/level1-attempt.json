@@ -1,0 +1,114 @@
+{
+	"bouts": [
+		{
+			"battle": 1,
+			"cards": {},
+			"duration": 21.5749999999994,
+			"hp": 16.0,
+			"won": true
+		},
+		{
+			"battle": 2,
+			"cards": {
+				"damage": 0.05
+			},
+			"duration": 16.4166666666664,
+			"hp": 17.0,
+			"won": true
+		},
+		{
+			"battle": 3,
+			"cards": {
+				"damage": 0.05,
+				"hp": 0.15
+			},
+			"duration": 16.7249999999997,
+			"hp": 21.0,
+			"won": true
+		},
+		{
+			"battle": 4,
+			"cards": {
+				"damage": 0.1,
+				"hp": 0.15
+			},
+			"duration": 33.4666666666654,
+			"hp": 21.15,
+			"won": true
+		},
+		{
+			"battle": 5,
+			"cards": {
+				"damage": 0.1,
+				"hp": 0.3
+			},
+			"duration": 7.96666666666685,
+			"hp": 26.0,
+			"won": true
+		},
+		{
+			"battle": 6,
+			"cards": {
+				"chance": 0.1,
+				"damage": 0.1,
+				"hp": 0.3,
+				"legend": 1.0
+			},
+			"duration": 65.6749999999983,
+			"hp": 24.0,
+			"won": true
+		},
+		{
+			"battle": 7,
+			"cards": {
+				"chance": 0.1,
+				"damage": 0.1,
+				"hp": 0.3,
+				"legend": 1.0
+			},
+			"duration": 16.9166666666663,
+			"hp": 22.0,
+			"won": true
+		},
+		{
+			"battle": 8,
+			"cards": {
+				"chance": 0.1,
+				"damage": 0.15,
+				"hp": 0.3,
+				"legend": 1.0
+			},
+			"duration": 14.6166666666665,
+			"hp": 20.3,
+			"won": true
+		},
+		{
+			"battle": 9,
+			"cards": {
+				"chance": 0.1,
+				"damage": 0.15,
+				"hp": 0.45,
+				"legend": 1.0
+			},
+			"duration": 22.5749999999994,
+			"hp": 20.95,
+			"won": true
+		},
+		{
+			"battle": 10,
+			"cards": {
+				"chance": 0.1,
+				"damage": 0.15,
+				"hp": 0.6,
+				"legend": 1.0
+			},
+			"duration": 28.8333333333323,
+			"hp": 16.2,
+			"won": true
+		}
+	],
+	"coins": 140,
+	"hero": "swordsman",
+	"seed": 107927,
+	"xp": 75
+}
