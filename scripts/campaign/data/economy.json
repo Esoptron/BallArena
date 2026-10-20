@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "resource_scale": 4,
+  "card_scale": 2,
+  "chests": {
+    "common": {"name": "Обычный", "character_chance": 0.01, "weapon_chance": 0.20},
+    "rare": {"name": "Редкий", "character_chance": 0.05, "weapon_chance": 0.30},
+    "epic": {"name": "Эпический", "character_chance": 0.10, "weapon_chance": 0.50}
+  },
+  "special_chest_intervals": {"rare": 5, "epic": 10},
+  "repeat_factors_half_units": [2, 2, 1],
+  "defeat_gold_divisor": 2,
+  "character_rarity_weights": {"common": 70, "rare": 25, "epic": 5},
+  "hero_catalog": {
+    "swordsman": {"rarity": "common", "weapon_drop": true},
+    "knifeman": {"rarity": "common", "weapon_drop": true},
+    "katana": {"rarity": "rare", "weapon_drop": true},
+    "vampire": {"rarity": "common", "weapon_drop": true},
+    "club": {"rarity": "epic", "weapon_drop": true}
+  },
+  "empty_character_pool_policy": "reserve_by_rarity",
+  "excess_weapon_policy": "reserve_weapon_cards",
+  "weapon_length_factors": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1],
+  "weapon_active_chances": [1.0, 0.8, 0.7, 0.5, 0.4, 0.2, 0.0],
+  "merge_copies": 2,
+  "length_exceptions": ["vampire"],
+  "evolution_extra_cards": 3,
+  "hero_prices": {
+    "common": {"coins": 2500},
+    "rare": {"coins": 6000},
+    "epic": {"coins": 20000, "crystals": 100},
+    "legendary": {"crystals": 1000}
+  },
+  "ally_slot_prices": {"coins": 100000, "crystals": 999},
+  "gold_by_level": [120, 160, 200, 240, 280, 320, 360, 400, 440, 480],
+  "gold_after_table": "authored_encounter_rewards",
+  "ordinary_wave_weight": 1,
+  "boss_wave_weight": 3,
+  "migration_legacy_stages": [0, 2, 3, 5]
+}
