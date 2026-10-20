@@ -88,6 +88,7 @@ func show_page(next: String) -> void:
 		"levels": _levels()
 		"barracks": _barracks()
 		"shop": _shop()
+		"bestiary": content.add_child(preload("res://scripts/campaign/bestiary.gd").new())
 		"reward": _reward()
 		"defeat":
 			content.add_child(_label("Поражение",32,GOLD))
@@ -102,6 +103,7 @@ func _levels() -> void:
 	content.add_child(_label("ОСНОВНАЯ КАМПАНИЯ",28,GOLD))
 	var row := HBoxContainer.new(); content.add_child(row)
 	_button(row,"Казарма",show_page.bind("barracks")); _button(row,"Магазин",show_page.bind("shop"))
+	_button(row,"Бестиарий",show_page.bind("bestiary"))
 	content.add_child(_label("Герой: "+CampaignProgression.data()["players"][account["selected_hero"]]["name"]+"  ·  5 уровней / 50 битв"))
 	var run: Dictionary = account["active_run"]
 	if not run.is_empty():
