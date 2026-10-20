@@ -3,6 +3,9 @@ signal campaign_finished(won: bool, hp: int, peak: int)
 var lineup: Array[Dictionary] = []
 var carried_hp := -1
 var carried_peak := -1
+var party_size := 1
+var ally_hp := -1
+var ally_peak := -1
 var speed_variation := 0.0
 var presentation := true
 var _spawn_rng := RandomNumberGenerator.new()
@@ -22,8 +25,10 @@ func _ready() -> void:
 	_spawn_rng.seed=spawn_seed if spawn_seed!=0 else 1
 	resolved_seed=_spawn_rng.seed
 	for i in lineup.size():
-		var actor := CampaignProfiles.create_actor(lineup[i],$Balls,carried_hp if i==0 else -1,carried_peak if i==0 else -1)
-		_setup(actor,i)
+		var health := carried_hp if i==0 else (ally_hp if i<party_size else -1)
+		var peak := carried_peak if i==0 else (ally_peak if i<party_size else -1)
+		var actor := CampaignProfiles.create_actor(lineup[i],$Balls,health,peak)
+		_setup(actor,i,i<party_size)
 		if i==0 and not actor.campaign_bonuses.is_empty():
 			var enchantment := preload("res://scripts/campaign/combat/enchantments.gd").new()
 			enchantment.actor=actor; enchantment.director=director; add_child(enchantment)
@@ -37,11 +42,11 @@ func _ready() -> void:
 			actor.set_process(false)
 			for child in actor.get_children(): child.set_process(false)
 
-func _setup(actor: CampaignBall, index: int) -> void:
-	actor.actor_id="player" if index==0 else "enemy_%d"%index
-	actor.team_id=&"blue" if index==0 else &"red"
+func _setup(actor: CampaignBall, index: int, friendly: bool = false) -> void:
+	actor.actor_id="player" if index==0 else ("ally" if friendly else "enemy_%d"%index)
+	actor.team_id=&"blue" if friendly else &"red"
 	actor.battle_role=String(actor.team_id)
-	actor.ball_color=preload("res://scripts/campaign/combat/boss_art.gd").colour(actor.character_id,Color("2c81ff") if index==0 else Color("ff293b"))
+	actor.ball_color=preload("res://scripts/campaign/combat/boss_art.gd").colour(actor.character_id,Color("2c81ff") if friendly else Color("ff293b"))
 	if presentation: preload("res://scripts/campaign/combat/boss_art.gd").attach(actor,actor.character_id)
 	actor.blood_effects=$BloodEffects if presentation else null
 	actor.combat_effects=$CombatEffects if presentation else null
@@ -58,7 +63,16 @@ func _setup(actor: CampaignBall, index: int) -> void:
 	actor.movement_speed *= 1+_spawn_rng.randf_range(-speed_variation,speed_variation)
 	actor.start_motion()
 	fighters.append(actor); director.register(actor)
-	if presentation: death_fragments.watch(actor)
+	if actor.current_health<=0:
+		# A party member lost on an earlier wave stays absent and cannot block bodies.
+		actor.hide(); actor.freeze=true; actor.collision_layer=0; actor.collision_mask=0
+		actor.set_physics_process(false); actor.set_process(false)
+	elif presentation: death_fragments.watch(actor)
+
+func ally_result() -> Dictionary:
+	if party_size<2: return {}
+	var actor := fighters[1] as CampaignBall
+	return {"hp":actor.current_health,"peak":actor.campaign_effective_max}
 
 func summon_drone(owner: ArenaBall) -> void:
 	for actor in fighters:

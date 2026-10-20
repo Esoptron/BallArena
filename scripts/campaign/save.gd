@@ -1,7 +1,7 @@
 class_name CampaignSave
 extends RefCounted
 ## Versioned envelope + checksum. A valid previous generation is always recoverable.
-const VERSION := 3
+const VERSION := 4
 const MAX_FILE_BYTES := 4*1024*1024
 static func default_path() -> String:
 	# Development experiments never touch the primary project's user progress.
@@ -66,8 +66,8 @@ static func load_account(path: String = "") -> Dictionary:
 static func _preserve_legacy(path: String) -> Error:
 	var raw: Variant=_document(path)
 	if raw is Dictionary and raw.get("payload") is String: raw=_parse(raw["payload"])
-	if raw is Dictionary and int(raw.get("schema",1))<VERSION and not FileAccess.file_exists(path+".pre-v3"):
-		return DirAccess.copy_absolute(path,path+".pre-v3")
+	if raw is Dictionary and int(raw.get("schema",1))<VERSION and not FileAccess.file_exists(path+".pre-v%d"%VERSION):
+		return DirAccess.copy_absolute(path,path+".pre-v%d"%VERSION)
 	return OK
 
 static func _read(path: String) -> Dictionary:
@@ -96,7 +96,7 @@ static func _parse(text: String) -> Variant:
 static func migrate(source: Dictionary) -> Dictionary:
 	if not _integer(source.get("schema",1),1,VERSION): return {}
 	if int(source.get("schema",1))>VERSION: return {}
-	var legacy := int(source.get("schema",1))<VERSION
+	var legacy := int(source.get("schema",1))<3
 	var result := _with_defaults(CampaignProgression.new_account(),source)
 	if not result["heroes"] is Dictionary: return {}
 	for key in ["features","completions","active_run"]:
@@ -136,6 +136,7 @@ static func migrate(source: Dictionary) -> Dictionary:
 			run["legacy_paid_waves"]=int(run.get("battle",1))-(0 if run.get("status")=="reward" else 1)
 			run["legacy_boss_settled"]=int(run.get("battle",1))==10 and run.get("status")=="reward"
 	result["schema"]=VERSION
+	if not result["active_run"].is_empty() and not result["active_run"].has("ally"): result["active_run"]["ally"]={}
 	if not validate(result).is_empty(): return {}
 	for receipt in result["receipts"]:
 		var serial: String=receipt.get_slice(":",0)
@@ -221,6 +222,8 @@ static func validate(a: Dictionary) -> String:
 	for flag in ["ally_slot_available","ally_slot_owned"]:
 		if not a["features"].get(flag) is bool: return "Invalid ally flag"
 	if not a["features"].get("future_ally","") is String: return "Invalid future ally"
+	if not a.get("selected_ally") is String: return "Invalid selected ally"
+	if not a["selected_ally"].is_empty() and (not CampaignProgression.playable_ids().has(a["selected_ally"]) or not a["heroes"][a["selected_ally"]]["owned"] or not a["features"]["ally_slot_owned"]): return "Selected ally is unavailable"
 	for key in ["receipts","boss_wins"]:
 		if not a.get(key) is Array: return "Invalid "+key
 	for receipt in a["receipts"]:
@@ -232,10 +235,16 @@ static func validate(a: Dictionary) -> String:
 	var run: Dictionary=a["active_run"]
 	if not run.is_empty():
 		if not _integer(run.get("serial"),1) or not _integer(run.get("level"),1,5) or not _integer(run.get("battle"),1,10): return "Invalid run identity"
-		if not _integer(run.get("seed"),0,9223372036854775807) or not _integer(run.get("hp"),1) or not _integer(run.get("peak"),int(run["hp"])): return "Invalid run health/seed"
+		if not _integer(run.get("seed"),0,9223372036854775807) or not _integer(run.get("hp"),0) or not _integer(run.get("peak"),maxi(1,int(run["hp"]))): return "Invalid run health/seed"
 		if not CampaignProgression.playable_ids().has(run.get("hero","")) or not a["heroes"][run["hero"]]["owned"]: return "Invalid run hero"
 		if not run.get("status","") in ["ready","fighting","reward"] or not _bonus_valid(run.get("bonuses")): return "Invalid run status"
 		if not run.get("profile") is Dictionary or not run.get("offer") is Array: return "Invalid run profile/offer"
+		if not run.get("ally") is Dictionary: return "Invalid run ally"
+		var ally: Dictionary=run["ally"]
+		if not ally.is_empty():
+			if not a["features"]["ally_slot_owned"] or not CampaignProgression.playable_ids().has(ally.get("hero","")): return "Unavailable run ally"
+			if not a["heroes"][ally["hero"]]["owned"] or not _integer(ally.get("hp"),0) or not _integer(ally.get("peak"),maxi(1,int(ally["hp"]))): return "Invalid ally health/profile"
+		if int(run["hp"])==0 and (ally.is_empty() or int(ally["hp"])==0): return "No living party member"
 		if not CampaignEconomy.data()["chests"].has(run.get("chest","")) or not _integer(run.get("reward_half_units"),1,2): return "Invalid run economy"
 		if not _loot_valid(run.get("loot")): return "Invalid run loot"
 		var paid: Variant=run.get("legacy_paid_waves",0)

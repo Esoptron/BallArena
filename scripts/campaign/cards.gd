@@ -17,7 +17,7 @@ static func eligible(id: String, run: Dictionary, stats: Dictionary, after_boss:
 	if id == "spin" and run["hero"] == "vampire": return false
 	if id == "shatter" and run["hero"] == "vampire": return false
 	if not after_boss and id in ["ice","fire","shatter"] and float(run["bonuses"].get(id,0)) > 0: return false
-	if id == "heal" and (after_boss or int(run["hp"]) >= int(run["peak"])): return false
+	if id == "heal" and (after_boss or int(run["hp"])<=0 or int(run["hp"]) >= int(run["peak"])): return false
 	if not after_boss and id == "legend" and float(run["bonuses"].get("legend",0)) > 0: return false
 	if id in ["chance","legend"] and float(stats["chance"]) >= float(stats["chance_cap"])-0.000001: return false
 	return true
@@ -51,7 +51,8 @@ static func apply(run: Dictionary, account: Dictionary, id: String) -> void:
 	for key in bonus(id): run["bonuses"][key]=float(run["bonuses"].get(key,0))+float(bonus(id)[key])
 	var current := CampaignProgression.stats(run["hero"],account,run["bonuses"])
 	var delta := CampaignUnits.pack(current["max_hp"]-old["max_hp"])
-	run["hp"] += delta
+	var alive := int(run["hp"])>0
+	if alive: run["hp"] += delta
 	run["peak"] += delta
-	if id in ["heal","vitality"]:
+	if alive and id in ["heal","vitality"]:
 		run["hp"] = mini(run["peak"],run["hp"]+roundi(run["peak"]*(0.2 if id=="heal" else 0.15)))

@@ -26,7 +26,7 @@ func run() -> void:
 	var loaded := CampaignSave.load_account(path)["account"] as Dictionary
 	assert(not loaded.is_empty() and loaded["coins"]==77 and loaded["xp"]==99)
 	assert(CampaignEconomy.completions(loaded,1)==2)
-	assert(FileAccess.get_file_as_bytes(path)==before and FileAccess.get_file_as_bytes(path+".pre-v3")==before)
+	assert(FileAccess.get_file_as_bytes(path)==before and FileAccess.get_file_as_bytes(path+".pre-v%d"%CampaignSave.VERSION)==before)
 	assert(loaded["heroes"]["swordsman"]["weapon_cards"]==[2,0,2,2,0,2,0])
 	assert(CampaignSave.write(loaded,path)==OK)
 	assert(CampaignSave.load_account(path)["account"]["heroes"]["swordsman"]["legacy_inventory"]["weapon_cards"].size()==4)

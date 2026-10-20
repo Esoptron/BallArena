@@ -18,7 +18,7 @@ static func new_account() -> Dictionary:
 		heroes[id] = {"owned": id == "swordsman", "ranks": {}, "ability_rank": 0,
 			"weapon_cards": [2, 0, 0, 0, 0, 0, 0], "weapon_stage": 0, "unlock_card_units": 0,
 			"evolution": {"stage": 0, "personal_trial_won": false, "card_units": 0}}
-	return {"schema": 3, "coins": 0, "xp": 0, "coins_quarters": 0, "xp_quarters": 0, "crystals": 0, "heroes": heroes, "selected_hero": "swordsman",
+	return {"schema": 4, "coins": 0, "xp": 0, "coins_quarters": 0, "xp_quarters": 0, "crystals": 0, "heroes": heroes, "selected_hero": "swordsman", "selected_ally": "",
 		"unlocked_level": 1, "boss_wins": [], "next_bonus": {}, "receipts": [],
 		"completions": {}, "reserved_characters": {}, "reserved_weapons": 0, "last_result": {},
 		"features": {"ally_slot_available": true, "ally_slot_owned": false, "future_ally": ""}, "active_run": {}}
@@ -109,6 +109,12 @@ static func buy_ally(account: Dictionary, currency: String) -> bool:
 	if account["features"]["ally_slot_owned"] or not prices.has(currency): return false
 	if int(account.get(currency,0))<int(prices[currency]): return false
 	account[currency]-=int(prices[currency]); account["features"]["ally_slot_owned"]=true
+	return true
+
+static func select_ally(account: Dictionary, id: String) -> bool:
+	if not account.get("active_run",{}).is_empty(): return false
+	if not id.is_empty() and (not account["features"]["ally_slot_owned"] or not playable_ids().has(id) or not account["heroes"][id]["owned"]): return false
+	account["selected_ally"]=id
 	return true
 
 static func add_character_cards(account: Dictionary, id: String, units: int) -> void:

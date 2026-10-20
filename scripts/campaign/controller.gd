@@ -113,11 +113,13 @@ func _levels() -> void:
 	_button(row,"Казарма",show_page.bind("barracks")); _button(row,"Магазин",show_page.bind("shop"))
 	_button(row,"Бестиарий",show_page.bind("bestiary"))
 	content.add_child(_label("Герой: "+CampaignProgression.data()["players"][account["selected_hero"]]["name"]+"  ·  5 уровней / 50 битв"))
+	if not account["selected_ally"].is_empty(): content.add_child(_label("Союзник: "+CampaignProgression.data()["players"][account["selected_ally"]]["name"],18,BLUE))
 	var run: Dictionary = account["active_run"]
 	if not run.is_empty():
 		var panel := _panel(content)
 		panel.add_child(_label("Текущий поход · %d–%d · %s HP"%[run["level"],run["battle"],CampaignUnits.text(run["hp"])],22,BLUE))
 		panel.add_child(_label(_chest_summary(run),16,GOLD))
+		if not run["ally"].is_empty(): panel.add_child(_label("Союзник · %s · %s HP"%[CampaignProgression.data()["players"][run["ally"]["hero"]]["name"],CampaignUnits.text(run["ally"]["hp"])],18,BLUE))
 		_button(panel,"Выбрать награду" if run["status"]=="reward" else "Продолжить",_resume)
 		_button(panel,"Завершить поход…",_confirm_abandon)
 	for level in CampaignLevels.all():
@@ -163,6 +165,10 @@ func _start_battle() -> void:
 	battle_arena=battle_view.get_node("Arena")
 	battle_arena.set_script(preload("res://scripts/campaign/arena.gd"))
 	var lineup: Array[Dictionary] = [CampaignProfiles.hero(run["hero"],CampaignRun.profile_account(account),run["bonuses"])]
+	if not run["ally"].is_empty():
+		lineup.append(CampaignProfiles.hero(run["ally"]["hero"],CampaignRun.profile_account(account)))
+		battle_arena.set("party_size",2)
+		battle_arena.set("ally_hp",run["ally"]["hp"]); battle_arena.set("ally_peak",run["ally"]["peak"])
 	for enemy in encounter["enemies"]: lineup.append(CampaignCatalog.enemy(enemy["id"],enemy))
 	battle_arena.set("lineup",lineup)
 	battle_arena.set("carried_hp",run["hp"]); battle_arena.set("carried_peak",run["peak"])
@@ -178,7 +184,7 @@ func _start_battle() -> void:
 	if encounter["boss"]: battle_title.text+=" · "+CampaignCatalog.data()[encounter["enemies"][0]["id"]]["name"]
 	battle_title.size_flags_horizontal=Control.SIZE_EXPAND_FILL; battle_title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; bar.add_child(battle_title)
 	battle_stats=_label("",15,BLUE); battle_stats.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	battle_stats.offset_left=20; battle_stats.offset_right=-20; battle_stats.offset_top=-55; page_root.add_child(battle_stats)
+	battle_stats.offset_left=20; battle_stats.offset_right=-20; battle_stats.offset_top=-25; battle_stats.offset_bottom=-4; page_root.add_child(battle_stats)
 	page="battle"
 	_process(0.25)
 
@@ -197,18 +203,13 @@ func _pause() -> void:
 	dialog.popup_centered(Vector2i(460,180))
 
 func _process(delta: float) -> void:
-	if page!="battle" or not is_instance_valid(battle_arena): return
+	if page!="battle" or _transition_pending or not is_instance_valid(battle_arena): return
 	_hud_clock+=delta
 	if _hud_clock<0.2: return
 	_hud_clock=0
-	var actor := battle_arena.fighters[0] as CampaignBall
-	var text := "HP %s / %s   ·   Скорость %.0f"%[CampaignUnits.text(actor.current_health),CampaignUnits.text(actor.campaign_effective_max),actor.effective_movement_speed()]
-	for ability in battle_arena.director.abilities:
-		if ability.fighter!=actor or not ability.is_enabled(): continue
-		if ability is SwordAbility: text+="   ·   Урон %s   ·   Вращение %.2f/с"%[CampaignUnits.text(ability.current_damage),ability.effective_spin_speed()/TAU]
-		elif ability is VampireFangs: text+="   ·   Укус %s   ·   Лечение %s"%[CampaignUnits.text(ability.get("campaign_damage")),CampaignUnits.text(ability.get("campaign_healing"))]
-		if ability is KatanaAbility: text+="   ·   Кровь %.1f%%"%(ability.critical_chance*100)
-	battle_stats.text=text+"\n"+_chest_summary(account["active_run"])
+	# HP is already under every body. Keep one unobtrusive economy line outside
+	# the fixed arena; complete permanent attributes remain in the barracks.
+	battle_stats.text=_chest_summary(account["active_run"])
 
 func _finished(won: bool, hp: int, peak: int) -> void:
 	if _transition_pending: return
@@ -216,7 +217,8 @@ func _finished(won: bool, hp: int, peak: int) -> void:
 	var run: Dictionary = account["active_run"]
 	var reward := CampaignLevels.encounter(run["level"],run["battle"])["reward"] as Dictionary
 	var candidate := account.duplicate(true)
-	if not CampaignRun.settle(candidate,won,hp,peak,reward): return
+	var ally_state: Dictionary=battle_arena.call("ally_result") if is_instance_valid(battle_arena) else {}
+	if not CampaignRun.settle(candidate,won,hp,peak,reward,ally_state): return
 	if not _commit_account(candidate):
 		pending_settlement=candidate; pending_won=won
 		show_page.call_deferred("settlement_error")
@@ -244,6 +246,7 @@ func _reward() -> void:
 	if int(run["battle"])==10: _result(content)
 	else: content.add_child(_label(_chest_summary(run)+" · откроется после босса",16,GOLD))
 	content.add_child(_label("Бонус для следующего уровня" if int(run["battle"])==10 else "Усиления складываются до завершения этого уровня",18,BLUE))
+	if not run["ally"].is_empty(): content.add_child(_label("Усиления относятся к основному герою. HP обоих переносится между волнами; погибшие не возвращаются до следующего уровня.",16,BLUE))
 	var row := HBoxContainer.new(); row.add_theme_constant_override("separation",12); content.add_child(row)
 	for i in run["offer"].size():
 		var id: String = run["offer"][i]
@@ -269,6 +272,13 @@ func _barracks() -> void:
 	var stats := CampaignProgression.stats(id,account)
 	var box := _panel(content)
 	box.add_child(_label(stats["name"],28,BLUE))
+	var unavailable: bool=not account["active_run"].is_empty() or not account["heroes"][id]["owned"]
+	var selection := HBoxContainer.new(); box.add_child(selection)
+	_button(selection,"Основной герой ✓" if account["selected_hero"]==id else "Выбрать основным",_choose_hero.bind(id),unavailable or account["selected_hero"]==id)
+	if account["features"]["ally_slot_owned"]:
+		_button(selection,"Союзник ✓" if account["selected_ally"]==id else "Выбрать союзником",_select_ally.bind(id),unavailable or account["selected_ally"]==id)
+		if not account["selected_ally"].is_empty(): _button(box,"Убрать союзника",_select_ally.bind(""),not account["active_run"].is_empty())
+	else: box.add_child(_label("Второй боец выбирается здесь после покупки слота союзника в магазине.",16,GOLD))
 	_portrait(box,id)
 	var summary := "HP %.2f · скорость %.0f · урон %.2f (+%.2f за попадание)\nВращение %.2f рад/с (%.2f об/с) · оружие %.2f / %.2f · кулдаун %.1f с\nМасса %.2f · вес тела %s · вес оружия %s\nСпособность %.2f%% · восстановление после боя %.0f%%"%[
 		stats["max_hp"],stats["speed"],stats["damage"],stats["hit_growth"],stats["spin"],stats["spin"]/TAU,stats["weapon_length"],stats["full_length"],stats["cooldown"],stats["mass"],_weight(stats["body_weight"]),_weight(stats["weapon_weight"]),stats["chance"]*100,stats["recovery"]*100]
@@ -302,8 +312,16 @@ func _barracks() -> void:
 static func _weight(value: int) -> String: return ["лёгкий","легче среднего","средний","тяжелее среднего","тяжёлый"][value]
 func _select(id: String) -> void:
 	viewed_hero=id
-	if account["heroes"][id]["owned"]: account["selected_hero"]=id; _save()
 	show_page("barracks")
+
+func _choose_hero(id: String) -> void:
+	if not account["active_run"].is_empty() or not account["heroes"][id]["owned"]: return
+	var candidate := account.duplicate(true); candidate["selected_hero"]=id
+	_commit_account(candidate); show_page("barracks")
+
+func _select_ally(id: String) -> void:
+	var candidate := account.duplicate(true)
+	if CampaignProgression.select_ally(candidate,id): _commit_account(candidate); show_page("barracks")
 
 func _portrait(parent: Node, id: String) -> void:
 	var space := Control.new(); space.custom_minimum_size=Vector2(200,150); space.mouse_filter=Control.MOUSE_FILTER_IGNORE; parent.add_child(space)
@@ -324,10 +342,12 @@ func _weapons(box: VBoxContainer, id: String, _locked: bool) -> void:
 	if id=="vampire": box.add_child(_label("Исключение: длина клыков остаётся исходной на всех ступенях. Карточки и мердж учитываются.",16,GOLD))
 	var hero: Dictionary = account["heroes"][id]
 	var factors: Array=CampaignEconomy.data()["weapon_length_factors"]
+	var copies := int(CampaignEconomy.data()["merge_copies"])
+	var units := copies*int(CampaignEconomy.data()["card_scale"])
 	box.add_child(_label("Оружие · длина %.0f%% · ступень %d/7"%[100.0 if id=="vampire" else float(factors[int(hero["weapon_stage"])] )*100,int(hero["weapon_stage"])+1],22,BLUE))
 	for tier in factors.size():
 		var text := "Ступень %d · %.0f%% · %s карточки"%[tier+1,float(factors[tier])*100,CampaignEconomy.text(hero["weapon_cards"][tier])]
-		if tier<factors.size()-1: _button(box,text+" · слить 2 → 1",_merge.bind(id,tier),not account["active_run"].is_empty() or int(hero["weapon_cards"][tier])<4)
+		if tier<factors.size()-1: _button(box,text+" · слить %d → 1"%copies,_merge.bind(id,tier),not account["active_run"].is_empty() or int(hero["weapon_cards"][tier])<units)
 		else: box.add_child(_label(text,16,BLUE))
 func _merge(id: String, tier: int) -> void:
 	if not account["active_run"].is_empty(): return
@@ -349,7 +369,7 @@ func _shop() -> void:
 			var price := int(CampaignEconomy.prices(id)[currency])
 			_button(box,"%d %s"%[price,"монет" if currency=="coins" else "кристаллов"],_buy.bind(id,currency),owned or int(account[currency])<price)
 	var features: Dictionary = account["features"]
-	content.add_child(_label("Второй союзник · постоянное открытие слота. Участие союзников в бою пока не реализовано; слот не требуется для доступа к уровням. Реальные платежи и источники кристаллов пока не подключены.",18,BLUE))
+	content.add_child(_label("Второй боец · постоянный слот союзника. После покупки выберите открытого героя в казарме. HP переносится, погибший не возвращается до конца уровня; поражение — после гибели обоих. Слот не требуется для доступа к уровням. Платежи и источники кристаллов пока не подключены.",18,BLUE))
 	for currency in CampaignEconomy.data()["ally_slot_prices"]:
 		var price := int(CampaignEconomy.data()["ally_slot_prices"][currency])
 		_button(content,"Слот союзника · %s"%("приобретён" if features["ally_slot_owned"] else "%d %s"%[price,"монет" if currency=="coins" else "кристаллов"]),_buy_ally.bind(currency),features["ally_slot_owned"] or account[currency]<price)

@@ -4,12 +4,19 @@ extends RefCounted
 static func start(account: Dictionary, level: int, hero: String, seed_value: int) -> bool:
 	if not account.get("active_run",{}).is_empty() or level < 1 or level > mini(5,int(account["unlocked_level"])): return false
 	if not CampaignProgression.playable_ids().has(hero) or not account["heroes"][hero]["owned"]: return false
-	account["run_serial"] = int(account.get("run_serial",0))+1
 	var bonuses: Dictionary = account["next_bonus"].get(str(level),{}).duplicate(true)
 	var stats := CampaignProgression.stats(hero,account,bonuses)
 	var hp := CampaignUnits.pack(stats["max_hp"])
+	var ally := {}
+	var ally_id: String=account.get("selected_ally","")
+	if not ally_id.is_empty():
+		if not account["features"]["ally_slot_owned"] or not account["heroes"].has(ally_id) or not account["heroes"][ally_id]["owned"]: return false
+		var ally_hp := CampaignUnits.pack(CampaignProgression.stats(ally_id,account)["max_hp"])
+		ally={"hero":ally_id,"hp":ally_hp,"peak":ally_hp}
+	account["run_serial"] = int(account.get("run_serial",0))+1
 	account["active_run"]={"serial":account["run_serial"],"level":level,"battle":1,"hero":hero,"seed":seed_value,
 		"hp":hp,"peak":hp,"bonuses":bonuses,"status":"ready","offer":[],"profile":account["heroes"].duplicate(true),
+		"ally":ally,
 		"chest":CampaignEconomy.chest_type(level,CampaignEconomy.completions(account,level)),
 		"reward_half_units":CampaignEconomy.reward_half_units(CampaignEconomy.completions(account,level)),"loot":CampaignEconomy.empty_loot()}
 	account["next_bonus"].erase(str(level))
@@ -27,7 +34,7 @@ static func begin(account: Dictionary) -> bool:
 	run["status"]="fighting"
 	return true
 
-static func settle(account: Dictionary, won: bool, hp: int, peak: int, _reward: Dictionary) -> bool:
+static func settle(account: Dictionary, won: bool, hp: int, peak: int, _reward: Dictionary, ally_state: Dictionary = {}) -> bool:
 	var run: Dictionary = account.get("active_run",{})
 	if run.get("status","") != "fighting": return false
 	if int(run["loot"]["waves"])+int(run.get("legacy_paid_waves",0))!=int(run["battle"])-1: return false
@@ -35,7 +42,15 @@ static func settle(account: Dictionary, won: bool, hp: int, peak: int, _reward: 
 		_close(account,false)
 		account["active_run"]={}
 		return true
-	if hp <= 0 or peak <= 0: return false
+	var ally: Dictionary=run.get("ally",{})
+	if hp<0 or peak<=0: return false
+	if int(run["hp"])==0 and hp>0: return false
+	if ally.is_empty():
+		if hp==0: return false
+	else:
+		if not CampaignSave._integer(ally_state.get("hp"),0) or not CampaignSave._integer(ally_state.get("peak"),1): return false
+		if int(ally_state["peak"])<int(ally_state["hp"]) or (hp==0 and int(ally_state["hp"])==0): return false
+		if int(ally["hp"])==0 and int(ally_state["hp"])>0: return false
 	var receipt := "%d:%d:%d" % [run["serial"],run["level"],run["battle"]]
 	if account["receipts"].has(receipt): return false
 	# Only the authoritative authored wave supplies XP; callers cannot mint rewards.
@@ -46,7 +61,11 @@ static func settle(account: Dictionary, won: bool, hp: int, peak: int, _reward: 
 	var snapshot := profile_account(account)
 	var stats := CampaignProgression.stats(run["hero"],snapshot,run["bonuses"])
 	run["peak"] = maxi(peak,CampaignUnits.pack(stats["max_hp"]))
-	run["hp"] = mini(run["peak"],hp+roundi(run["peak"]*float(stats["recovery"])))
+	run["hp"] = mini(run["peak"],hp+roundi(run["peak"]*float(stats["recovery"]))) if hp>0 else 0
+	if not ally.is_empty():
+		var ally_stats := CampaignProgression.stats(ally["hero"],snapshot)
+		ally["peak"]=maxi(int(ally_state["peak"]),CampaignUnits.pack(ally_stats["max_hp"]))
+		ally["hp"]=mini(int(ally["peak"]),int(ally_state["hp"])+roundi(int(ally["peak"])*float(ally_stats["recovery"]))) if int(ally_state["hp"])>0 else 0
 	var rng := RandomNumberGenerator.new(); rng.seed=int(run["seed"]) ^ int(run["battle"])*7919
 	var after_boss := int(run["battle"])==10
 	var offer_stats := CampaignProgression.stats(run["hero"],snapshot) if after_boss else stats
