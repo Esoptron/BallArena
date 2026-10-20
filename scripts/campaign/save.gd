@@ -2,6 +2,7 @@ class_name CampaignSave
 extends RefCounted
 ## Versioned envelope + checksum. A valid previous generation is always recoverable.
 const VERSION := 3
+const MAX_FILE_BYTES := 4*1024*1024
 static func default_path() -> String:
 	# Development experiments never touch the primary project's user progress.
 	return "res://builds/campaign-work/player-save.json" if OS.has_feature("editor") else "user://campaign-v2.json"
@@ -33,8 +34,8 @@ static func load_account(path: String = "") -> Dictionary:
 	if path.is_empty(): path=default_path()
 	var absolute := ProjectSettings.globalize_path(path)
 	var exists := FileAccess.file_exists(absolute)
-	if exists:
-		var envelope: Variant=_parse(FileAccess.get_file_as_string(absolute))
+	for candidate in [absolute,absolute+".bak",absolute+".tmp"]:
+		var envelope: Variant=_document(candidate)
 		if envelope is Dictionary and int(envelope.get("format",envelope.get("schema",1)))>VERSION:
 			return {"account":{},"warning":"Сохранение создано более новой версией. Автоматическое понижение версии отключено."}
 		if envelope is Dictionary and envelope.get("payload") is String:
@@ -58,20 +59,19 @@ static func load_account(path: String = "") -> Dictionary:
 	if not temp.is_empty():
 		if _preserve_legacy(absolute+".tmp")!=OK: return {"account":{},"warning":"Не удалось сохранить исходный временный файл. Миграция заблокирована."}
 		return {"account":temp,"warning":"Найдено завершённое временное сохранение после прерванной записи."}
-	if exists or FileAccess.file_exists(absolute+".bak"):
+	if exists or FileAccess.file_exists(absolute+".bak") or FileAccess.file_exists(absolute+".tmp"):
 		return {"account":{},"warning":"Сохранение повреждено. Файлы сохранены; автоматическое обнуление отключено."}
 	return {"account":CampaignProgression.new_account(),"warning":""}
 
 static func _preserve_legacy(path: String) -> Error:
-	var raw: Variant=_parse(FileAccess.get_file_as_string(path))
+	var raw: Variant=_document(path)
 	if raw is Dictionary and raw.get("payload") is String: raw=_parse(raw["payload"])
 	if raw is Dictionary and int(raw.get("schema",1))<VERSION and not FileAccess.file_exists(path+".pre-v3"):
 		return DirAccess.copy_absolute(path,path+".pre-v3")
 	return OK
 
 static func _read(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path) or FileAccess.get_file_as_bytes(path).size()>4*1024*1024: return {}
-	var parsed: Variant=_parse(FileAccess.get_file_as_string(path))
+	var parsed: Variant=_document(path)
 	if not parsed is Dictionary: return {}
 	var account: Variant=parsed
 	if parsed.has("format"):
@@ -80,6 +80,14 @@ static func _read(path: String) -> Dictionary:
 		account=_parse(parsed["payload"])
 	if not account is Dictionary: return {}
 	return migrate(account)
+
+static func _document(path: String) -> Variant:
+	if not FileAccess.file_exists(path): return null
+	var file := FileAccess.open(path,FileAccess.READ)
+	if file==null: return null
+	if file.get_length()>MAX_FILE_BYTES: file.close(); return null
+	var text := file.get_as_text(); file.close()
+	return _parse(text)
 
 static func _parse(text: String) -> Variant:
 	var parser := JSON.new()
