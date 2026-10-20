@@ -4,7 +4,13 @@ extends RefCounted
 static var _data: Dictionary = {}
 static func data() -> Dictionary:
 	if _data.is_empty(): _data=JSON.parse_string(FileAccess.get_file_as_string("res://scripts/campaign/data/economy.json"))
+	assert(_data["empty_character_pool_policy"]=="reserve_by_rarity","Unsupported empty rarity policy; do not silently reroll.")
+	assert(_data["excess_weapon_policy"]=="reserve_weapon_cards","Unsupported weapon overflow policy; do not silently replace rewards.")
 	return _data
+
+static func chance(rng: RandomNumberGenerator, probability: float) -> bool:
+	# Inclusive randf() can return 1. Use exact basis points, including 0%/100%.
+	return rng.randi_range(0,9999)<roundi(probability*10000)
 
 static func completions(account: Dictionary, level: int) -> int:
 	return int(account.get("completions",{}).get(str(level),0))
@@ -71,22 +77,22 @@ static func weapon_target(account: Dictionary, active: String, rng: RandomNumber
 		if int(account["heroes"][id].get("weapon_stage",0))>=data()["weapon_length_factors"].size()-1: continue
 		if id==active: active_eligible=true
 		else: pool.append(id)
-	if rng.randf()<active_chance and active_eligible: return active
+	if chance(rng,active_chance) and active_eligible: return active
 	# An empty residual pool is kept in reserve, never rerolled into the active hero.
 	return "" if pool.is_empty() else pool[rng.randi_range(0,pool.size()-1)]
 
 static func roll_wave(account: Dictionary, run: Dictionary, reward: Dictionary) -> void:
 	var loot: Dictionary=run["loot"]
 	var half_units := int(run["reward_half_units"])
-	loot["gold_units"]+=wave_gold(run["level"],run["battle"],int(reward.get("coins",0)))*half_units*int(data()["resource_scale"])/2
-	loot["xp_units"]+=int(reward.get("xp",0))*half_units*int(data()["resource_scale"])/2
+	loot["gold_units"]+=int(wave_gold(run["level"],run["battle"],int(reward.get("coins",0)))*half_units*int(data()["resource_scale"])/2)
+	loot["xp_units"]+=int(int(reward.get("xp",0))*half_units*int(data()["resource_scale"])/2)
 	loot["waves"]+=1
 	# Local per-wave RNG cannot perturb combat RNG or temporary upgrade offers.
 	var rng := RandomNumberGenerator.new()
 	rng.seed=int(run["seed"]) ^ int(run["battle"])*15485863 ^ int(run["serial"])*32452843
 	var chest: Dictionary=data()["chests"][run["chest"]]
-	var character_drop := rng.randf()<float(chest["character_chance"])
-	var weapon_drop := rng.randf()<float(chest["weapon_chance"])
+	var character_drop := chance(rng,float(chest["character_chance"]))
+	var weapon_drop := chance(rng,float(chest["weapon_chance"]))
 	if character_drop:
 		var target := character_target(rng)
 		var key := "characters" if not target["id"].is_empty() else "reserved_characters"

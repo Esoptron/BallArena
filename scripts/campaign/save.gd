@@ -104,6 +104,18 @@ static func migrate(source: Dictionary) -> Dictionary:
 	if legacy:
 		# Old saves only recorded whether a boss had ever been beaten, not how often.
 		for level in result["boss_wins"]: result["completions"][str(int(level))]=1
+		var completed_runs := {}
+		if not result["receipts"] is Array: return {}
+		for receipt in result["receipts"]:
+			if not receipt is String: return {}
+			var parts: PackedStringArray=receipt.split(":")
+			if parts.size()!=3 or not parts[0].is_valid_float() or not parts[1].is_valid_float() or not parts[2].is_valid_float(): continue
+			if float(parts[2])==10.0:
+				var level_key := str(int(float(parts[1])))
+				var serial_key := str(int(float(parts[0])))
+				if not completed_runs.has(level_key): completed_runs[level_key]={}
+				completed_runs[level_key][serial_key]=true
+		for level_key in completed_runs: result["completions"][level_key]=maxi(int(result["completions"].get(level_key,0)),completed_runs[level_key].size())
 		result["features"]["ally_slot_available"]=true
 		if not result["active_run"].is_empty():
 			var run: Dictionary=result["active_run"]
@@ -160,6 +172,7 @@ static func _integer(value: Variant, lower: int, upper: int = 9000000000000) -> 
 	return (value is int or value is float) and is_finite(float(value)) and float(value)==floor(float(value)) and value>=lower and value<=upper
 
 static func validate(a: Dictionary) -> String:
+	if not _integer(a.get("schema"),VERSION,VERSION): return "Invalid account version"
 	for key in ["coins","xp","crystals","unlocked_level","reserved_weapons"]:
 		if not _integer(a.get(key),0): return "Invalid "+key
 	for key in ["coins_quarters","xp_quarters"]:

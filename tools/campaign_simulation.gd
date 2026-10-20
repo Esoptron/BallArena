@@ -46,7 +46,7 @@ func run() -> void:
 	_fill()
 	source_hashes=BalanceSnapshot.source_hashes()
 	source_hashes["res://tools/campaign_simulation.gd"]=FileAccess.get_sha256("res://tools/campaign_simulation.gd")
-	for name in ["progression","enemies","levels"]:
+	for name in ["progression","economy","enemies","levels"]:
 		var path := "res://scripts/campaign/data/%s.json"%name
 		config_hashes[name]=FileAccess.get_sha256(path)
 		config_snapshot[name]=JSON.parse_string(FileAccess.get_file_as_string(path))
@@ -94,10 +94,13 @@ func _fill() -> void:
 		for skill in CampaignProgression.data()["players"][hero]["xp_skills"]: ranks[skill]=0 if tier==0 else (2 if tier==1 else 5)
 		account["heroes"][hero]["ability_rank"]=tier*2
 		job["ability_rank"]=account["heroes"][hero]["ability_rank"]
-		account["heroes"][hero]["equipped_rarity"]=job.get("rarity",tier)
+		var stage: int=job.get("weapon_stage",CampaignEconomy.data()["migration_legacy_stages"][int(job.get("rarity",tier))])
+		account["heroes"][hero]["weapon_stage"]=stage
+		account["heroes"][hero]["weapon_cards"]=[0,0,0,0,0,0,0]
+		account["heroes"][hero]["weapon_cards"][stage]=2
 		var bonuses := {} if tier==0 else {"damage":0.1*tier,"hp":0.05*tier,"spin":0.05*tier}
 		bonuses.merge(job.get("extra_bonuses",{}),true)
-		job["ranks"]=ranks.duplicate(true); job["cards"]=bonuses.duplicate(true); job["rarity"]=account["heroes"][hero]["equipped_rarity"]
+		job["ranks"]=ranks.duplicate(true); job["cards"]=bonuses.duplicate(true); job["weapon_stage"]=stage
 		var lineup: Array[Dictionary]=[CampaignProfiles.hero(hero,account,bonuses)]
 		for enemy in job["enemies"]: lineup.append(CampaignCatalog.enemy(enemy["id"],enemy))
 		var arena := preload("res://scenes/arena.tscn").instantiate() as BallArena
