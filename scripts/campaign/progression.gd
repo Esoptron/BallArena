@@ -16,11 +16,12 @@ static func new_account() -> Dictionary:
 	var heroes: Dictionary = {}
 	for id in playable_ids():
 		heroes[id] = {"owned": id == "swordsman", "ranks": {}, "ability_rank": 0,
-			"weapon_cards": [1, 0, 0, 0], "equipped_rarity": 0,
-			"evolution": {"stage": 0, "personal_trial_won": false, "character_cards": 0}}
-	return {"schema": 1, "coins": 0, "xp": 0, "heroes": heroes, "selected_hero": "swordsman",
+			"weapon_cards": [2, 0, 0, 0, 0, 0, 0], "weapon_stage": 0, "unlock_card_units": 0,
+			"evolution": {"stage": 0, "personal_trial_won": false, "card_units": 0}}
+	return {"schema": 3, "coins": 0, "xp": 0, "coins_quarters": 0, "xp_quarters": 0, "crystals": 0, "heroes": heroes, "selected_hero": "swordsman",
 		"unlocked_level": 1, "boss_wins": [], "next_bonus": {}, "receipts": [],
-		"features": {"ally_slot_available": false, "ally_slot_owned": false, "future_ally": ""}, "active_run": {}}
+		"completions": {}, "reserved_characters": {}, "reserved_weapons": 0, "last_result": {},
+		"features": {"ally_slot_available": true, "ally_slot_owned": false, "future_ally": ""}, "active_run": {}}
 
 static func rank(account: Dictionary, id: String, skill: String) -> int:
 	return int(account.get("heroes", {}).get(id, {}).get("ranks", {}).get(skill, 0))
@@ -51,7 +52,8 @@ static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> 
 	var weapon: AbilityDefinition = original.abilities[0]
 	var parameters := weapon.parameters
 	var hero: Dictionary = account["heroes"][id]
-	var rarity := clampi(int(hero["equipped_rarity"]), 0, 3)
+	var rarity := int(hero["weapon_stage"])
+	var length_factor := 1.0 if CampaignEconomy.data()["length_exceptions"].has(id) else float(CampaignEconomy.data()["weapon_length_factors"][rarity])
 	var full_length := 0.0
 	if id == "vampire":
 		for tip in [Vector2(447, 903), Vector2(712, 923)]:
@@ -79,8 +81,8 @@ static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> 
 		"chance": chance, "chance_cap": runtime_cap, "training_cap": settings["chance_cap"],
 		"chance_growth": float(settings.get("chance_growth", 0.0)) + rank(account, id, "chance_growth") * float(settings.get("chance_growth_rank_gain", 0.0)),
 		"recovery": minf(float(data()["recovery_max"]), float(data()["recovery_start"]) + rank(account, id, "recovery") * float(data()["recovery_step"])),
-		"rarity": rarity, "length_factor": 1.0 if id == "vampire" else float(data()["rarity_factors"][rarity]),
-		"weapon_length": full_length * (1.0 if id == "vampire" else float(data()["rarity_factors"][rarity])),
+		"weapon_stage": rarity, "length_factor": length_factor,
+		"weapon_length": full_length * length_factor,
 		"full_length": full_length, "diameter": 70.0 * original.diameter_multiplier,
 		"body_weight": original.weight_class, "weapon_weight": weapon.weapon_weight_class,
 		"mass": preload("res://scripts/combat/weight_classes.gd").factor(original.weight_class),
@@ -88,17 +90,42 @@ static func stats(id: String, account: Dictionary, bonuses: Dictionary = {}) -> 
 		"duration": float(parameters.get("bite_duration", parameters.get("berserk_duration", parameters.get("shield_duration", 0.0)))),
 		"bleed_damage": float(settings.get("bleed_damage", 0.0))}
 
-static func buy_hero(account: Dictionary, id: String) -> bool:
+static func buy_hero(account: Dictionary, id: String, currency: String = "coins") -> bool:
 	if not playable_ids().has(id) or bool(account["heroes"][id]["owned"]):
 		return false
-	var price := int(data()["prices"][id])
-	if int(account["coins"]) < price:
+	var prices := CampaignEconomy.prices(id)
+	if not prices.has(currency): return false
+	var price := int(prices[currency])
+	if int(account.get(currency,0)) < price:
 		return false
-	account["coins"] -= price
+	account[currency] -= price
 	account["heroes"][id]["owned"] = true
+	account["heroes"][id]["evolution"]["card_units"]+=int(account["heroes"][id]["unlock_card_units"])
+	account["heroes"][id]["unlock_card_units"]=0
 	return true
 
+static func buy_ally(account: Dictionary, currency: String) -> bool:
+	var prices: Dictionary=CampaignEconomy.data()["ally_slot_prices"]
+	if account["features"]["ally_slot_owned"] or not prices.has(currency): return false
+	if int(account.get(currency,0))<int(prices[currency]): return false
+	account[currency]-=int(prices[currency]); account["features"]["ally_slot_owned"]=true
+	return true
+
+static func add_character_cards(account: Dictionary, id: String, units: int) -> void:
+	assert(units>0 and playable_ids().has(id))
+	var hero: Dictionary=account["heroes"][id]
+	if hero["owned"]: hero["evolution"]["card_units"]+=units; return
+	hero["unlock_card_units"]+=units
+	if int(hero["unlock_card_units"])>=int(CampaignEconomy.data()["card_scale"]):
+		hero["owned"]=true
+		hero["evolution"]["card_units"]+=int(hero["unlock_card_units"])-int(CampaignEconomy.data()["card_scale"])
+		hero["unlock_card_units"]=0
+
+static func evolution_ready(account: Dictionary, id: String) -> bool:
+	return account["heroes"][id]["owned"] and int(account["heroes"][id]["evolution"]["card_units"])>=int(CampaignEconomy.data()["evolution_extra_cards"])*int(CampaignEconomy.data()["card_scale"])
+
 static func upgrade(account: Dictionary, id: String, skill: String) -> bool:
+	if not account.get("active_run",{}).is_empty(): return false
 	if not playable_ids().has(id) or not bool(account["heroes"][id]["owned"]):
 		return false
 	var price := coin_cost(account, id) if skill == "ability" else xp_cost(account, id, skill)
@@ -113,16 +140,18 @@ static func upgrade(account: Dictionary, id: String, skill: String) -> bool:
 	return true
 
 static func merge(account: Dictionary, id: String, tier: int) -> bool:
-	if not playable_ids().has(id) or tier < 0 or tier >= 3 or not bool(account["heroes"][id]["owned"]):
+	if not account.get("active_run",{}).is_empty(): return false
+	if not playable_ids().has(id) or tier < 0 or tier >= CampaignEconomy.data()["weapon_length_factors"].size()-1:
 		return false
 	var hero: Dictionary = account["heroes"][id]
 	var cards: Array = hero["weapon_cards"]
-	if int(cards[tier]) < 3:
+	var cost := int(CampaignEconomy.data()["merge_copies"])*int(CampaignEconomy.data()["card_scale"])
+	if int(cards[tier]) < cost:
 		return false
-	cards[tier] -= 3
-	cards[tier + 1] += 1
-	for candidate in range(3, -1, -1):
-		if int(cards[candidate]) > 0:
-			hero["equipped_rarity"] = candidate
+	cards[tier] -= cost
+	cards[tier + 1] += int(CampaignEconomy.data()["card_scale"])
+	for candidate in range(cards.size()-1, -1, -1):
+		if int(cards[candidate]) >= int(CampaignEconomy.data()["card_scale"]):
+			hero["weapon_stage"] = candidate
 			break
 	return true

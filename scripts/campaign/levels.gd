@@ -6,4 +6,6 @@ static func all() -> Array:
 	return _levels
 static func encounter(level: int, battle: int) -> Dictionary:
 	assert(level>=1 and level<=5 and battle>=1 and battle<=10)
-	return all()[level-1]["battles"][battle-1].duplicate(true)
+	var entry: Dictionary=all()[level-1]["battles"][battle-1].duplicate(true)
+	entry["reward"]["coins"]=CampaignEconomy.wave_gold(level,battle,int(entry["reward"]["coins"]))
+	return entry

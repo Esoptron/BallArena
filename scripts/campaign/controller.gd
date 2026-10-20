@@ -19,6 +19,9 @@ var viewed_hero := ""
 var save_path := ""
 var save_warning := ""
 var save_blocked := false
+var pending_settlement: Dictionary = {}
+var pending_won := false
+const RARITIES := {"common":"Обычный", "rare":"Редкий", "epic":"Эпический", "legendary":"Легендарный"}
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -75,7 +78,7 @@ func show_page(next: String) -> void:
 	content.add_theme_constant_override("separation",12); scroll.add_child(content); _resize()
 	var header := HBoxContainer.new(); content.add_child(header)
 	_button(header,"← Режимы" if next=="levels" else "← Кампания",back)
-	var wallet := _label("%d монет  ·  %d XP"%[account["coins"],account["xp"]],20,GOLD)
+	var wallet := _label("%s монет · %s XP · %d ◆"%[CampaignEconomy.text(CampaignEconomy.wallet_units(account,"coins"),4),CampaignEconomy.text(CampaignEconomy.wallet_units(account,"xp"),4),account["crystals"]],18,GOLD)
 	wallet.size_flags_horizontal=Control.SIZE_EXPAND_FILL; wallet.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT; header.add_child(wallet)
 	if not save_warning.is_empty():
 		content.add_child(_label(save_warning,18,GOLD))
@@ -90,12 +93,17 @@ func show_page(next: String) -> void:
 		"shop": _shop()
 		"bestiary": content.add_child(preload("res://scripts/campaign/bestiary.gd").new())
 		"reward": _reward()
+		"settlement_error":
+			content.add_child(_label("Награда ещё не сохранена",28,GOLD))
+			content.add_child(_label("Результат боя остаётся в памяти. Повторите запись, прежде чем продолжать."))
+			_button(content,"Повторить сохранение результата",_retry_settlement)
 		"defeat":
 			content.add_child(_label("Поражение",32,GOLD))
-			content.add_child(_label("Награды за завершённые битвы сохранены. Временные усиления и накопление попаданий сброшены."))
+			_result(content)
 			_button(content,"Вернуться к уровням",show_page.bind("levels"))
 		"complete":
 			content.add_child(_label("Уровень завершён",32,GOLD))
+			_result(content)
 			content.add_child(_label("Выбранный бонус сохранён для следующего уровня. Начните новый уровень с полным здоровьем."))
 			_button(content,"К карте кампании",show_page.bind("levels"))
 
@@ -109,19 +117,28 @@ func _levels() -> void:
 	if not run.is_empty():
 		var panel := _panel(content)
 		panel.add_child(_label("Текущий поход · %d–%d · %s HP"%[run["level"],run["battle"],CampaignUnits.text(run["hp"])],22,BLUE))
+		panel.add_child(_label(_chest_summary(run),16,GOLD))
 		_button(panel,"Выбрать награду" if run["status"]=="reward" else "Продолжить",_resume)
 		_button(panel,"Завершить поход…",_confirm_abandon)
 	for level in CampaignLevels.all():
 		var number := int(level["level"])
 		var unlocked := number<=int(account["unlocked_level"])
-		_button(content,"%02d  ·  %s  ·  10 битв%s"%[number,level["name"],"  ✓" if account["boss_wins"].has(number) else ""],_start.bind(number),not unlocked or not run.is_empty())
+		var wins := CampaignEconomy.completions(account,number)
+		var chest := CampaignEconomy.chest_type(number,wins)
+		_button(content,"%02d · %s · 10 волн\nПобед: %d · %s сундук · награды %d%%"%[number,level["name"],wins,CampaignEconomy.data()["chests"][chest]["name"],CampaignEconomy.reward_half_units(wins)*50],_start.bind(number),not unlocked or not run.is_empty())
+	if not account["last_result"].is_empty(): _button(content,"Последний результат и содержимое сундука",func() -> void:
+		show_page("complete" if account["last_result"]["won"] else "defeat"))
 	if account["next_bonus"].has("6"): content.add_child(_label("Бонус для будущего уровня 6 сохранён. Уровень ещё не создан.",16,GOLD))
 
 func _confirm_abandon() -> void:
 	var dialog := ConfirmationDialog.new(); dialog.title="Завершить поход?"
-	dialog.dialog_text="Текущие HP и временные карточки будут сброшены. Заработанные монеты и XP останутся."
+	dialog.dialog_text="Поход завершится как поражение: 50% накопленного золота и весь XP сохранятся, все награды карточками будут потеряны. Временные усиления сбросятся."
+	if account["active_run"]["status"]=="reward" and int(account["active_run"]["battle"])==10:
+		dialog.dialog_text="Сундук уже открыт, награды сохранены. При выходе вы откажетесь только от выбора бонуса для следующего уровня."
 	dialog.ok_button_text="Завершить"; dialog.cancel_button_text="Продолжить поход"; add_child(dialog)
-	dialog.confirmed.connect(func() -> void: account["active_run"]={}; _save(); show_page("levels"))
+	dialog.confirmed.connect(func() -> void:
+		var candidate := account.duplicate(true)
+		if CampaignRun.abandon(candidate): _commit_account(candidate); show_page("levels"))
 	dialog.visibility_changed.connect(func() -> void:
 		if not dialog.visible: dialog.queue_free())
 	dialog.popup_centered(Vector2i(420,160))
@@ -191,16 +208,25 @@ func _process(delta: float) -> void:
 		if ability is SwordAbility: text+="   ·   Урон %s   ·   Вращение %.2f/с"%[CampaignUnits.text(ability.current_damage),ability.effective_spin_speed()/TAU]
 		elif ability is VampireFangs: text+="   ·   Укус %s   ·   Лечение %s"%[CampaignUnits.text(ability.get("campaign_damage")),CampaignUnits.text(ability.get("campaign_healing"))]
 		if ability is KatanaAbility: text+="   ·   Кровь %.1f%%"%(ability.critical_chance*100)
-	battle_stats.text=text
+	battle_stats.text=text+"\n"+_chest_summary(account["active_run"])
 
 func _finished(won: bool, hp: int, peak: int) -> void:
 	if _transition_pending: return
 	_transition_pending=true
 	var run: Dictionary = account["active_run"]
 	var reward := CampaignLevels.encounter(run["level"],run["battle"])["reward"] as Dictionary
-	if not CampaignRun.settle(account,won,hp,peak,reward): return
-	_save()
+	var candidate := account.duplicate(true)
+	if not CampaignRun.settle(candidate,won,hp,peak,reward): return
+	if not _commit_account(candidate):
+		pending_settlement=candidate; pending_won=won
+		show_page.call_deferred("settlement_error")
+		return
 	_finish_transition.call_deferred(won)
+
+func _retry_settlement() -> void:
+	if pending_settlement.is_empty() or not _commit_account(pending_settlement): return
+	pending_settlement={}
+	_clear_battle(); show_page("reward" if pending_won else "defeat")
 
 func _finish_transition(won: bool) -> void:
 	await get_tree().create_timer(1.1).timeout
@@ -215,6 +241,8 @@ func _reward() -> void:
 	var run: Dictionary = account["active_run"]
 	if run.get("status","")!="reward": show_page("levels"); return
 	content.add_child(_label("Победа · выберите усиление",28,GOLD))
+	if int(run["battle"])==10: _result(content)
+	else: content.add_child(_label(_chest_summary(run)+" · откроется после босса",16,GOLD))
 	content.add_child(_label("Бонус для следующего уровня" if int(run["battle"])==10 else "Усиления складываются до завершения этого уровня",18,BLUE))
 	var row := HBoxContainer.new(); row.add_theme_constant_override("separation",12); content.add_child(row)
 	for i in run["offer"].size():
@@ -268,7 +296,8 @@ func _barracks() -> void:
 	_button(box,"Тренировать способность · %s монет"%(str(coin_price) if coin_price>=0 else "максимум"),_upgrade.bind(id,"ability"),locked or coin_price<0 or account["coins"]<coin_price)
 	_weapons(box,id,locked)
 	var evo: Dictionary = account["heroes"][id]["evolution"]
-	box.add_child(_label("Эволюция — в разработке. Первая: эпическое оружие, личное испытание, 3 карты героя. Прогресс карт: %d; испытание: %s."%[evo["character_cards"],"пройдено" if evo["personal_trial_won"] else "не пройдено"],16,BLUE))
+	box.add_child(_label("Карточки героя: %s / 1 для открытия"%CampaignEconomy.text(account["heroes"][id]["unlock_card_units"]),16,BLUE))
+	box.add_child(_label("Эволюция: %s / %d дополнительных карточек · %s. Способность пока не определена; карты не расходуются."%[CampaignEconomy.text(evo["card_units"]),CampaignEconomy.data()["evolution_extra_cards"],"карты собраны" if CampaignProgression.evolution_ready(account,id) else "сбор карт"],16,GOLD))
 
 static func _weight(value: int) -> String: return ["лёгкий","легче среднего","средний","тяжелее среднего","тяжёлый"][value]
 func _select(id: String) -> void:
@@ -291,40 +320,63 @@ func _upgrade(id: String, skill: String) -> void:
 	var candidate := account.duplicate(true)
 	if CampaignProgression.upgrade(candidate,id,skill): _commit_account(candidate); show_page("barracks")
 
-func _weapons(box: VBoxContainer, id: String, locked: bool) -> void:
-	if id=="vampire": box.add_child(_label("Редкость клыков сохраняется для будущей эволюции. Дальность остаётся исходной на каждой ступени.",16,GOLD))
+func _weapons(box: VBoxContainer, id: String, _locked: bool) -> void:
+	if id=="vampire": box.add_child(_label("Исключение: длина клыков остаётся исходной на всех ступенях. Карточки и мердж учитываются.",16,GOLD))
 	var hero: Dictionary = account["heroes"][id]
-	box.add_child(_label("Оружие · "+CampaignProgression.data()["rarity_names"][int(hero["equipped_rarity"])]))
-	for tier in 4:
-		var text := "%s ×%d · длина %.0f%%"%[CampaignProgression.data()["rarity_names"][tier],hero["weapon_cards"][tier],100.0 if id=="vampire" else float(CampaignProgression.data()["rarity_factors"][tier])*100]
-		if tier<3: _button(box,text+" · слить 3 → 1",_merge.bind(id,tier),locked or int(hero["weapon_cards"][tier])<3)
+	var factors: Array=CampaignEconomy.data()["weapon_length_factors"]
+	box.add_child(_label("Оружие · длина %.0f%% · ступень %d/7"%[100.0 if id=="vampire" else float(factors[int(hero["weapon_stage"])] )*100,int(hero["weapon_stage"])+1],22,BLUE))
+	for tier in factors.size():
+		var text := "Ступень %d · %.0f%% · %s карточки"%[tier+1,float(factors[tier])*100,CampaignEconomy.text(hero["weapon_cards"][tier])]
+		if tier<factors.size()-1: _button(box,text+" · слить 2 → 1",_merge.bind(id,tier),not account["active_run"].is_empty() or int(hero["weapon_cards"][tier])<4)
 		else: box.add_child(_label(text,16,BLUE))
-	if OS.is_debug_build(): _button(box,"Отладка: +1 обычная карта оружия",_debug_weapon.bind(id),locked)
 func _merge(id: String, tier: int) -> void:
 	if not account["active_run"].is_empty(): return
 	var candidate := account.duplicate(true)
 	if CampaignProgression.merge(candidate,id,tier): _commit_account(candidate); show_page("barracks")
 func _debug_weapon(id: String) -> void:
 	if not OS.is_debug_build() or not account["active_run"].is_empty(): return
-	account["heroes"][id]["weapon_cards"][0]+=1; _save(); show_page("barracks")
+	var candidate := account.duplicate(true)
+	candidate["heroes"][id]["weapon_cards"][0]+=2
+	if _commit_account(candidate): show_page("barracks")
 
 func _shop() -> void:
-	content.add_child(_label("Магазин · только игровые монеты",28,GOLD))
+	content.add_child(_label("Магазин персонажей",28,GOLD))
 	for id in CampaignProgression.playable_ids():
 		var owned: bool = account["heroes"][id]["owned"]
-		var price := int(CampaignProgression.data()["prices"][id])
-		_button(content,"%s · %s"%[CampaignProgression.data()["players"][id]["name"],"открыт" if owned else "%d монет"%price],_buy.bind(id),owned or account["coins"]<price)
+		var box := _panel(content)
+		box.add_child(_label("%s · %s · %s"%[CampaignProgression.data()["players"][id]["name"],RARITIES.get(CampaignEconomy.rarity(id),"Категория не задана"),"открыт" if owned else "карточки %s/1"%CampaignEconomy.text(account["heroes"][id]["unlock_card_units"])],22,BLUE))
+		for currency in CampaignEconomy.prices(id):
+			var price := int(CampaignEconomy.prices(id)[currency])
+			_button(box,"%d %s"%[price,"монет" if currency=="coins" else "кристаллов"],_buy.bind(id,currency),owned or int(account[currency])<price)
 	var features: Dictionary = account["features"]
-	content.add_child(_label("Союзник — будущая система. После пятого босса можно открыть слот за 2200 монет. Союзники пока не участвуют в боях.",18,BLUE))
-	_button(content,"Слот союзника · %s"%("приобретён" if features["ally_slot_owned"] else "2200 монет"),_buy_ally,not features["ally_slot_available"] or features["ally_slot_owned"] or account["coins"]<2200)
-func _buy(id: String) -> void:
+	content.add_child(_label("Второй союзник · постоянное открытие слота. Участие союзников в бою пока не реализовано; слот не требуется для доступа к уровням. Реальные платежи и источники кристаллов пока не подключены.",18,BLUE))
+	for currency in CampaignEconomy.data()["ally_slot_prices"]:
+		var price := int(CampaignEconomy.data()["ally_slot_prices"][currency])
+		_button(content,"Слот союзника · %s"%("приобретён" if features["ally_slot_owned"] else "%d %s"%[price,"монет" if currency=="coins" else "кристаллов"]),_buy_ally.bind(currency),features["ally_slot_owned"] or account[currency]<price)
+func _buy(id: String, currency: String = "coins") -> void:
 	var candidate := account.duplicate(true)
-	if CampaignProgression.buy_hero(candidate,id): _commit_account(candidate); show_page("shop")
-func _buy_ally() -> void:
-	var features: Dictionary = account["features"]
-	if not features["ally_slot_available"] or features["ally_slot_owned"] or account["coins"]<2200: return
+	if CampaignProgression.buy_hero(candidate,id,currency): _commit_account(candidate); show_page("shop")
+func _buy_ally(currency: String = "coins") -> void:
 	var candidate := account.duplicate(true)
-	candidate["coins"]-=2200; candidate["features"]["ally_slot_owned"]=true; _commit_account(candidate); show_page("shop")
+	if CampaignProgression.buy_ally(candidate,currency): _commit_account(candidate); show_page("shop")
+
+func _chest_summary(run: Dictionary) -> String:
+	return "%s сундук · %d%% · накоплено %s монет / %s XP"%[CampaignEconomy.data()["chests"][run["chest"]]["name"],int(run["reward_half_units"])*50,CampaignEconomy.text(int(run["loot"]["gold_units"]),4),CampaignEconomy.text(int(run["loot"]["xp_units"]),4)]
+
+func _result(parent: Node) -> void:
+	var result: Dictionary=account["last_result"]
+	if result.is_empty(): return
+	var box := _panel(parent)
+	box.add_child(_label("%s сундук открыт"%CampaignEconomy.data()["chests"][result["chest"]]["name"] if result["won"] else "Сундук потерян",24,GOLD))
+	var awarded: Dictionary=result["awarded"]
+	box.add_child(_label("Получено: %s монет · %s XP"%[CampaignEconomy.text(int(awarded["gold_units"]),4),CampaignEconomy.text(int(awarded["xp_units"]),4)]))
+	if not result["won"]: box.add_child(_label("Потеряно: %s монет и все карточки. Опыт сохранён полностью."%CampaignEconomy.text(int(result["earned"]["gold_units"])-int(awarded["gold_units"]),4),18,GOLD))
+	var loot: Dictionary=awarded if result["won"] else result["earned"]
+	for kind in ["weapons","characters"]:
+		for id in loot[kind]: box.add_child(_label("%s%s · %s · %s карточки"%["" if result["won"] else "Потеряно: ","Оружие" if kind=="weapons" else "Герой",CampaignProgression.data()["players"][id]["name"],CampaignEconomy.text(int(loot[kind][id]))],18,BLUE))
+	if loot["weapons"].is_empty() and loot["characters"].is_empty(): box.add_child(_label("Карточки в этом сундуке не выпали.",16,BLUE))
+	for kind in loot["reserved_characters"]: box.add_child(_label("%s карточки редкости «%s» %s: каталог этой категории пока пуст."%[CampaignEconomy.text(int(loot["reserved_characters"][kind])),RARITIES[kind],"сохранены в резерве" if result["won"] else "потеряны"],16,GOLD))
+	if int(loot["reserved_weapons"])>0: box.add_child(_label("%s карточки оружия %s: подходящих получателей нет."%[CampaignEconomy.text(int(loot["reserved_weapons"])),"сохранены в резерве" if result["won"] else "потеряны"],16,GOLD))
 
 func _commit_account(candidate: Dictionary) -> bool:
 	if save_blocked: return false
@@ -337,6 +389,7 @@ func _commit_account(candidate: Dictionary) -> bool:
 	return true
 
 func back() -> void:
+	if not pending_settlement.is_empty(): return
 	if page=="battle": _pause()
 	elif page=="levels": _save(); closed.emit()
 	elif page=="reward": show_page("levels")

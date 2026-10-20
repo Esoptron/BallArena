@@ -1,7 +1,7 @@
 extends SceneTree
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
-	var totals := [[140,75],[220,115],[310,160],[420,215],[550,280]]
+	var totals := [[120,75],[160,115],[200,160],[240,215],[280,280]]
 	assert(CampaignLevels.all().size()==5)
 	for level in 5:
 		var coins := 0; var xp := 0

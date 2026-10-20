@@ -1,0 +1,7 @@
+{
+  "swordsman": {"1": {"implementation": "", "enabled": false}},
+  "knifeman": {"1": {"implementation": "", "enabled": false}},
+  "katana": {"1": {"implementation": "", "enabled": false}},
+  "vampire": {"1": {"implementation": "", "enabled": false}},
+  "club": {"1": {"implementation": "", "enabled": false}}
+}

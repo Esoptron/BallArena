@@ -21,23 +21,23 @@ func run() -> void:
 	check(is_equal_approx(knives.abilities[0].parameters["spin_speed"],4.8) and knives.abilities[0].parameters["spin_gain"]==4.5 and knives.abilities[0].parameters["max_spin_speed"]==48.0,"Knife starting rotation, hit growth and cap scale together.")
 	check(not CampaignProgression.buy_hero(account, "ordinary"), "Unarmed training ball must not be sold.")
 	account["xp"] = 1000
-	account["coins"] = 1000
+	account["coins"] = 100000
 	check(CampaignProgression.buy_hero(account, "knifeman"), "Shop must spend coins and unlock a hero.")
 	var old_price := CampaignProgression.xp_cost(account, "knifeman", "hp")
 	check(CampaignProgression.upgrade(account, "knifeman", "hp"), "Shared XP can train a newly acquired hero.")
 	check(CampaignProgression.rank(account, "swordsman", "hp") == 0 and CampaignProgression.stats("knifeman", account)["max_hp"] == 17.0, "Individual improvements must not upgrade the whole account.")
 	check(CampaignProgression.xp_cost(account, "knifeman", "hp") > old_price, "Rank cost must increase.")
 	var merge_account := CampaignProgression.new_account()
-	merge_account["heroes"]["swordsman"]["weapon_cards"][0] = 27
-	for tier in 3:
-		while int(merge_account["heroes"]["swordsman"]["weapon_cards"][tier]) >= 3:
-			check(CampaignProgression.merge(merge_account, "swordsman", tier), "A valid triple must merge.")
-	check(merge_account["heroes"]["swordsman"]["weapon_cards"] == [0, 0, 0, 1], "27 ordinary cards must become exactly one legendary weapon.")
-	check(CampaignProgression.stats("swordsman", merge_account)["weapon_length"] == 80.0, "Legendary must restore full geometry length.")
+	merge_account["heroes"]["swordsman"]["weapon_cards"][0] = 128
+	for tier in 6:
+		while int(merge_account["heroes"]["swordsman"]["weapon_cards"][tier]) >= 4:
+			check(CampaignProgression.merge(merge_account, "swordsman", tier), "Two whole copies must merge.")
+	check(merge_account["heroes"]["swordsman"]["weapon_cards"] == [0, 0, 0, 0, 0, 0, 2], "64 copies must become exactly one final weapon.")
+	check(is_equal_approx(CampaignProgression.stats("swordsman", merge_account)["weapon_length"],88.0), "Final weapon uses 110% of its geometry length.")
 	check(CampaignProgression.stats("swordsman", merge_account)["damage"] == 3.0, "Rarity must not multiply damage.")
 	var fang_range: float = CampaignProgression.stats("vampire", account)["weapon_length"]
-	for tier in 4:
-		account["heroes"]["vampire"]["equipped_rarity"] = tier
+	for tier in 7:
+		account["heroes"]["vampire"]["weapon_stage"] = tier
 		check(is_equal_approx(CampaignProgression.stats("vampire", account)["weapon_length"], fang_range), "Latest user exception: vampire range stays unchanged at every rarity.")
 	check(CampaignProgression.stats("swordsman", account, {"chance": 0.1})["chance"] > 0.1, "Legendary temporary chance must not be clipped by the permanent training cap.")
 	for id in CampaignProgression.playable_ids():

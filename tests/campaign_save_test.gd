@@ -11,7 +11,7 @@ func run() -> void:
 	assert(CampaignRun.begin(loaded)); assert(CampaignRun.settle(loaded,true,10000,20000,{"coins":10,"xp":5}))
 	assert(CampaignSave.write(loaded,path)==OK)
 	var reward := CampaignSave.load_account(path)["account"] as Dictionary
-	assert(reward["active_run"]["status"]=="reward" and reward["coins"]==90)
+	assert(reward["active_run"]["status"]=="reward" and reward["coins"]==80 and reward["active_run"]["loot"]["gold_units"]==40)
 	assert(not CampaignRun.settle(reward,true,10000,20000,{"coins":10,"xp":5}))
 	var file := FileAccess.open(path,FileAccess.WRITE); file.store_string("broken"); file.close()
 	var recovered := CampaignSave.load_account(path)

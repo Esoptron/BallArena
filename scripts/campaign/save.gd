@@ -1,7 +1,7 @@
 class_name CampaignSave
 extends RefCounted
 ## Versioned envelope + checksum. A valid previous generation is always recoverable.
-const VERSION := 2
+const VERSION := 3
 static func default_path() -> String:
 	# Development experiments never touch the primary project's user progress.
 	return "res://builds/campaign-work/player-save.json" if OS.has_feature("editor") else "user://campaign-v2.json"
@@ -42,19 +42,32 @@ static func load_account(path: String = "") -> Dictionary:
 			if payload is Dictionary and int(payload.get("schema",1))>VERSION:
 				return {"account":{},"warning":"Данные созданы более новой версией. Автоматическое понижение версии отключено."}
 	var main := _read(absolute)
-	if not main.is_empty(): return {"account":main,"warning":""}
+	if not main.is_empty():
+		if _preserve_legacy(absolute)!=OK: return {"account":{},"warning":"Не удалось создать копию старого прогресса. Миграция заблокирована."}
+		return {"account":main,"warning":""}
 	var backup := _read(absolute+".bak")
 	if exists:
 		var preserved := absolute+".corrupt-"+str(Time.get_unix_time_from_system()).replace(".","-")
 		var error := DirAccess.copy_absolute(absolute,preserved)
 		if error!=OK: return {"account":{},"warning":"Не удалось сохранить повреждённый файл. Автоматическая перезапись заблокирована."}
-	if not backup.is_empty(): return {"account":backup,"warning":"Прогресс восстановлен из предыдущего сохранения. Повреждённый файл сохранён отдельно."}
+	if not backup.is_empty():
+		if _preserve_legacy(absolute+".bak")!=OK: return {"account":{},"warning":"Не удалось сохранить исходную резервную копию. Миграция заблокирована."}
+		return {"account":backup,"warning":"Прогресс восстановлен из предыдущего сохранения. Повреждённый файл сохранён отдельно."}
 	# A fully written temporary file may be the first generation after a crash.
 	var temp := _read(absolute+".tmp")
-	if not temp.is_empty(): return {"account":temp,"warning":"Найдено завершённое временное сохранение после прерванной записи."}
+	if not temp.is_empty():
+		if _preserve_legacy(absolute+".tmp")!=OK: return {"account":{},"warning":"Не удалось сохранить исходный временный файл. Миграция заблокирована."}
+		return {"account":temp,"warning":"Найдено завершённое временное сохранение после прерванной записи."}
 	if exists or FileAccess.file_exists(absolute+".bak"):
 		return {"account":{},"warning":"Сохранение повреждено. Файлы сохранены; автоматическое обнуление отключено."}
 	return {"account":CampaignProgression.new_account(),"warning":""}
+
+static func _preserve_legacy(path: String) -> Error:
+	var raw: Variant=_parse(FileAccess.get_file_as_string(path))
+	if raw is Dictionary and raw.get("payload") is String: raw=_parse(raw["payload"])
+	if raw is Dictionary and int(raw.get("schema",1))<VERSION and not FileAccess.file_exists(path+".pre-v3"):
+		return DirAccess.copy_absolute(path,path+".pre-v3")
+	return OK
 
 static func _read(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path) or FileAccess.get_file_as_bytes(path).size()>4*1024*1024: return {}
@@ -73,15 +86,35 @@ static func _parse(text: String) -> Variant:
 	return parser.data if parser.parse(text)==OK else null
 
 static func migrate(source: Dictionary) -> Dictionary:
+	if not _integer(source.get("schema",1),1,VERSION): return {}
 	if int(source.get("schema",1))>VERSION: return {}
+	var legacy := int(source.get("schema",1))<VERSION
 	var result := _with_defaults(CampaignProgression.new_account(),source)
 	if not result["heroes"] is Dictionary: return {}
+	for key in ["features","completions","active_run"]:
+		if not result[key] is Dictionary: return {}
+	if not result["boss_wins"] is Array: return {}
 	for id in CampaignProgression.playable_ids():
 		var hero: Dictionary=CampaignProgression.new_account()["heroes"][id]
 		if result["heroes"].has(id):
 			if not result["heroes"][id] is Dictionary: return {}
 			hero.merge(result["heroes"][id],true)
+		if legacy and not _migrate_hero(hero): return {}
 		result["heroes"][id]=hero
+	if legacy:
+		# Old saves only recorded whether a boss had ever been beaten, not how often.
+		for level in result["boss_wins"]: result["completions"][str(int(level))]=1
+		result["features"]["ally_slot_available"]=true
+		if not result["active_run"].is_empty():
+			var run: Dictionary=result["active_run"]
+			if not run.get("profile") is Dictionary: return {}
+			for id in run["profile"]:
+				if not run["profile"][id] is Dictionary or not _migrate_hero(run["profile"][id]): return {}
+			run["loot"]=CampaignEconomy.empty_loot()
+			run["chest"]=CampaignEconomy.chest_type(int(run.get("level",1)),CampaignEconomy.completions(result,int(run.get("level",1))))
+			run["reward_half_units"]=CampaignEconomy.reward_half_units(CampaignEconomy.completions(result,int(run.get("level",1))))
+			run["legacy_paid_waves"]=int(run.get("battle",1))-(0 if run.get("status")=="reward" else 1)
+			run["legacy_boss_settled"]=int(run.get("battle",1))==10 and run.get("status")=="reward"
 	result["schema"]=VERSION
 	if not validate(result).is_empty(): return {}
 	for receipt in result["receipts"]:
@@ -95,6 +128,28 @@ static func migrate(source: Dictionary) -> Dictionary:
 		result["run_serial"]=maxi(int(result.get("run_serial",0)),int(run["serial"]))
 	return result
 
+static func _migrate_hero(hero: Dictionary) -> bool:
+	var old: Variant=hero.get("weapon_cards")
+	# Missing heroes already carry new-account defaults.
+	if old is Array and old.size()==7 and hero.has("weapon_stage"): return true
+	if not old is Array or old.size()!=4: return false
+	var cards := [0,0,0,0,0,0,0]
+	var mapping: Array=CampaignEconomy.data()["migration_legacy_stages"]
+	for tier in 4:
+		if not _integer(old[tier],0,1000000): return false
+		cards[int(mapping[tier])]+=int(old[tier])*2
+	var equipped := -1
+	for tier in cards.size():
+		if cards[tier]>=2: equipped=tier
+	if equipped<0: return false
+	var evolution: Variant=hero.get("evolution",{})
+	if not evolution is Dictionary or not _integer(evolution.get("character_cards",0),0,1000000): return false
+	hero["legacy_inventory"]={"weapon_cards":old.duplicate(),"equipped_rarity":hero.get("equipped_rarity",0),"evolution":evolution.duplicate(true)}
+	hero["weapon_cards"]=cards; hero["weapon_stage"]=equipped; hero["unlock_card_units"]=0
+	evolution["card_units"]=int(evolution.get("character_cards",0))*2
+	evolution.erase("character_cards"); hero.erase("equipped_rarity")
+	return true
+
 static func _with_defaults(defaults: Dictionary, source: Dictionary) -> Dictionary:
 	var result := defaults.duplicate(true)
 	for key in source:
@@ -105,8 +160,19 @@ static func _integer(value: Variant, lower: int, upper: int = 9000000000000) -> 
 	return (value is int or value is float) and is_finite(float(value)) and float(value)==floor(float(value)) and value>=lower and value<=upper
 
 static func validate(a: Dictionary) -> String:
-	for key in ["coins","xp","unlocked_level"]:
+	for key in ["coins","xp","crystals","unlocked_level","reserved_weapons"]:
 		if not _integer(a.get(key),0): return "Invalid "+key
+	for key in ["coins_quarters","xp_quarters"]:
+		if not _integer(a.get(key),0,3): return "Invalid fractional wallet"
+	if not a.get("completions") is Dictionary or not a.get("reserved_characters") is Dictionary or not a.get("last_result") is Dictionary: return "Invalid economy metadata"
+	for level in a["completions"]:
+		if not str(level).is_valid_int() or int(level)<1 or not _integer(a["completions"][level],0): return "Invalid completion count"
+	for kind in a["reserved_characters"]:
+		if not CampaignEconomy.data()["character_rarity_weights"].has(kind) or not _integer(a["reserved_characters"][kind],0): return "Invalid reserved character"
+	var report: Dictionary=a["last_result"]
+	if not report.is_empty():
+		if not report.get("won") is bool or not _integer(report.get("level"),1,5) or not _integer(report.get("serial"),1): return "Invalid result identity"
+		if not CampaignEconomy.data()["chests"].has(report.get("chest","")) or not _loot_valid(report.get("earned")) or not _loot_valid(report.get("awarded")): return "Invalid result rewards"
 	if not _integer(a.get("run_serial",0),0): return "Invalid run serial"
 	if int(a["unlocked_level"])<1 or int(a["unlocked_level"])>5: return "Invalid level"
 	if not a.get("heroes") is Dictionary: return "Invalid heroes"
@@ -116,12 +182,17 @@ static func validate(a: Dictionary) -> String:
 		if not h.get("owned") is bool or not h.get("ranks") is Dictionary or not _integer(h.get("ability_rank"),0,1000): return "Invalid hero ranks"
 		for skill in h["ranks"]:
 			if not CampaignProgression.data()["players"][id]["xp_skills"].has(skill) or not _integer(h["ranks"][skill],0,1000): return "Invalid skill"
-		if not h.get("weapon_cards") is Array or h["weapon_cards"].size()!=4 or not _integer(h.get("equipped_rarity"),0,3): return "Invalid inventory"
+		if not h.get("weapon_cards") is Array or h["weapon_cards"].size()!=7 or not _integer(h.get("weapon_stage"),0,6): return "Invalid inventory"
 		for count in h["weapon_cards"]:
 			if not _integer(count,0,1000000): return "Invalid weapon count"
+		var equipped := -1
+		for tier in h["weapon_cards"].size():
+			if h["weapon_cards"][tier]>=2: equipped=tier
+		if equipped!=int(h["weapon_stage"]): return "Invalid equipped weapon stage"
+		if not _integer(h.get("unlock_card_units"),0,1) or (h["owned"] and int(h["unlock_card_units"])!=0): return "Invalid unlock cards"
 		if not h.get("evolution") is Dictionary: return "Invalid evolution"
 		var evolution: Dictionary=h["evolution"]
-		if not _integer(evolution.get("stage"),0,100) or not _integer(evolution.get("character_cards"),0,1000000) or not evolution.get("personal_trial_won") is bool: return "Invalid evolution metadata"
+		if not _integer(evolution.get("stage"),0,100) or not _integer(evolution.get("card_units"),0,1000000) or not evolution.get("personal_trial_won") is bool: return "Invalid evolution metadata"
 	if not CampaignProgression.playable_ids().has(a.get("selected_hero","")): return "Invalid selected hero"
 	if not a["heroes"][a["selected_hero"]]["owned"]: return "Selected hero is locked"
 	for key in ["features","active_run","next_bonus"]:
@@ -144,6 +215,12 @@ static func validate(a: Dictionary) -> String:
 		if not CampaignProgression.playable_ids().has(run.get("hero","")) or not a["heroes"][run["hero"]]["owned"]: return "Invalid run hero"
 		if not run.get("status","") in ["ready","fighting","reward"] or not _bonus_valid(run.get("bonuses")): return "Invalid run status"
 		if not run.get("profile") is Dictionary or not run.get("offer") is Array: return "Invalid run profile/offer"
+		if not CampaignEconomy.data()["chests"].has(run.get("chest","")) or not _integer(run.get("reward_half_units"),1,2): return "Invalid run economy"
+		if not _loot_valid(run.get("loot")): return "Invalid run loot"
+		var paid: Variant=run.get("legacy_paid_waves",0)
+		if not _integer(paid,0,10) or not run.get("legacy_boss_settled",false) is bool: return "Invalid legacy settlement"
+		var completed := int(run["battle"])-(0 if run["status"]=="reward" else 1)
+		if int(run["loot"]["waves"])+int(paid)!=completed: return "Invalid wave ledger"
 		var shadow := a.duplicate(true); shadow["active_run"]={}; shadow["heroes"]=run["profile"]; shadow["selected_hero"]=run["hero"]
 		if not validate(shadow).is_empty(): return "Invalid frozen run profile"
 		var offers: Array=run["offer"]
@@ -153,6 +230,19 @@ static func validate(a: Dictionary) -> String:
 			if not card is String or not CampaignCards.DEFINITIONS.has(card) or unique.has(card): return "Invalid reward card"
 			unique[card]=true
 	return ""
+
+static func _loot_valid(value: Variant) -> bool:
+	if not value is Dictionary: return false
+	for key in ["gold_units","xp_units","reserved_weapons","waves"]:
+		if not _integer(value.get(key),0,10 if key=="waves" else 9000000000000): return false
+	for key in ["weapons","characters","reserved_characters"]:
+		if not value.get(key) is Dictionary: return false
+		for id in value[key]:
+			if key=="reserved_characters":
+				if not CampaignEconomy.data()["character_rarity_weights"].has(id): return false
+			elif not CampaignProgression.playable_ids().has(id): return false
+			if not _integer(value[key][id],0,1000000): return false
+	return true
 
 static func _bonus_valid(value: Variant) -> bool:
 	if not value is Dictionary: return false
