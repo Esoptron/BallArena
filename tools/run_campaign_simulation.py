@@ -13,12 +13,12 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 ERROR = re.compile(r'SCRIPT ERROR:|\bERROR:|Assertion failed|instances leaked|resources still in use')
 
-def batch(engine: str, count: int, name: str, seed: int, destination: Path, hero: str, boss: str) -> dict:
+def batch(engine: str, count: int, name: str, seed: int, destination: Path, hero: str, boss: str, ally: str = '') -> dict:
     output = destination / f'{name}.json'
     log = destination / f'{name}.log'
     command = [engine, '--headless', '--path', str(ROOT), '--fixed-fps', '60',
                '--log-file', str(destination / f'{name}.godot.log'),
-               '--script', 'res://tools/campaign_simulation.gd', '--', str(count), str(output), str(seed), hero,boss]
+               '--script', 'res://tools/campaign_simulation.gd', '--', str(count), str(output), str(seed), hero,boss,ally]
     started = time.monotonic()
     try:
         with log.open('w', encoding='utf-8') as stream:
@@ -46,6 +46,7 @@ def main() -> int:
     parser.add_argument('--name', default='validation')
     parser.add_argument('--hero', default='', help='Optional playable ID; default tests the entire data registry.')
     parser.add_argument('--boss', default='', help='Optional boss ID for a focused regression.')
+    parser.add_argument('--ally', default='', help='Optional second playable hero; empty keeps solo scenarios.')
     parser.add_argument('--output', type=Path, default=ROOT/'builds/campaign-work/validation')
     args = parser.parse_args()
     if not 1 <= args.batches <= 4 or not 1 <= args.per_pair <= 10000 or not args.name.replace('-', '').isalnum():
@@ -57,7 +58,7 @@ def main() -> int:
     jobs = [(f'{args.name}-{i+1}', args.seed+i*10000000) for i in range(args.batches)]
     print(f'Starting {args.batches} isolated Godot processes; {args.per_pair*args.batches} trials per hero/boss pair.', flush=True)
     with ThreadPoolExecutor(max_workers=args.batches) as pool:
-        results = list(pool.map(lambda job: batch(args.godot, args.per_pair, job[0], job[1], destination,args.hero,args.boss), jobs))
+        results = list(pool.map(lambda job: batch(args.godot, args.per_pair, job[0], job[1], destination,args.hero,args.boss,args.ally), jobs))
     (destination/'execution.json').write_text(json.dumps(results, indent=2)+'\n', encoding='utf-8')
     return 0 if all(result['ok'] for result in results) else 1
 

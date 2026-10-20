@@ -135,7 +135,7 @@ def main() -> int:
             if any(enemy['id'] in entry.get('exclude_enemy_ids', []) for enemy in row['enemies']):
                 continue
             key = (row['hero'], row['type'], row['seed'], row['tier'],
-                   tuple(enemy['id'] for enemy in row['enemies']))
+                   tuple(enemy['id'] for enemy in row['enemies']), row.get('ally', ''))
             assert key not in seen, f'Duplicate scenario: {key}'
             seen.add(key)
             assert not (row['win'] and row['timeout'])
@@ -149,10 +149,11 @@ def main() -> int:
     tier_groups: dict[tuple, list[dict]] = defaultdict(list)
     for row in rows:
         kind = category(row)
-        groups[(kind, row['hero'])].append(row)
-        tier_groups[(kind, row['hero'], row['tier'])].append(row)
+        party = row['hero'] + (' + ' + row['ally'] if row.get('ally') else '')
+        groups[(kind, party)].append(row)
+        tier_groups[(kind, party, row['tier'])].append(row)
         if kind == 'boss':
-            boss_groups[(row['hero'], row['enemies'][0]['id'])].append(row)
+            boss_groups[(party, row['enemies'][0]['id'])].append(row)
     overview = [dict(kind=kind, hero=hero, **summarize(values)) for
                 (kind, hero), values in sorted(groups.items())]
     pairs = [dict(hero=hero, boss=boss, **summarize(values)) for

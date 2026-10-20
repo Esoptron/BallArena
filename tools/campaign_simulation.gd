@@ -14,6 +14,7 @@ var config_snapshot := {}
 var source_hashes := {}
 var hero_filter := ""
 var boss_filter := ""
+var ally_filter := ""
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -22,6 +23,9 @@ func run() -> void:
 	if args.size()>2: base_seed=int(args[2])
 	if args.size()>3: hero_filter=args[3]
 	if args.size()>4: boss_filter=args[4]
+	if args.size()>5: ally_filter=args[5]
+	if not ally_filter.is_empty() and not CampaignProgression.playable_ids().has(ally_filter):
+		push_error("Unknown simulation ally"); quit(1); return
 	var bosses: Array[String]=[]
 	for id in CampaignCatalog.data():
 		if not String(CampaignCatalog.data()[id].get("boss","")).is_empty(): bosses.append(id)
@@ -62,18 +66,21 @@ func run() -> void:
 			if arena.director.match_over or elapsed>=90:
 				var row: Dictionary=entry["metrics"]
 				row.merge(entry["job"])
-				row["duration"]=elapsed; row["win"]=player.current_health>0 and arena.director.match_over
+				row["duration"]=elapsed
 				row["timeout"]=elapsed>=90 and not arena.director.match_over
-				row["hp"]=CampaignUnits.unpack(player.current_health); row["enemy_hp"]=0.0
+				row["primary_hp"]=CampaignUnits.unpack(player.current_health); row["hp"]=0.0; row["enemy_hp"]=0.0
 				for enemy in arena.fighters:
-					if enemy!=player: row["enemy_hp"]+=CampaignUnits.unpack(enemy.current_health)
+					row["hp" if enemy.team_id==&"blue" else "enemy_hp"]+=CampaignUnits.unpack(enemy.current_health)
+				row["win"]=row["hp"]>0 and arena.director.match_over
 				row["winner_hp"]=row["hp"] if row["win"] else row["enemy_hp"]
 				trials.append(row)
 				var viewport := entry["viewport"] as SubViewport
 				viewport.get_parent().remove_child(viewport); viewport.queue_free(); active.remove_at(index)
 			else:
-				if player.is_paralyzed(): entry["metrics"]["captured"]+=1.0/Engine.physics_ticks_per_second
-				if player.is_feeding: entry["metrics"]["feeding"]+=1.0/Engine.physics_ticks_per_second
+				for actor in arena.fighters:
+					if actor.team_id!=&"blue": continue
+					if actor.is_paralyzed(): entry["metrics"]["captured"]+=1.0/Engine.physics_ticks_per_second
+					if actor.is_feeding: entry["metrics"]["feeding"]+=1.0/Engine.physics_ticks_per_second
 		_fill()
 		if trials.size()-last_report>=100:
 			last_report=trials.size(); print("CAMPAIGN SIM ",trials.size(),"/",jobs.size())
@@ -102,9 +109,20 @@ func _fill() -> void:
 		bonuses.merge(job.get("extra_bonuses",{}),true)
 		job["ranks"]=ranks.duplicate(true); job["cards"]=bonuses.duplicate(true); job["weapon_stage"]=stage
 		var lineup: Array[Dictionary]=[CampaignProfiles.hero(hero,account,bonuses)]
+		if not ally_filter.is_empty():
+			# Ally progression uses its own profile; temporary primary bonuses stay primary.
+			var ally_account := CampaignProgression.new_account()
+			for skill in CampaignProgression.data()["players"][ally_filter]["xp_skills"]: ally_account["heroes"][ally_filter]["ranks"][skill]=0 if tier==0 else (2 if tier==1 else 5)
+			ally_account["heroes"][ally_filter]["ability_rank"]=tier*2
+			ally_account["heroes"][ally_filter]["weapon_stage"]=stage
+			ally_account["heroes"][ally_filter]["weapon_cards"]=[0,0,0,0,0,0,0]
+			ally_account["heroes"][ally_filter]["weapon_cards"][stage]=2
+			lineup.append(CampaignProfiles.hero(ally_filter,ally_account))
+		job["ally"]=ally_filter
 		for enemy in job["enemies"]: lineup.append(CampaignCatalog.enemy(enemy["id"],enemy))
 		var arena := preload("res://scenes/arena.tscn").instantiate() as BallArena
 		arena.set_script(preload("res://scripts/campaign/arena.gd")); arena.set("lineup",lineup)
+		if not ally_filter.is_empty(): arena.set("party_size",2)
 		arena.spawn_seed=job["seed"]; arena.set("speed_variation",0.12); arena.set("presentation",false)
 		if job.get("overheal",false): arena.set("carried_hp",45000); arena.set("carried_peak",60000)
 		viewport.add_child(arena)
@@ -113,7 +131,7 @@ func _fill() -> void:
 			job["scenario"].append({"id":String(actor.character_id),"position":[actor.position.x,actor.position.y],"velocity":[actor.linear_velocity.x,actor.linear_velocity.y],"hp":CampaignUnits.unpack(actor.current_health),"diameter":actor.diameter,"mass":actor.mass})
 		var metrics := {"hits":0,"bites":0,"abilities":0,"damage":0.0,"healing":0.0,"dot":0.0,"captured":0.0,"feeding":0.0,"enemy_hits":0,"enemy_damage":0.0,"ability_counts":{}}
 		arena.director.event_recorded.connect(func(e: Dictionary) -> void:
-			var player: bool=e["actor_id"]=="player"
+			var player: bool=e["actor_id"] in ["player","ally"]
 			match e["kind"]:
 				"hit", "projectile_hit": metrics["hits" if player else "enemy_hits"]+=1
 				"damage":
@@ -123,7 +141,7 @@ func _fill() -> void:
 				"heal":
 					if player: metrics["healing"]+=CampaignUnits.unpack(e["amount"])
 				"cast_started":
-					if player and hero=="vampire": metrics["bites"]+=1
+					if player and e["character_id"]=="vampire": metrics["bites"]+=1
 				"berserk_started","hunt_started","shield_started","capture_counter","magnetic_pulse","drone_summoned","critical_hit":
 					metrics["abilities"]+=1
 					var key: String=("player/" if player else "enemy/")+e["kind"]
