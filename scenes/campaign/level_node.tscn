@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/campaign/map/level_node.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/campaign/map/chest.gd" id="2"]
+
+[node name="LevelNode" type="Button"]
+offset_right = 160.0
+offset_bottom = 184.0
+custom_minimum_size = Vector2(160, 184)
+mouse_default_cursor_shape = 2
+script = ExtResource("1")
+
+[node name="Number" type="Label" parent="."]
+offset_left = 47.0
+offset_top = 0.0
+offset_right = 113.0
+offset_bottom = 39.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BossSlot" type="Control" parent="."]
+offset_left = 47.0
+offset_top = 43.0
+offset_right = 113.0
+offset_bottom = 109.0
+mouse_filter = 2
+
+[node name="Question" type="Label" parent="BossSlot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 43
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Texture" type="TextureRect" parent="BossSlot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ChestSlot" type="Node2D" parent="."]
+position = Vector2(133, 115)
+script = ExtResource("2")
+
+[node name="Status" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 158.0
+offset_right = 160.0
+offset_bottom = 184.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
+[node name="Markers" type="HBoxContainer" parent="."]
+offset_left = 119.0
+offset_top = 37.0
+offset_right = 160.0
+offset_bottom = 62.0
+mouse_filter = 2

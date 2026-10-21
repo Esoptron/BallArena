@@ -1,0 +1,385 @@
+{
+  "design_height": 260,
+  "max_scale": 1.35,
+  "parallax": {
+    "middle": 1.0,
+    "lower": 0.55,
+    "upper": 0.25
+  },
+  "scroll": {
+    "smoothing": 12.0,
+    "drag_threshold": 8.0,
+    "inertia_decay": 7.0,
+    "max_velocity": 2200.0,
+    "arrow_page_fraction": 0.78
+  },
+  "theme": {
+    "sky_top": "101827",
+    "sky_bottom": "342630",
+    "stone": "314055",
+    "lava": "e77731",
+    "far_wall": "263249",
+    "banner": "773a45"
+  },
+  "chest_skins": {
+    "bronze": {
+      "colour": "cf9258",
+      "texture": ""
+    },
+    "gold": {
+      "colour": "f9c357",
+      "texture": ""
+    },
+    "diamond": {
+      "colour": "56cafa",
+      "texture": ""
+    }
+  },
+  "terminal": {
+    "gap": 240,
+    "width": 420,
+    "label": "Скоро выйдет"
+  },
+  "levels": [
+    {
+      "id": "level_01",
+      "level_number": 1,
+      "map_position": [
+        130,
+        182
+      ],
+      "state": "auto",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 0,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_02",
+      "level_number": 2,
+      "map_position": [
+        360,
+        208
+      ],
+      "state": "auto",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 1,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_03",
+      "level_number": 3,
+      "map_position": [
+        590,
+        188
+      ],
+      "state": "auto",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 2,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_04",
+      "level_number": 4,
+      "map_position": [
+        820,
+        214
+      ],
+      "state": "auto",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 3,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_05",
+      "level_number": 5,
+      "map_position": [
+        1050,
+        184
+      ],
+      "state": "auto",
+      "chest_type": "gold",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 4,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_06",
+      "level_number": 6,
+      "map_position": [
+        1280,
+        182
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 5,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_07",
+      "level_number": 7,
+      "map_position": [
+        1510,
+        208
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 6,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_08",
+      "level_number": 8,
+      "map_position": [
+        1740,
+        188
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 7,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_09",
+      "level_number": 9,
+      "map_position": [
+        1970,
+        214
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 8,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_10",
+      "level_number": 10,
+      "map_position": [
+        2200,
+        184
+      ],
+      "state": "unavailable",
+      "chest_type": "diamond",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 9,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_11",
+      "level_number": 11,
+      "map_position": [
+        2430,
+        182
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 10,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_12",
+      "level_number": 12,
+      "map_position": [
+        2660,
+        208
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 11,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_13",
+      "level_number": 13,
+      "map_position": [
+        2890,
+        188
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 12,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_14",
+      "level_number": 14,
+      "map_position": [
+        3120,
+        214
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 13,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_15",
+      "level_number": 15,
+      "map_position": [
+        3350,
+        184
+      ],
+      "state": "unavailable",
+      "chest_type": "gold",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 14,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_16",
+      "level_number": 16,
+      "map_position": [
+        3580,
+        182
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 15,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_17",
+      "level_number": 17,
+      "map_position": [
+        3810,
+        208
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 16,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_18",
+      "level_number": 18,
+      "map_position": [
+        4040,
+        188
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 17,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_19",
+      "level_number": 19,
+      "map_position": [
+        4270,
+        214
+      ],
+      "state": "unavailable",
+      "chest_type": "bronze",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 18,
+      "zone_id": "citadel",
+      "markers": []
+    },
+    {
+      "id": "level_20",
+      "level_number": 20,
+      "map_position": [
+        4500,
+        184
+      ],
+      "state": "unavailable",
+      "chest_type": "diamond",
+      "repeat_chest_type": "bronze",
+      "show_chest": true,
+      "boss_placeholder_type": "question_mark_placeholder",
+      "boss_icon_texture": "",
+      "unlock_requirement": 19,
+      "zone_id": "citadel",
+      "markers": []
+    }
+  ]
+}
