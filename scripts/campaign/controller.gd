@@ -76,6 +76,9 @@ func show_page(next: String) -> void:
 	if next == "levels" and not save_blocked:
 		_levels()
 		return
+	if next == "map_art_preview" and not save_blocked:
+		_art_preview()
+		return
 	var background := ColorRect.new(); background.color=Color("090f1b")
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); page_root.add_child(background)
 	var decor := preload("res://scripts/menu_backdrop.gd").new()
@@ -128,6 +131,7 @@ func _levels() -> void:
 	level_map.shop_requested.connect(show_page.bind("shop"))
 	level_map.barracks_requested.connect(show_page.bind("barracks"))
 	level_map.bestiary_requested.connect(show_page.bind("bestiary"))
+	level_map.art_preview_requested.connect(show_page.bind("map_art_preview"))
 	level_map.result_requested.connect(func() -> void:
 		show_page("complete" if account["last_result"]["won"] else "defeat"))
 	level_map.resume_requested.connect(_resume)
@@ -139,6 +143,19 @@ func _levels() -> void:
 		if account["active_run"].is_empty(): _start(number)
 		elif int(account["active_run"]["level"]) == number: _resume())
 	page_root.add_child(level_map)
+
+func _art_preview() -> void:
+	var view := preload("res://scenes/campaign/level_map_art_preview.tscn").instantiate()
+	view.account=account
+	view.back_requested.connect(show_page.bind("levels"))
+	view.home_requested.connect(_go_home)
+	view.shop_requested.connect(show_page.bind("shop"))
+	view.barracks_requested.connect(show_page.bind("barracks"))
+	view.bestiary_requested.connect(show_page.bind("bestiary"))
+	view.level_requested.connect(func(number: int) -> void:
+		if account["active_run"].is_empty(): _start(number)
+		elif int(account["active_run"]["level"])==number: _resume())
+	page_root.add_child(view)
 
 func _go_home() -> void:
 	if not _save():

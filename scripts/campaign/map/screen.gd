@@ -8,6 +8,7 @@ signal resume_requested
 signal abandon_requested
 signal retry_requested
 signal level_requested(number: int)
+signal art_preview_requested
 const STYLES := preload("res://scripts/ui/menu_styles.gd")
 const LEVEL := preload("res://scenes/campaign/level_node.tscn")
 const DECOR := preload("res://scripts/campaign/map/decor.gd")
@@ -105,6 +106,7 @@ func _build_hud() -> void:
 		_button(footer,"Продолжить %d–%d"%[run["level"],run["battle"]],resume_requested.emit)
 		_button(footer,"× Поход",abandon_requested.emit)
 	_button(footer,"Бестиарий",bestiary_requested.emit)
+	_button(footer,"Новый вид",art_preview_requested.emit)
 	if run.is_empty() and not account["last_result"].is_empty(): _button(footer,"Итог",result_requested.emit)
 	right_button = _button(footer,"›",func() -> void: scroller.nudge(1))
 	right_button.size_flags_horizontal = Control.SIZE_SHRINK_END
