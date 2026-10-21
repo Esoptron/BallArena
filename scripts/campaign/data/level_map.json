@@ -381,5 +381,10 @@
       "zone_id": "citadel",
       "markers": []
     }
-  ]
+  ],
+  "zones": {
+    "citadel": {
+      "name": "Цитадель"
+    }
+  }
 }
