@@ -22,6 +22,19 @@ func run() -> void:
 	var calls := [0]; view.level_requested.connect(func(_number: int) -> void: calls[0]+=1)
 	view._activate(20); view._activate(2); assert(calls[0]==0)
 	view._activate(1); assert(calls[0]==1)
+	# Dispatch through the viewport too: a drag begun on a button must not launch it.
+	var button_center: Vector2 = view.level_nodes[0].get_global_rect().get_center()
+	var mouse_down := InputEventMouseButton.new()
+	mouse_down.button_index=MOUSE_BUTTON_LEFT; mouse_down.pressed=true; mouse_down.position=button_center
+	Input.parse_input_event(mouse_down); await process_frame
+	var motion := InputEventMouseMotion.new(); motion.position=button_center-Vector2(70,0)
+	motion.button_mask=MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(motion); await process_frame
+	var mouse_up := InputEventMouseButton.new()
+	mouse_up.button_index=MOUSE_BUTTON_LEFT; mouse_up.position=motion.position
+	Input.parse_input_event(mouse_up); await settle()
+	assert(calls[0]==1 and not view.level_nodes[0].button_pressed)
+	view.scroller.jump(0)
 	var start: Vector2=view.surface.get_global_rect().get_center()
 	var down := InputEventScreenTouch.new(); down.index=0; down.position=start; down.pressed=true
 	view.scroller._input(down)

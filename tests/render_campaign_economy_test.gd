@@ -5,10 +5,12 @@ var output := ""
 func _initialize() -> void: call_deferred("run")
 func capture(name: String, scroll: int = 0) -> void:
 	for frame in 5: await process_frame
-	(controller.content.get_parent() as ScrollContainer).scroll_vertical=scroll
+	if is_instance_valid(controller.content):
+		(controller.content.get_parent() as ScrollContainer).scroll_vertical=scroll
 	for frame in 3: await process_frame
 	await RenderingServer.frame_post_draw
-	assert(controller.content.size.x<=viewport.size.x)
+	var page: Control = controller.content if is_instance_valid(controller.content) else controller.level_map
+	assert(page.size.x<=viewport.size.x)
 	assert(viewport.get_texture().get_image().save_png(output.get_basename()+"-"+name+".png")==OK)
 func win_wave() -> void:
 	assert(CampaignRun.begin(controller.account))

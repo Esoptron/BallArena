@@ -9,10 +9,14 @@ func _open_campaign() -> void:
 		campaign=load("res://scripts/campaign/controller.gd").new()
 		front_menu.get_parent().add_child(campaign)
 		campaign.connect("closed",_close_campaign)
+		campaign.connect("home_requested",_campaign_home)
 	else: campaign.process_mode=Node.PROCESS_MODE_INHERIT; campaign.show(); campaign.call("show_page","levels")
 func _close_campaign() -> void:
 	campaign.hide(); campaign.process_mode=Node.PROCESS_MODE_DISABLED
 	front_menu.process_mode=Node.PROCESS_MODE_INHERIT; front_menu.show(); front_menu.show_page("modes")
+func _campaign_home() -> void:
+	_close_campaign()
+	front_menu.show_page("home")
 func _unhandled_key_input(event: InputEvent) -> void:
 	if is_instance_valid(campaign) and campaign.visible:
 		if event.is_action_pressed("ui_cancel"): campaign.call("back"); get_viewport().set_input_as_handled()

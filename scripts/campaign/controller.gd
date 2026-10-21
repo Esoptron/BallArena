@@ -1,5 +1,6 @@
 extends Control
 signal closed
+signal home_requested
 const STYLES := preload("res://scripts/ui/menu_styles.gd")
 const BLUE := Color("83b2ff")
 const GOLD := Color("e2b46d")
@@ -8,6 +9,9 @@ var account := CampaignProgression.new_account()
 var page := "levels"
 var content: VBoxContainer
 var page_root: Control
+var level_map: Control
+var _map_center := -1.0
+var _map_current := -1
 var battle_view: Node2D
 var battle_arena: BallArena
 var battle_title: Label
@@ -61,12 +65,17 @@ func _panel(parent: Node) -> VBoxContainer:
 	var box := VBoxContainer.new(); box.add_theme_constant_override("separation",10); panel.add_child(box); return box
 
 func _clear_page() -> void:
+	if is_instance_valid(level_map): _map_center = level_map.center_on_map()
+	level_map = null
 	if is_instance_valid(page_root): remove_child(page_root); page_root.queue_free()
 	page_root=Control.new(); page_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(page_root)
 	content=null
 
 func show_page(next: String) -> void:
 	page=next; _clear_page()
+	if next == "levels" and not save_blocked:
+		_levels()
+		return
 	var background := ColorRect.new(); background.color=Color("090f1b")
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); page_root.add_child(background)
 	var decor := preload("res://scripts/menu_backdrop.gd").new()
@@ -108,29 +117,35 @@ func show_page(next: String) -> void:
 			_button(content,"К карте кампании",show_page.bind("levels"))
 
 func _levels() -> void:
-	content.add_child(_label("ОСНОВНАЯ КАМПАНИЯ",28,GOLD))
-	var row := HBoxContainer.new(); content.add_child(row)
-	_button(row,"Казарма",show_page.bind("barracks")); _button(row,"Магазин",show_page.bind("shop"))
-	_button(row,"Бестиарий",show_page.bind("bestiary"))
-	content.add_child(_label("Герой: "+CampaignProgression.data()["players"][account["selected_hero"]]["name"]+"  ·  5 уровней / 50 битв"))
-	if not account["selected_ally"].is_empty(): content.add_child(_label("Союзник: "+CampaignProgression.data()["players"][account["selected_ally"]]["name"],18,BLUE))
-	var run: Dictionary = account["active_run"]
-	if not run.is_empty():
-		var panel := _panel(content)
-		panel.add_child(_label("Текущий поход · %d–%d · %s HP"%[run["level"],run["battle"],CampaignUnits.text(run["hp"])],22,BLUE))
-		panel.add_child(_label(_chest_summary(run),16,GOLD))
-		if not run["ally"].is_empty(): panel.add_child(_label("Союзник · %s · %s HP"%[CampaignProgression.data()["players"][run["ally"]["hero"]]["name"],CampaignUnits.text(run["ally"]["hp"])],18,BLUE))
-		_button(panel,"Выбрать награду" if run["status"]=="reward" else "Продолжить",_resume)
-		_button(panel,"Завершить поход…",_confirm_abandon)
-	for level in CampaignLevels.all():
-		var number := int(level["level"])
-		var unlocked := number<=int(account["unlocked_level"])
-		var wins := CampaignEconomy.completions(account,number)
-		var chest := CampaignEconomy.chest_type(number,wins)
-		_button(content,"%02d · %s · 10 волн\nПобед: %d · %s сундук · награды %d%%"%[number,level["name"],wins,CampaignEconomy.data()["chests"][chest]["name"],CampaignEconomy.reward_half_units(wins)*50],_start.bind(number),not unlocked or not run.is_empty())
-	if not account["last_result"].is_empty(): _button(content,"Последний результат и содержимое сундука",func() -> void:
+	level_map = preload("res://scenes/campaign/level_map.tscn").instantiate()
+	var current := CampaignMapData.current_level(account)
+	if current != _map_current: _map_center = -1.0
+	_map_current = current
+	level_map.account = account
+	level_map.initial_center = _map_center
+	level_map.warning = save_warning
+	level_map.home_requested.connect(_go_home)
+	level_map.shop_requested.connect(show_page.bind("shop"))
+	level_map.barracks_requested.connect(show_page.bind("barracks"))
+	level_map.bestiary_requested.connect(show_page.bind("bestiary"))
+	level_map.result_requested.connect(func() -> void:
 		show_page("complete" if account["last_result"]["won"] else "defeat"))
-	if account["next_bonus"].has("6"): content.add_child(_label("Бонус для будущего уровня 6 сохранён. Уровень ещё не создан.",16,GOLD))
+	level_map.resume_requested.connect(_resume)
+	level_map.abandon_requested.connect(_confirm_abandon)
+	level_map.retry_requested.connect(func() -> void:
+		if _save(): save_warning = ""
+		show_page("levels"))
+	level_map.level_requested.connect(func(number: int) -> void:
+		if account["active_run"].is_empty(): _start(number)
+		elif int(account["active_run"]["level"]) == number: _resume())
+	page_root.add_child(level_map)
+
+func _go_home() -> void:
+	if not _save():
+		show_page("levels")
+		return
+	save_warning = ""
+	home_requested.emit()
 
 func _confirm_abandon() -> void:
 	var dialog := ConfirmationDialog.new(); dialog.title="Завершить поход?"
