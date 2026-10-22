@@ -8,7 +8,7 @@ signal bestiary_requested
 signal level_requested(number: int)
 const HUD := preload("res://scripts/campaign/map/art/hud.gd")
 const SCENERY := preload("res://scripts/campaign/map/art/scenery.gd")
-const POSITIONS := [Vector2(220,178),Vector2(650,245),Vector2(1080,160)]
+const POSITIONS := [Vector2(220,108),Vector2(650,175),Vector2(1080,90)]
 const NUMBERS := [1,2,5]
 var account: Dictionary = {}
 var level_nodes: Array[Button] = []
@@ -25,6 +25,7 @@ var _zoom := 1.0
 var _previous_width := 0.0
 
 func _ready() -> void:
+	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	if account.is_empty(): account=CampaignProgression.new_account()
 	art_root=Control.new(); art_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	art_root.mouse_filter=Control.MOUSE_FILTER_IGNORE; art_root.clip_contents=true; add_child(art_root)
@@ -37,7 +38,7 @@ func _ready() -> void:
 	for index in NUMBERS.size():
 		var node := preload("res://scripts/campaign/map/art/level_node.gd").new()
 		node.entry=all[NUMBERS[index]-1].duplicate(true)
-		node.position=POSITIONS[index]-Vector2(130,0)
+		node.position=POSITIONS[index]-Vector2(150,0)
 		node.pressed.connect(_activate.bind(NUMBERS[index])); middle.add_child(node); level_nodes.append(node)
 	lower=SCENERY.new(); lower.asset="foreground"; art_root.add_child(lower)
 	# Texture-only foreground must not occlude UI input or live in the middle layer.
