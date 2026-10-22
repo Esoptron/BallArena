@@ -56,7 +56,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 0,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        220,
+        108
+      ]
     },
     {
       "id": "level_02",
@@ -73,7 +77,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 1,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        650,
+        175
+      ]
     },
     {
       "id": "level_03",
@@ -90,7 +98,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 2,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        1080,
+        90
+      ]
     },
     {
       "id": "level_04",
@@ -107,7 +119,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 3,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        1510,
+        155
+      ]
     },
     {
       "id": "level_05",
@@ -124,7 +140,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 4,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        1940,
+        115
+      ]
     },
     {
       "id": "level_06",
@@ -141,7 +161,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 5,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        2370,
+        170
+      ]
     },
     {
       "id": "level_07",
@@ -158,7 +182,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 6,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        2800,
+        105
+      ]
     },
     {
       "id": "level_08",
@@ -175,7 +203,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 7,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        3230,
+        160
+      ]
     },
     {
       "id": "level_09",
@@ -192,7 +224,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 8,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        3660,
+        125
+      ]
     },
     {
       "id": "level_10",
@@ -209,7 +245,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 9,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        4090,
+        180
+      ]
     },
     {
       "id": "level_11",
@@ -226,7 +266,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 10,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        4520,
+        108
+      ]
     },
     {
       "id": "level_12",
@@ -243,7 +287,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 11,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        4950,
+        175
+      ]
     },
     {
       "id": "level_13",
@@ -260,7 +308,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 12,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        5380,
+        90
+      ]
     },
     {
       "id": "level_14",
@@ -277,7 +329,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 13,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        5810,
+        155
+      ]
     },
     {
       "id": "level_15",
@@ -294,7 +350,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 14,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        6240,
+        115
+      ]
     },
     {
       "id": "level_16",
@@ -311,7 +371,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 15,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        6670,
+        170
+      ]
     },
     {
       "id": "level_17",
@@ -328,7 +392,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 16,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        7100,
+        105
+      ]
     },
     {
       "id": "level_18",
@@ -345,7 +413,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 17,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        7530,
+        160
+      ]
     },
     {
       "id": "level_19",
@@ -362,7 +434,11 @@
       "boss_icon_texture": "",
       "unlock_requirement": 18,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        7960,
+        125
+      ]
     },
     {
       "id": "level_20",
@@ -379,12 +455,22 @@
       "boss_icon_texture": "",
       "unlock_requirement": 19,
       "zone_id": "citadel",
-      "markers": []
+      "markers": [],
+      "painted_position": [
+        8390,
+        180
+      ]
     }
   ],
   "zones": {
     "citadel": {
       "name": "Цитадель"
     }
+  },
+  "painted": {
+    "design_height": 600,
+    "terminal_gap": 330,
+    "terminal_width": 900,
+    "fog_density": 0.98
   }
 }

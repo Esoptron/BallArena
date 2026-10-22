@@ -52,6 +52,15 @@ static func end_position(entries_value: Array[Dictionary]) -> Vector2:
 	for entry in entries_value: right = maxf(right, position_of(entry).x)
 	return Vector2(right + float(config()["terminal"]["gap"]), 0)
 
+static func painted_position_of(entry: Dictionary) -> Vector2:
+	var point: Array=entry["painted_position"]
+	return Vector2(point[0],point[1])
+
+static func painted_end_position(entries_value: Array[Dictionary]) -> Vector2:
+	var right := 0.0
+	for entry in entries_value: right=maxf(right,painted_position_of(entry).x)
+	return Vector2(right+float(config()["painted"]["terminal_gap"]),0)
+
 static func validation_errors() -> PackedStringArray:
 	var errors := PackedStringArray()
 	var ids := {}; var numbers := {}
@@ -62,4 +71,6 @@ static func validation_errors() -> PackedStringArray:
 		if not config()["chest_skins"].has(entry["chest_type"]): errors.append("Unknown chest skin")
 		var point := position_of(entry)
 		if not point.is_finite() or point.x < 0 or point.y < 148 or point.y > float(config()["design_height"]) - 36: errors.append("Map position outside design bounds")
+		var painted := painted_position_of(entry)
+		if not painted.is_finite() or painted.x<150 or painted.y<80 or painted.y+400>float(config()["painted"]["design_height"]): errors.append("Painted position outside design bounds")
 	return errors
