@@ -1,0 +1,30 @@
+{
+  "files": {
+    "coliseum": "coliseum-v2.png",
+    "foreground": "foreground-v2.png",
+    "level_base": "level-base-v2.png",
+    "chest_bronze": "chest-bronze-v2.png",
+    "chest_gold": "chest-gold-v2.png",
+    "chest_diamond": "chest-diamond-v2.png",
+    "ui": "ui-atlas-v2.png"
+  },
+  "atlas_source_size": [1254, 1254],
+  "ui_regions": {
+    "home": [20, 120, 335, 280],
+    "shop": [360, 20, 474, 380],
+    "resource_bar": [834, 180, 400, 168],
+    "arrow": [20, 476, 355, 296],
+    "jump": [410, 475, 360, 300],
+    "nav_plate": [810, 530, 420, 210],
+    "energy": [65, 805, 300, 390],
+    "coin": [410, 810, 370, 385],
+    "diamond": [820, 810, 400, 385]
+  },
+  "node": {
+    "extent": [300, 400],
+    "portrait_inset": [104, 158, 95, 82],
+    "number": [70, 76, 160, 58],
+    "chest": [190, 176, 110, 110],
+    "status": [48, 300, 200, 28]
+  }
+}
