@@ -35,7 +35,9 @@ static func texture(key: String) -> Texture2D:
 static func frame(key: String = "panel", margin: int = 12) -> StyleBoxTexture:
 	var box := StyleBoxTexture.new()
 	box.texture=texture(key)
-	var border := 22.0 if key in ["panel","steel","card"] else 30.0
+	# Small controls stretch the complete painted bevel. A 30px nine-slice on
+	# a 44px touch button would consume its whole centre and collapse into rails.
+	var border := 12.0 if key in ["panel","steel","card"] else 0.0
 	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:
 		box.set_texture_margin(side,border)
 		box.set_content_margin(side,margin)

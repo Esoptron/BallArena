@@ -23,6 +23,7 @@ func _ready() -> void:
 		button.add_child(margin)
 		var row := UI.row(margin,2); row.mouse_filter=Control.MOUSE_FILTER_IGNORE
 		var preview := PREVIEW.new(); preview.custom_minimum_size=Vector2(48,48)
+		preview.render_size=Vector2i(128,128)
 		row.add_child(preview); previews[id]=preview
 		var text := UI.label(CampaignProgression.data()["players"][id]["name"],15)
 		text.size_flags_horizontal=Control.SIZE_EXPAND_FILL; row.add_child(text)

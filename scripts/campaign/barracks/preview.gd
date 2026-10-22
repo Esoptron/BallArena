@@ -7,10 +7,11 @@ var image: TextureRect
 var _signature := ""
 var weapon_only := false
 var hero_id := ""
+var render_size := Vector2i(480,480)
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
-	viewport=SubViewport.new(); viewport.size=Vector2i(480,480)
+	viewport=SubViewport.new(); viewport.size=render_size
 	viewport.transparent_bg=true; viewport.world_2d=World2D.new()
 	viewport.render_target_update_mode=SubViewport.UPDATE_DISABLED
 	viewport.gui_disable_input=true; viewport.disable_3d=true
@@ -32,10 +33,7 @@ func display(id: String, account: Dictionary, just_weapon: bool = false) -> void
 	actor.linear_velocity=Vector2.ZERO
 	# Keep real proportions and the exact compiled weapon. Presentation scale is
 	# uniform; no body, reach, rank, colour or model data is edited.
-	var s: Dictionary=profile["stats"]
-	var extent := float(s["diameter"])+float(s["weapon_length"])
-	var zoom := minf(3.8,350.0/maxf(extent,70))
-	actor.scale=Vector2.ONE*zoom; actor.position=Vector2(212,286)
+	actor.position=Vector2.ZERO
 	for child in actor.get_children():
 		if child is CombatAbility:
 			if child.has_method("_process"): child.call("_process",0.0)
@@ -44,10 +42,38 @@ func display(id: String, account: Dictionary, just_weapon: bool = false) -> void
 	for node_name in ["HealthDisplay","CooldownIndicator","BerserkIndicator"]:
 		var indicator := actor.get_node_or_null(NodePath(node_name)) as CanvasItem
 		if indicator: indicator.hide()
-	if just_weapon: actor.self_modulate=Color(1,1,1,0)
+	if just_weapon:
+		actor.self_modulate=Color(1,1,1,0)
+		actor.get_node("OrdinaryBallArt").hide()
+		actor.get_node("ApprovedVampireArt/BodyAndFur").hide()
+	_fit_portrait(just_weapon)
 	actor.queue_redraw()
 	viewport.render_target_update_mode=SubViewport.UPDATE_ONCE
 
+func _fit_portrait(just_weapon: bool) -> void:
+	# Fit the actual collision segments, not a hand-picked scale per hero. The
+	# body remains proportionate and long/dual weapons stay inside the portrait.
+	var r := actor.diameter*0.5
+	var bounds := Rect2(Vector2(-r,-r),Vector2.ONE*r*2)
+	var has_weapon := false
+	for child in actor.get_children():
+		if child is SwordAbility and child.is_enabled():
+			for segment in child.current_weapon_segments():
+				for point in segment:
+					if just_weapon and not has_weapon: bounds=Rect2(point,Vector2.ONE)
+					else: bounds=bounds.expand(point)
+					has_weapon=true
+	if hero_id=="vampire":
+		bounds=Rect2(Vector2(-r,-r if not just_weapon else r*0.4),Vector2(r*2,r*(2.55 if not just_weapon else 1.15)))
+	bounds=bounds.grow(12.0 if has_weapon else 3.0)
+	var area := Vector2(render_size)*0.88
+	var zoom := minf(area.x/bounds.size.x,area.y/bounds.size.y)
+	actor.scale=Vector2.ONE*zoom
+	actor.position=Vector2(render_size)*0.5-bounds.get_center()*zoom
+
 func _freeze_tree(node: Node) -> void:
+	# _ready ran before CharacterCatalog.apply. Refresh every visual once with
+	# the final profile, including nested body-art visibility and materials.
+	if node.has_method("_process"): node.call("_process",0.0)
 	node.set_process(false); node.set_physics_process(false)
 	for child in node.get_children(): _freeze_tree(child)

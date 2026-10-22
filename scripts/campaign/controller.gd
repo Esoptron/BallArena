@@ -4,12 +4,13 @@ signal home_requested
 const STYLES := preload("res://scripts/ui/menu_styles.gd")
 const BLUE := Color("83b2ff")
 const GOLD := Color("e2b46d")
-const NAMES := {"hp":"Макс. HP", "speed":"Скорость", "spin":"Вращение", "damage":"Урон", "hit_growth":"Прирост урона за попадание", "healing":"Лечение за укус", "heal_growth":"Прирост лечения за укус", "chance_growth":"Прирост шанса кровотечения", "recovery":"Восстановление после боя"}
 var account := CampaignProgression.new_account()
 var page := "levels"
 var content: VBoxContainer
 var page_root: Control
 var level_map: Control
+var barracks_view: Control
+var _barracks_tab := 0
 var _map_center := -1.0
 var _map_current := -1
 var battle_view: Node2D
@@ -67,6 +68,8 @@ func _panel(parent: Node) -> VBoxContainer:
 func _clear_page() -> void:
 	if is_instance_valid(level_map): _map_center = level_map.center_on_map()
 	level_map = null
+	if is_instance_valid(barracks_view): _barracks_tab=barracks_view.active_tab
+	barracks_view=null
 	if is_instance_valid(page_root): remove_child(page_root); page_root.queue_free()
 	page_root=Control.new(); page_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(page_root)
 	content=null
@@ -78,6 +81,9 @@ func show_page(next: String) -> void:
 		return
 	if next == "map_art_preview" and not save_blocked:
 		_art_preview()
+		return
+	if next == "barracks" and not save_blocked:
+		_barracks()
 		return
 	var background := ColorRect.new(); background.color=Color("090f1b")
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); page_root.add_child(background)
@@ -101,7 +107,6 @@ func show_page(next: String) -> void:
 		return
 	match next:
 		"levels": _levels()
-		"barracks": _barracks()
 		"shop": _shop()
 		"bestiary": content.add_child(preload("res://scripts/campaign/bestiary.gd").new())
 		"reward": _reward()
@@ -295,95 +300,55 @@ func _choose(index: int) -> void:
 	show_page("complete") if boss else _resume()
 
 func _barracks() -> void:
-	content.add_child(_label("Казарма · постоянные улучшения",28,GOLD))
-	var choices := HBoxContainer.new(); content.add_child(choices)
-	for id in CampaignProgression.playable_ids():
-		_button(choices,CampaignProgression.data()["players"][id]["name"]+(" 🔒" if not account["heroes"][id]["owned"] else ""),_select.bind(id))
-	var id: String = viewed_hero if not viewed_hero.is_empty() else account["selected_hero"]
-	var stats := CampaignProgression.stats(id,account)
-	var box := _panel(content)
-	box.add_child(_label(stats["name"],28,BLUE))
-	var unavailable: bool=not account["active_run"].is_empty() or not account["heroes"][id]["owned"]
-	var selection := HBoxContainer.new(); box.add_child(selection)
-	_button(selection,"Основной герой ✓" if account["selected_hero"]==id else "Выбрать основным",_choose_hero.bind(id),unavailable or account["selected_hero"]==id)
-	if account["features"]["ally_slot_owned"]:
-		_button(selection,"Союзник ✓" if account["selected_ally"]==id else "Выбрать союзником",_select_ally.bind(id),unavailable or account["selected_ally"]==id)
-		if not account["selected_ally"].is_empty(): _button(box,"Убрать союзника",_select_ally.bind(""),not account["active_run"].is_empty())
-	else: box.add_child(_label("Второй боец выбирается здесь после покупки слота союзника в магазине.",16,GOLD))
-	_portrait(box,id)
-	var summary := "HP %.2f · скорость %.0f · урон %.2f (+%.2f за попадание)\nВращение %.2f рад/с (%.2f об/с) · оружие %.2f / %.2f · кулдаун %.1f с\nМасса %.2f · вес тела %s · вес оружия %s\nСпособность %.2f%% · восстановление после боя %.0f%%"%[
-		stats["max_hp"],stats["speed"],stats["damage"],stats["hit_growth"],stats["spin"],stats["spin"]/TAU,stats["weapon_length"],stats["full_length"],stats["cooldown"],stats["mass"],_weight(stats["body_weight"]),_weight(stats["weapon_weight"]),stats["chance"]*100,stats["recovery"]*100]
-	if id=="vampire": summary+="\nЛечение %.2f (+%.2f за полный укус). Охота при %.2f HP. Дальность клыков не меняется."%[stats["healing"],stats["heal_growth"],stats["base_hp"]*stats["chance"]]
-	if id=="katana": summary+="\nКровотечение %.2f HP/с за каждый крит до конца боя; шанс +%.2f п.п./попадание."%[stats["bleed_damage"],stats["chance_growth"]*100]
-	var profile := CampaignProfiles.hero(id,account)["definition"] as CharacterDefinition
-	var params := profile.abilities[0].parameters
-	summary+="\nНачальное HP без рангов: %.2f · длительность способности %.1f с"%[CampaignProgression.data()["players"][id]["hp"],stats["duration"]]
-	if id=="knifeman": summary+="\nКонтратака %.2f%% за тик захвата · прирост вращения %.2f рад/с за попадание"%[stats["chance"]*100,params["spin_gain"]]
-	if id=="club": summary+="\nШанс удара о стену %.2f%% · урон %.0f%% макс. HP · щит %.1f%% / %.1f с"%[stats["chance"]*100,params["wall_burst_fraction"]*100,params["shield_chance"]*100,params["shield_duration"]]
-	if stats["damage_cap"]>0: summary+="\nПотолок роста урона в одном бою: %.2f; растёт с постоянным уроном."%stats["damage_cap"]
-	box.add_child(_label(summary))
-	var locked: bool = not account["active_run"].is_empty() or not account["heroes"][id]["owned"]
-	if locked: box.add_child(_label("Откройте героя в магазине; постоянная прокачка доступна вне похода.",16,GOLD))
-	for skill in CampaignProgression.data()["players"][id]["xp_skills"]:
-		var price := CampaignProgression.xp_cost(account,id,skill)
-		var next_account := account.duplicate(true)
-		next_account["heroes"][id]["ranks"][skill]=CampaignProgression.rank(account,id,skill)+1
-		var future := CampaignProgression.stats(id,next_account)
-		var stat_key: String = {"hp":"max_hp","recovery":"recovery"}.get(skill,skill)
-		var old := float(stats[stat_key]); var after := float(future[stat_key])
-		if skill in ["recovery","chance_growth"]: old*=100; after*=100
-		_button(box,"%s · ранг %d · %.2f → %.2f · %s XP"%[NAMES[skill],CampaignProgression.rank(account,id,skill),old,after,str(price) if price>=0 else "макс."],_upgrade.bind(id,skill),locked or price<0 or account["xp"]<price)
-	var coin_price := CampaignProgression.coin_cost(account,id)
-	_button(box,"Тренировать способность · %s монет"%(str(coin_price) if coin_price>=0 else "максимум"),_upgrade.bind(id,"ability"),locked or coin_price<0 or account["coins"]<coin_price)
-	_weapons(box,id,locked)
-	var evo: Dictionary = account["heroes"][id]["evolution"]
-	box.add_child(_label("Карточки героя: %s / 1 для открытия"%CampaignEconomy.text(account["heroes"][id]["unlock_card_units"]),16,BLUE))
-	box.add_child(_label("Эволюция: %s / %d дополнительных карточек · %s. Способность пока не определена; карты не расходуются."%[CampaignEconomy.text(evo["card_units"]),CampaignEconomy.data()["evolution_extra_cards"],"карты собраны" if CampaignProgression.evolution_ready(account,id) else "сбор карт"],16,GOLD))
+	barracks_view=preload("res://scenes/campaign/barracks.tscn").instantiate()
+	barracks_view.account=account
+	barracks_view.hero_id=viewed_hero if CampaignProgression.playable_ids().has(viewed_hero) else account["selected_hero"]
+	barracks_view.active_tab=_barracks_tab; barracks_view.warning=save_warning
+	barracks_view.back_requested.connect(back)
+	barracks_view.shop_requested.connect(show_page.bind("shop"))
+	barracks_view.hero_selected.connect(func(id: String) -> void: viewed_hero=id)
+	barracks_view.primary_requested.connect(_choose_hero)
+	barracks_view.ally_requested.connect(_select_ally)
+	barracks_view.upgrade_requested.connect(_upgrade)
+	barracks_view.merge_requested.connect(_merge)
+	barracks_view.retry_requested.connect(func() -> void:
+		if _save(): save_warning=""
+		_refresh_barracks())
+	page_root.add_child(barracks_view)
 
-static func _weight(value: int) -> String: return ["лёгкий","легче среднего","средний","тяжелее среднего","тяжёлый"][value]
+func _refresh_barracks() -> void:
+	if is_instance_valid(barracks_view): barracks_view.refresh(account,save_warning)
+	else: show_page("barracks")
+
 func _select(id: String) -> void:
 	viewed_hero=id
-	show_page("barracks")
+	if is_instance_valid(barracks_view): barracks_view.select_hero(id)
+	else: show_page("barracks")
 
 func _choose_hero(id: String) -> void:
 	if not account["active_run"].is_empty() or not account["heroes"][id]["owned"]: return
 	var candidate := account.duplicate(true); candidate["selected_hero"]=id
-	_commit_account(candidate); show_page("barracks")
+	_commit_account(candidate); _refresh_barracks()
 
 func _select_ally(id: String) -> void:
 	var candidate := account.duplicate(true)
-	if CampaignProgression.select_ally(candidate,id): _commit_account(candidate); show_page("barracks")
+	if CampaignProgression.select_ally(candidate,id): _commit_account(candidate); _refresh_barracks()
 
-func _portrait(parent: Node, id: String) -> void:
-	var space := Control.new(); space.custom_minimum_size=Vector2(200,150); space.mouse_filter=Control.MOUSE_FILTER_IGNORE; parent.add_child(space)
-	var actor := CampaignProfiles.create_actor(CampaignProfiles.hero(id,account),space)
-	actor.position=Vector2(105,78); actor.freeze=true; actor.collision_layer=0; actor.collision_mask=0
-	for child in actor.get_children():
-		child.set_physics_process(false)
-		if child.has_method("_process"): child.call("_process",0.0)
-		child.set_process(false)
-	actor.set_physics_process(false); actor.set_process(false)
-	for name_value in ["HealthDisplay","CooldownIndicator","BerserkIndicator"]: actor.get_node(name_value).hide()
 func _upgrade(id: String, skill: String) -> void:
 	if not account["active_run"].is_empty(): return
 	var candidate := account.duplicate(true)
-	if CampaignProgression.upgrade(candidate,id,skill): _commit_account(candidate); show_page("barracks")
+	if CampaignProgression.upgrade(candidate,id,skill):
+		var saved := _commit_account(candidate)
+		_refresh_barracks()
+		if saved and is_instance_valid(barracks_view): barracks_view.feedback("upgrade",skill)
 
-func _weapons(box: VBoxContainer, id: String, _locked: bool) -> void:
-	if id=="vampire": box.add_child(_label("Исключение: длина клыков остаётся исходной на всех ступенях. Карточки и мердж учитываются.",16,GOLD))
-	var hero: Dictionary = account["heroes"][id]
-	var factors: Array=CampaignEconomy.data()["weapon_length_factors"]
-	var copies := int(CampaignEconomy.data()["merge_copies"])
-	var units := copies*int(CampaignEconomy.data()["card_scale"])
-	box.add_child(_label("Оружие · длина %.0f%% · ступень %d/7"%[100.0 if id=="vampire" else float(factors[int(hero["weapon_stage"])] )*100,int(hero["weapon_stage"])+1],22,BLUE))
-	for tier in factors.size():
-		var text := "Ступень %d · %.0f%% · %s карточки"%[tier+1,float(factors[tier])*100,CampaignEconomy.text(hero["weapon_cards"][tier])]
-		if tier<factors.size()-1: _button(box,text+" · слить %d → 1"%copies,_merge.bind(id,tier),not account["active_run"].is_empty() or int(hero["weapon_cards"][tier])<units)
-		else: box.add_child(_label(text,16,BLUE))
 func _merge(id: String, tier: int) -> void:
 	if not account["active_run"].is_empty(): return
 	var candidate := account.duplicate(true)
-	if CampaignProgression.merge(candidate,id,tier): _commit_account(candidate); show_page("barracks")
+	if CampaignProgression.merge(candidate,id,tier):
+		var saved := _commit_account(candidate)
+		_refresh_barracks()
+		if saved and is_instance_valid(barracks_view): barracks_view.feedback("merge")
 func _debug_weapon(id: String) -> void:
 	if not OS.is_debug_build() or not account["active_run"].is_empty(): return
 	var candidate := account.duplicate(true)

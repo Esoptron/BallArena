@@ -9,7 +9,7 @@ func capture(name: String, scroll: int = 0) -> void:
 		(controller.content.get_parent() as ScrollContainer).scroll_vertical=scroll
 	for frame in 3: await process_frame
 	await RenderingServer.frame_post_draw
-	var page: Control = controller.content if is_instance_valid(controller.content) else controller.level_map
+	var page: Control = controller.content if is_instance_valid(controller.content) else (controller.barracks_view if is_instance_valid(controller.barracks_view) else controller.level_map)
 	assert(page.size.x<=viewport.size.x)
 	assert(viewport.get_texture().get_image().save_png(output.get_basename()+"-"+name+".png")==OK)
 func win_wave() -> void:
@@ -28,7 +28,7 @@ func run() -> void:
 	controller.show_page("levels"); await capture("levels-mobile")
 	controller.show_page("shop"); await capture("shop-mobile"); await capture("shop-epic-mobile",650)
 	controller.account["heroes"]["club"]["weapon_cards"][0]=3
-	controller.viewed_hero="club"; controller.show_page("barracks"); await capture("inventory-half-mobile",1000)
+	controller.viewed_hero="club"; controller.show_page("barracks"); controller.barracks_view.set_tab(2); await capture("inventory-half-mobile",1000)
 	controller.account=CampaignProgression.new_account(); controller.account["completions"]={"1":2}
 	assert(CampaignRun.start(controller.account,1,"swordsman",789))
 	for wave in 9: win_wave(); assert(CampaignRun.choose(controller.account,0))
