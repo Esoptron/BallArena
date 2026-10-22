@@ -52,16 +52,16 @@ static func details(id: String, account: Dictionary) -> Array:
 	var definition: CharacterDefinition=CampaignProfiles.hero(id,account)["definition"]
 	var p: Dictionary=definition.abilities[0].parameters
 	var rows := [["Масса тела","%.2f"%s["mass"]],["Вес тела",weight(s["body_weight"])],["Вес оружия",weight(s["weapon_weight"])],
-		["Длина / базовая длина","%.2f / %.2f ед."%[s["weapon_length"],s["full_length"]]],
+		["Диаметр тела","%.2f ед."%s["diameter"]],["Длина / базовая длина","%.2f / %.2f ед."%[s["weapon_length"],s["full_length"]]],
 		["Вращение","%.2f рад/с · %.2f об/с"%[s["spin"],s["spin"]/TAU]],
 		["Кулдаун","%.2f с"%s["cooldown"]],["Урон за попадание","+%.2f"%s["hit_growth"]],
 		["Предел урона в бою","%.2f"%s["damage_cap"] if s["damage_cap"]>0 else "Без ограничения"],
 		["Восстановление после боя","%.2f%%"%(s["recovery"]*100)],
 		["Длительность способности","%.2f с"%s["duration"]]]
 	match id:
-		"swordsman": rows.append_array([["Вращение в берсерке","×%.1f"%p["berserk_spin_multiplier"]],["Кулдаун в берсерке","%.2f с"%p["berserk_hit_cooldown"]]])
-		"knifeman": rows.append_array([["Прирост вращения","+%.2f рад/с"%p["spin_gain"]],["Урон контратаки","%.0f%% текущего HP"%(p["capture_counter_hp_fraction"]*100)]])
+		"swordsman": rows.append_array([["Вращение в берсерке","×%.1f"%p["berserk_spin_multiplier"]],["Кулдаун в берсерке","%.2f с"%p["berserk_hit_cooldown"]],["Замедление меча после удара","×%.2f · %.1f с"%[p["post_hit_speed_ratio"],p["post_hit_slow_duration"]]],["Рост скорости за удар","+%.2f; предел %.2f"%[p["speed_gain"],p["max_speed"]]]])
+		"knifeman": rows.append_array([["Прирост вращения","+%.2f рад/с"%p["spin_gain"]],["Предел вращения в бою","%.2f рад/с"%p["max_spin_speed"]],["Урон контратаки","%.0f%% текущего HP"%(p["capture_counter_hp_fraction"]*100)]])
 		"katana": rows.append_array([["Рост шанса крови за удар","%.2f%%"%(s["chance_growth"]*100)],["Кровотечение за эффект","%.2f HP / с"%s["bleed_damage"]],["Длительность кровотечения","До конца боя; эффекты складываются"]])
-		"vampire": rows.append_array([["Лечение за укус","%.2f HP"%s["healing"]],["Рост лечения за укус","+%.2f HP"%s["heal_growth"]],["Порог охоты","%.2f HP"%(s["base_hp"]*s["chance"])],["Задержка охоты","%.1f с"%p["hunt_delay"]],["Охота","Один раз за бой"]])
+		"vampire": rows.append_array([["Лечение за укус","%.2f HP"%s["healing"]],["Тиков за укус",str(p["bite_units"])],["Рост лечения за укус","+%.2f HP"%s["heal_growth"]],["Порог охоты","%.2f HP"%(s["base_hp"]*s["chance"])],["Задержка охоты","%.1f с"%p["hunt_delay"]],["Ускорение охоты","+%.0f%%"%(p["hunt_speed_bonus"]*100)],["Охота","Один раз за бой"]])
 		"club": rows.append_array([["Урон от стены","%.0f%% макс. HP"%(p["wall_burst_fraction"]*100)],["Окно удара о стену","%.2f с"%p["wall_burst_window"]],["Щит при входящем ударе","%.1f%% · %.1f с"%[p["shield_chance"]*100,p["shield_duration"]]]])
 	return rows

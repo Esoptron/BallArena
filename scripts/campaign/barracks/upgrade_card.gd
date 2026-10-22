@@ -37,7 +37,7 @@ func configure(account: Dictionary, id: String, key: String) -> void:
 	footer.add_child(UI.icon("coin" if key=="ability" else "xp",25))
 	footer.add_child(UI.label(str(cost) if cost>=0 else "Макс.",15,UI.GOLD))
 	var spacer := Control.new(); spacer.size_flags_horizontal=Control.SIZE_EXPAND_FILL; footer.add_child(spacer)
-	action=UI.button("Тренировать" if key=="ability" else "Улучшить",func() -> void: requested.emit(skill))
+	action=UI.button("Тренировать" if key=="ability" else "Улучшить",func() -> void: requested.emit(skill),reason.is_empty())
 	action.add_theme_font_size_override("font_size",14); action.disabled=not reason.is_empty(); footer.add_child(action)
 	if not reason.is_empty(): box.add_child(UI.paragraph(reason,13,UI.MUTED))
 	if id=="vampire" and key=="ability": box.add_child(UI.paragraph("Доля базового HP для запуска Охоты, а не вероятность события.",14,UI.GOLD))

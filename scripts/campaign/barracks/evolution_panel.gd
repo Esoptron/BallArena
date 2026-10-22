@@ -36,12 +36,12 @@ func refresh(account: Dictionary, id: String) -> void:
 	evolution_button.disabled=true; add_child(evolution_button)
 	add_child(UI.paragraph("Новая форма и её способности появятся позже. Сейчас карточки не расходуются; дополнительных требований нет.",14))
 	add_child(UI.button("Как получить?",_show_help))
-	help=AcceptDialog.new(); help.title="Карточки персонажей"; add_child(help)
-	var lines := ["Карточки выдаются из сундука после победы над боссом и прохождения всех 10 волн."]
+	help=UI.dialog("Карточки персонажей"); add_child(help)
+	var lines := ["Сундук открывается после 10 волн и победы над боссом.","Шанс карточки героя за каждую пройденную волну:"]
 	for chest in CampaignEconomy.data()["chests"].values():
 		lines.append("%s: %.0f%% за завершённую волну."%[chest["name"],float(chest["character_chance"])*100])
-	lines.append("Первая целая карточка открывает героя; дополнительные копии идут в эволюцию. Героя также можно купить в магазине. Выпадение не гарантировано.")
-	help.dialog_text="\n\n".join(lines)
+	lines.append("Первая целая карточка открывает героя. Дубликаты идут в эволюцию; половинки накапливаются. Героя также можно купить в магазине. Выпадение не гарантировано.")
+	help.dialog_text="\n".join(lines)
 
 func _show_help() -> void:
-	help.popup_centered(Vector2i(mini(500,int(get_viewport_rect().size.x)-48),260))
+	help.popup_centered(Vector2i(mini(500,int(get_viewport_rect().size.x)-48),mini(340,int(get_viewport_rect().size.y)-48)))

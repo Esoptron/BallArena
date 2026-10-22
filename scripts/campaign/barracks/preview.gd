@@ -8,6 +8,8 @@ var _signature := ""
 var weapon_only := false
 var hero_id := ""
 var render_size := Vector2i(480,480)
+var compact := false
+var _account: Dictionary = {}
 
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -23,7 +25,8 @@ func _ready() -> void:
 	image.texture=viewport.get_texture(); add_child(image)
 
 func display(id: String, account: Dictionary, just_weapon: bool = false) -> void:
-	var signature := id+str(CampaignProgression.stats(id,account))+str(just_weapon)
+	_account=account
+	var signature := id+str(CampaignProgression.stats(id,account))+str(just_weapon)+str(compact)
 	if signature==_signature: return
 	_signature=signature; hero_id=id; weapon_only=just_weapon
 	if is_instance_valid(actor): viewport.remove_child(actor); actor.free()
@@ -37,7 +40,7 @@ func display(id: String, account: Dictionary, just_weapon: bool = false) -> void
 	for child in actor.get_children():
 		if child is CombatAbility:
 			if child.has_method("_process"): child.call("_process",0.0)
-			child.rotation=PI if id=="vampire" else -PI*0.27
+			child.rotation=PI if id=="vampire" else (0.0 if compact else -PI*0.27)
 	_freeze_tree(actor)
 	for node_name in ["HealthDisplay","CooldownIndicator","BerserkIndicator"]:
 		var indicator := actor.get_node_or_null(NodePath(node_name)) as CanvasItem
@@ -49,6 +52,14 @@ func display(id: String, account: Dictionary, just_weapon: bool = false) -> void
 	_fit_portrait(just_weapon)
 	actor.queue_redraw()
 	viewport.render_target_update_mode=SubViewport.UPDATE_ONCE
+
+func set_compact(value: bool) -> void:
+	if compact==value: return
+	compact=value
+	render_size=Vector2i(720,300) if compact else Vector2i(480,480)
+	if is_instance_valid(viewport):
+		viewport.size=render_size
+		if not _account.is_empty(): display(hero_id,_account,weapon_only)
 
 func _fit_portrait(just_weapon: bool) -> void:
 	# Fit the actual collision segments, not a hand-picked scale per hero. The
@@ -65,7 +76,7 @@ func _fit_portrait(just_weapon: bool) -> void:
 					has_weapon=true
 	if hero_id=="vampire":
 		bounds=Rect2(Vector2(-r,-r if not just_weapon else r*0.4),Vector2(r*2,r*(2.55 if not just_weapon else 1.15)))
-	bounds=bounds.grow(12.0 if has_weapon else 3.0)
+	bounds=bounds.grow((4.0 if compact else 12.0) if has_weapon else 3.0)
 	var area := Vector2(render_size)*0.88
 	var zoom := minf(area.x/bounds.size.x,area.y/bounds.size.y)
 	actor.scale=Vector2.ONE*zoom

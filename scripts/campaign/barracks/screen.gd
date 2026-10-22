@@ -24,7 +24,6 @@ var local_scroll: ScrollContainer
 var warning_bar: HBoxContainer
 var warning_text: Label
 var margin: MarginContainer
-var _clock := 0.0
 var _background: TextureRect
 var _last_action_frame := -1
 var _content_box: VBoxContainer

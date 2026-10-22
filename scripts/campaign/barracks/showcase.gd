@@ -48,11 +48,15 @@ func _ready() -> void:
 	primary.size_flags_horizontal=Control.SIZE_EXPAND_FILL; actions.add_child(primary)
 	ally=UI.button("Союзник",func() -> void: ally_requested.emit(hero_id))
 	ally.size_flags_horizontal=Control.SIZE_EXPAND_FILL; actions.add_child(ally)
-	info=AcceptDialog.new(); info.title="Особенность героя"; info.min_size=Vector2i(320,100); add_child(info)
+	info=UI.dialog("Особенность героя"); info.min_size=Vector2i(320,100); add_child(info)
 	resized.connect(_layout); _layout()
 
 func _layout() -> void:
 	if is_instance_valid(brief): brief.visible=size.y>=330
+	if is_instance_valid(preview):
+		preview.set_compact(size.y<330)
+		preview.offset_top=100 if size.y>=330 else 50
+		preview.offset_bottom=-42
 
 func refresh(account: Dictionary, id: String) -> void:
 	var changed := hero_id!=id
@@ -80,7 +84,7 @@ func refresh(account: Dictionary, id: String) -> void:
 	if not owned:
 		var prices: PackedStringArray=[]
 		for currency in CampaignEconomy.prices(id): prices.append("%d %s"%[CampaignEconomy.prices(id)[currency],"монет" if currency=="coins" else "кристаллов"])
-		primary.text="Открыть · "+str(CampaignEconomy.prices(id).values()[0])
+		primary.text="Открыть · "+str(int(CampaignEconomy.prices(id).values()[0])) if not prices.is_empty() else "В магазин"
 		primary.tooltip_text="В магазине: "+" или ".join(prices)
 	description.tooltip_text=MODEL.DESCRIPTIONS[id]
 	brief.text=MODEL.DESCRIPTIONS[id]

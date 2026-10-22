@@ -43,7 +43,9 @@ static func style_button(item: Button, selected: bool) -> void:
 	item.add_theme_stylebox_override("hover",ART.frame("selected",10))
 	item.add_theme_stylebox_override("pressed",ART.frame("selected",10))
 	item.add_theme_stylebox_override("disabled",ART.frame("button",10))
-	item.add_theme_stylebox_override("focus",StyleBoxEmpty.new())
+	var focus := StyleBoxFlat.new(); focus.bg_color=Color.TRANSPARENT
+	focus.set_border_width_all(2); focus.border_color=GOLD; focus.set_corner_radius_all(5)
+	item.add_theme_stylebox_override("focus",focus)
 	item.add_theme_color_override("font_color",GOLD if selected else INK)
 	item.add_theme_color_override("font_disabled_color",Color("8995a9"))
 
@@ -72,6 +74,18 @@ static func progress(parent: Node, value: float, maximum: float, colour: Color =
 
 static func clear(parent: Node) -> void:
 	for child in parent.get_children(): parent.remove_child(child); child.queue_free()
+
+static func dialog(caption: String) -> AcceptDialog:
+	var item := AcceptDialog.new(); item.title=caption; item.dialog_autowrap=true
+	var theme := Theme.new()
+	theme.set_stylebox("panel","AcceptDialog",ART.frame("panel",16))
+	theme.set_stylebox("embedded_border","Window",ART.frame("steel",6))
+	for state in ["normal","hover","pressed","focus"]: theme.set_stylebox(state,"Button",ART.frame("selected" if state!="normal" else "button",10))
+	theme.set_font_size("font_size","Label",15); theme.set_color("font_color","Label",INK)
+	theme.set_font_size("font_size","Button",16); item.theme=theme
+	item.get_ok_button().custom_minimum_size=Vector2(120,44)
+	item.get_ok_button().text="Понятно"
+	return item
 
 static func flash(item: CanvasItem) -> void:
 	item.modulate=Color(1.35,1.2,0.75)
