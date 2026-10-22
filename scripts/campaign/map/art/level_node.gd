@@ -31,6 +31,7 @@ func _ready() -> void:
 	var geometry: Dictionary=ART.layout()["node"]
 	var base := image(self,"level_base",Vector2.ZERO,Vector2(geometry["extent"][0],geometry["extent"][1]))
 	base.name="BaseArt"
+	if entry["is_unavailable"]: base.modulate=Color("a5afc2")
 	var inset := ART.rect(geometry["portrait_inset"])
 	var slot := TextureRect.new()
 	slot.position=inset.position; slot.size=inset.size
@@ -42,20 +43,22 @@ func _ready() -> void:
 	var question := label("?",inset.position,inset.size,76,Color("f4efdb"))
 	question.name = "Question"; question.visible = slot.texture==null
 	var number_box := ART.rect(geometry["number"])
-	label(str(int(entry["level_number"])),number_box.position,number_box.size,49,Color("fff5da"))
+	var number := label(str(int(entry["level_number"])),number_box.position,number_box.size,49,Color("fff5da")); number.name="Number"
 	var chest_box := ART.rect(geometry["chest"])
 	var chest := image(self,"chest_"+entry["chest_type"],chest_box.position,chest_box.size)
 	chest.name = "Chest"
+	chest.visible=entry.get("show_chest",true)
 	var status_box := ART.rect(geometry["status"])
 	# Locked entries stay recognisable: retain their materials and dim the boss slot.
 	if disabled:
 		question.modulate = Color("a0b0bd")
-		label("ЗАКРЫТ",status_box.position,status_box.size,18,Color("bdc8d4"))
+		label("СКОРО" if entry["is_unavailable"] else "ЗАКРЫТ",status_box.position,status_box.size,18,Color("bdc8d4"))
 	elif entry["state"]=="current":
 		label("ТЕКУЩИЙ",status_box.position,status_box.size,18,Color("ffe5a0"))
 	else:
 		label("ПОБЕД: %d"%entry["completions"],status_box.position,status_box.size,18,Color("b6e9c3"))
-	tooltip_text = entry["name"]+" · "+("доступен" if not disabled else "сначала пройдите предыдущие уровни")
+	tooltip_text = entry["name"]+" · "+("доступен" if not disabled else ("пока не создан" if entry["is_unavailable"] else "сначала пройдите предыдущие уровни"))
+	if not entry["is_unavailable"]: tooltip_text+="\nПобед: %d · награды %d%%"%[entry["completions"],entry["reward_percent"]]
 	mouse_entered.connect(queue_redraw); mouse_exited.connect(queue_redraw)
 	focus_entered.connect(queue_redraw); focus_exited.connect(queue_redraw)
 

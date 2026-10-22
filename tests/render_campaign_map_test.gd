@@ -15,8 +15,16 @@ func run() -> void:
 	view=preload("res://scenes/campaign/level_map.tscn").instantiate(); layer.add_child(view)
 	await capture("-start-mobile")
 	assert(view.level_nodes[0].get_global_rect().size.x>100)
+	for number in [5,10,15,20]:
+		view.scroller.jump(CampaignMapData.painted_position_of(view.entries[number-1]).x*view._zoom-viewport.size.x*0.5)
+		await capture("-level%d-mobile"%number)
 	view.scroller.jump(view.scroller.maximum); await capture("-fog-mobile")
 	assert(view.terminal.is_processing())
+	assert(absf(view.terminal.get_global_rect().end.x-viewport.size.x)<1)
+	var drift: float=view.terminal.fog_material.get_shader_parameter("drift")
+	for frame in 45: await process_frame
+	assert(float(view.terminal.fog_material.get_shader_parameter("drift"))>drift)
+	await capture("-fog-drift-mobile")
 	view.free()
 	view=preload("res://scenes/campaign/level_map.tscn").instantiate()
 	view.account=CampaignProgression.new_account(); view.account["unlocked_level"]=5; view.account["completions"]={"1":1,"2":2,"3":1,"4":1}

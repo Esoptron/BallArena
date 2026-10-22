@@ -131,7 +131,6 @@ func _levels() -> void:
 	level_map.shop_requested.connect(show_page.bind("shop"))
 	level_map.barracks_requested.connect(show_page.bind("barracks"))
 	level_map.bestiary_requested.connect(show_page.bind("bestiary"))
-	level_map.art_preview_requested.connect(show_page.bind("map_art_preview"))
 	level_map.result_requested.connect(func() -> void:
 		show_page("complete" if account["last_result"]["won"] else "defeat"))
 	level_map.resume_requested.connect(_resume)
